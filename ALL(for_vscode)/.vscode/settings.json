@@ -1,0 +1,25 @@
+{
+    "cSpell.words": [
+        "modpacks"
+    ],
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#e50164",
+        "activityBar.background": "#e50164",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#1c3f00",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "commandCenter.border": "#e7e7e799",
+        "sash.hoverBorder": "#e50164",
+        "statusBar.background": "#b2014e",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#e50164",
+        "statusBarItem.remoteBackground": "#b2014e",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#b2014e",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#b2014e99",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "#B2014E"
+}

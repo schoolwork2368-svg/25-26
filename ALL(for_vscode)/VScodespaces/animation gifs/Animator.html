@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animator Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Sidebar transition */
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+
+        }
+        /* Custom dark scrollbar for Webkit browsers */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937; /* Corresponds to bg-gray-800 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563; /* Corresponds to bg-gray-600 */
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* Corresponds to bg-gray-500 */
+        }
+        #sidebarToggle {
+            transition: transform 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+
+    <div class="container mx-auto p-4">
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-4">
+            <h1 class="text-3xl font-bold text-center"><span class="border-b-4 border-blue-600">Animator</span></h1>
+            <p class="text-center text-gray-400 mt-2">A simple pixel art and animation tool.</p>
+        </div>
+
+        <!-- Sidebar Toggle Button -->
+        <button id="sidebarToggle" class="fixed top-1/2 -translate-y-1/2 left-0 z-20 bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-r-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+
+        <!-- Sidebar -->
+        <div id="sidebar" class="fixed top-0 left-0 h-full w-80 bg-gray-800 border-r border-gray-700 p-4 z-10 -translate-x-full overflow-y-auto">
+            <h2 class="text-2xl font-bold mb-4">Settings</h2>
+            
+            <!-- Grid Size -->
+            <div class="mb-4">
+                <label for="gridSize" class="block mb-1">Grid Size:</label>
+                <select id="gridSize" class="w-full bg-gray-700 border border-gray-600 rounded px-2 py-1">
+                    <option value="8">8x8</option>
+                    <option value="16" selected>16x16</option>
+                    <option value="32">32x32</option>
+                    <option value="64">64x64</option>
+                </select>
+            </div>
+
+            <!-- Tools -->
+            <div class="mb-4">
+                <h3 class="font-bold mb-2">Tools</h3>
+                <button id="undoBtn" title="Undo (Ctrl+Z)" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded w-full mb-2">Undo</button>
+                <button id="redoBtn" title="Redo (Ctrl+Y)" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded w-full mb-2">Redo</button>
+                <button id="eraserToggle" title="Eraser" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded w-full">Eraser</button>
+            </div>
+
+            <!-- Color Selection -->
+            <div class="mb-4">
+                <h3 class="font-bold mb-2">Colors</h3>
+                <div class="flex justify-between mb-2">
+                    <label for="primaryColor">Primary:</label>
+                    <input type="color" id="primaryColor" value="#FFFFFF" class="bg-gray-700">
+                </div>
+                <div class="flex justify-between mb-2">
+                    <label for="secondaryColor">Secondary:</label>
+                    <input type="color" id="secondaryColor" value="#000000" class="bg-gray-700">
+                </div>
+                <h4 class="text-sm text-gray-400 mb-1">History:</h4>
+                <div id="colorHistory" class="flex gap-2">
+                    <!-- Color history swatches will be inserted here by JS -->
+                </div>
+            </div>
+
+            <!-- Frames Timeline -->
+            <div class="border-t border-gray-700 pt-4">
+                <h2 class="text-xl font-bold mb-2">Frames</h2>
+                <div class="flex items-center gap-2">
+                    <div id="framesContainer" class="flex gap-2 overflow-x-auto pb-2"></div>
+                    <button id="addFrameBtn" class="px-3 py-1 bg-green-600 hover:bg-green-500 rounded-full text-lg font-bold flex-shrink-0">+</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex flex-col lg:flex-row gap-4">
+            <!-- Pixel Grid -->
+            <div class="flex-grow flex items-start justify-end transition-all duration-300" id="mainContent">
+                <div id="pixelGrid" class="grid border border-gray-600 cursor-crosshair" style="width: 342px; height: 342px;">
+                    <!-- Pixels will be generated by JS -->
+                </div>
+            </div>
+
+            <!-- Animation Preview & Controls -->
+            <div class="w-full lg:w-64 flex-shrink-0">
+                <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+                    <h2 class="text-xl font-bold mb-2">Preview</h2>
+                    <canvas id="animationPreview" class="w-full border border-gray-600 bg-white" width="128" height="128"></canvas>
+                    <div class="flex items-center gap-2 mt-2">
+                        <button id="playPauseBtn" class="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded w-full">Play</button>
+                        <label for="fpsRange">FPS:</label>
+                        <input type="range" id="fpsRange" min="1" max="24" value="4" class="w-full">
+                        <span id="fpsValue" class="w-8 text-center">4</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="animator.js"></script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Dev Concepts</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        // Apply theme from localStorage before the page loads to prevent flashing
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') document.documentElement.classList.add('light-mode');
+    </script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">Web Dev Hub</a>
+        <div class="nav-right-section">
+            <div class="search-container" id="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="Search..." aria-label="Search through site content">
+                <button class="search-button" id="search-button" title="Search" aria-label="Search">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 21L16.65 16.65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="nav-controls">
+                <button class="search-toggle" id="search-toggle" title="Toggle search bar" aria-label="Toggle search bar">
+                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                        <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                <div class="menu-container">
+                    <button class="menu-toggle" id="menu-toggle" title="Toggle navigation menu" aria-label="Toggle navigation menu">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <path d="M4 6H20M4 12H20M4 18H20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <ul class="dropdown-menu" id="dropdown-menu">
+                        <li class="dropdown-item"><a href="index.html">Home</a></li>
+                        <li class="dropdown-item"><a href="servers.html">Frontend & Backend</a></li>
+                        <li class="dropdown-item"><a href="databases.html">Databases</a></li>
+                        <li class="dropdown-item"><a href="frameworks.html">Frameworks</a></li>
+                        <li class="dropdown-item"><a href="engines.html">Engines</a></li>
+                        <li class="dropdown-item"><a href="wireframes.html">Wireframes</a></li>
+                        <li class="dropdown-item"><a href="language.html">Coding languages</a></li>
+                        <li class="dropdown-item"><a href="settings.html">Settings</a></li>
+                        <li class="dropdown-item"><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="content-card">
+            <div class="accordion-header">
+                <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                <h2 style="text-align: center;">Welcome to the Web Development Hub</h2></div>
+            <div class="accordion-panel">
+                <p>
+                    This website is a central resource for understanding the core components of modern web development. From the visual elements you see in your browser to the complex server logic running in the background, building for the web involves many interconnected technologies.
+                </p>
+
+                <p>
+                    Explore topics such as frontend and backend development, databases, frameworks, engines, and wireframes to gain a comprehensive understanding of how web applications are built and maintained.
+                </p>
+                <p>
+                    Whether you're a beginner looking to learn the basics or an experienced developer seeking to refresh your knowledge, you'll find valuable information here.
+                </p>
+                <p>
+                    Use the navigation menu in the top-right corner to explore key topics.
+                </p>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="accordion-header">
+                <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <h2 style="text-align: center;">What is Web Development?</h2></div>
+            <div class="accordion-panel">
+                <p>
+                    Web development is the work involved in developing a website for the Internet or an intranet. It can range from developing a simple single static page of plain text to complex web applications, electronic businesses, and social network services.
+                </p>
+                <p>
+                    A more comprehensive list of tasks to which web development commonly refers may include web engineering, web design, web content development, client liaison, client-side/server-side scripting, web server and network security configuration, and e-commerce development.
+                </p>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="accordion-header">
+                <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <h2 style="text-align: center;">Key Components of Web Development</h2></div>
+            <div class="accordion-panel">
+                <ul>
+                    <li><strong>Frontend Development:</strong> The part of web development that involves creating the visual elements of a website that users interact with directly.</li>
+                    <li><strong>Backend Development:</strong> The server-side logic and database interactions that power the frontend experience.</li>
+                    <li><strong>Databases:</strong> Systems used to store, manage, and retrieve data for web applications.</li>
+                    <li><strong>Frameworks:</strong> Pre-written code libraries that provide a structure for building web applications more efficiently.</li>
+                    <li><strong>Engines:</strong> Software components that interpret and render web content in browsers or execute server-side code.</li>
+                    <li><strong>Wireframes:</strong> Visual guides that represent the skeletal framework of a website, focusing on layout and functionality.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="content-card" id="no-results-card" style="display: none;"><p class="no-results">No matching content found.</p></div>
+    </main>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const searchToggle = document.getElementById('search-toggle');
+        const searchContainer = document.getElementById('search-container');
+
+        menuToggle.addEventListener('click', (event) => {
+            // Stop the click from bubbling up to the document
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (event) => {
+            // Close dropdown if clicking outside
+            if (!dropdownMenu.contains(event.target) && !menuToggle.contains(event.target)) {
+                if (dropdownMenu.classList.contains('show')) {
+                    dropdownMenu.classList.remove('show');
+                }
+            }
+            // Close search if clicking outside
+            if (!searchContainer.contains(event.target) && !searchToggle.contains(event.target)) {
+                if (searchContainer.classList.contains('show')) {
+                    searchContainer.classList.remove('show');
+                }
+            }
+        });
+
+        // Toggle search bar on small screens
+        searchToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            searchContainer.classList.toggle('show');
+        });
+
+// Accordion Script
+const accordions = document.querySelectorAll('.accordion-header');
+
+accordions.forEach(accordion => {
+    accordion.addEventListener('click', function() {
+        this.classList.toggle('active');
+        const panel = this.nextElementSibling;
+
+        if (panel.style.maxHeight && panel.style.maxHeight !== '0px') { // Panel is open, closing it
+            // Set max-height to its current scrollHeight before transitioning to 0
+            panel.style.maxHeight = panel.scrollHeight + "px";
+            panel.style.padding = "1rem 0"; // Ensure padding is present for scrollHeight calculation
+            requestAnimationFrame(() => {
+                panel.style.maxHeight = "0";
+                panel.style.padding = "0";
+            });
+        } else {
+            panel.style.padding = "1rem 0";
+            panel.style.maxHeight = "none"; // Temporarily remove max-height to get full scrollHeight
+            const fullHeight = panel.scrollHeight; // Get the full height
+            panel.style.maxHeight = "0"; // Reset max-height to 0 for the transition to work
+            requestAnimationFrame(() => {
+                panel.style.maxHeight = fullHeight + "px"; // Set to full height to animate open
+            });
+        }
+    });
+});
+
+        // Search Functionality
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const contentCards = document.querySelectorAll('.content-card:not(#no-results-card)');
+        const noResultsCard = document.getElementById('no-results-card');
+
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            let resultsFound = false;
+
+            if (query === '') {
+                contentCards.forEach(card => card.style.display = 'block');
+                noResultsCard.style.display = 'none';
+                return;
+            }
+
+            contentCards.forEach(card => {
+                const header = card.querySelector('.accordion-header');
+                const headerText = header ? header.innerText.toLowerCase() : '';
+                const isMatch = headerText.includes(query);
+
+                card.style.display = isMatch ? 'block' : 'none';
+
+                if (isMatch) {
+                    resultsFound = true;
+                }
+            });
+
+            // Show or hide the 'no results' message
+            noResultsCard.style.display = resultsFound ? 'none' : 'block';
+        }
+
+        // Listen for typing in the search bar
+        searchInput.addEventListener('keyup', performSearch);
+
+        // Also allow search on button click
+        searchButton.addEventListener('click', performSearch);
+
+        // Prevent form submission if the search is inside a form
+        searchButton.addEventListener('click', (e) => e.preventDefault());
+    </script>
+
+    <button class="back-to-top" id="backToTopBtn">↑</button>
+
+    <script>
+        const backToTopBtn = document.getElementById('backToTopBtn');
+
+        // Show button when user scrolls down
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) { // Show button after scrolling 300px
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+
+        // Scroll to top when button is clicked
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // For a smooth scrolling animation
+            });
+        });
+    </script>
+
+</body>
+</html>
