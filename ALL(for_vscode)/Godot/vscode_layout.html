@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDE Layout</title>
+    <!--
+        WARNING: Icons will be broken until Font Awesome is downloaded and linked locally.
+        NOTE: For a true offline experience, you will need to download Font Awesome.
+        1. Download from: https://fontawesome.com/download (Select the "Free for Web" option)
+        2. Unzip the file into a 'vendor' directory in your project.
+        3. Add the following line back: <link rel="stylesheet" href="vendor/fontawesome-free-6.5.1-web/css/all.min.css">
+        3. Replace the CDN link below with: <link rel="stylesheet" href="vendor/fontawesome-free-6.5.1-web/css/all.min.css">
+    -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="enginestyle.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Activity Bar (Far Left) -->
+        <nav class="activity-bar">
+            <!-- Top Icons: Files, Search, Git, etc. -->
+            <div class="activity-bar-group">
+                <a href="#" title="Explorer">
+                    <i class="fa-regular fa-copy activity-bar-icon active"></i>
+                </a>
+                <a href="#" title="Search">
+                    <i class="fa-solid fa-magnifying-glass activity-bar-icon"></i>
+                </a>
+                <a href="#" title="Source Control">
+                    <i class="fa-solid fa-code-branch activity-bar-icon"></i>
+                </a>
+                <a href="#" title="Run and Debug">
+                    <i class="fa-solid fa-play activity-bar-icon"></i>
+                </a>
+                <a href="#" title="Extensions">
+                    <i class="fa-solid fa-puzzle-piece activity-bar-icon"></i>
+                </a>
+            </div>
+            <!-- Bottom Icons: Account, Settings -->
+            <div class="activity-bar-group">
+                <a href="#" title="Account">
+                    <i class="fa-regular fa-user activity-bar-icon"></i>
+                </a>
+                <a href="#" title="Manage">
+                    <i class="fa-solid fa-gear activity-bar-icon"></i>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Sidebar (File Explorer) -->
+        <aside id="explorer-sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">Explorer</h2>
+                <div class="sidebar-actions">
+                    <a href="#" title="Save File (Ctrl+S)" id="saveFileButton">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                    </a>
+                    <a href="#" title="Open Folder" id="openFolderButton">
+                        <i class="fa-solid fa-folder-arrow-down"></i>
+                    </a>
+                    <a href="#" title="New File" id="newFileButton">
+                        <svg class="sidebar-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="12" y1="12" x2="12" y2="18"/>
+                            <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                    </a>
+                    <a href="#" title="New Folder" id="newFolderButton" style="font-size: 1.1em;">
+                        <svg class="sidebar-svg-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                          <line x1="12" y1="11" x2="12" y2="17"/>
+                          <line x1="9" y1="14" x2="15" y2="14"/>
+                        </svg>
+                    </a>
+                    <a href="#" title="Refresh Explorer" id="refreshExplorerButton">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </a>
+                    <a href="#" title="Collapse Folders in Explorer">
+                        <i class="fa-solid fa-compress"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="explorer-empty-state" class="explorer-empty-state hidden">
+                <p>You have not yet opened a folder.</p>
+                <button id="openFolderEmptyStateButton">Open Folder</button>
+                <a href="#" id="uploadFilesLink" style="margin-top: 0.5rem; font-size: 0.8rem;">Or select individual files</a>
+            </div>
+            <!-- The file tree will be dynamically generated here -->
+            <ul id="file-list-container" class="file-list"></ul>
+            
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <div class="editor-tabs">
+                <!-- Tabs will be dynamically added here -->
+                <div class="editor-tab active" data-filepath="welcome">
+                    <span class="tab-filename">Welcome</span>
+                    <!-- <i class="fa-solid fa-times close-tab-icon"></i> -->
+                </div>
+            </div>
+            <div class="editor-container">
+                <div id="editor-placeholder">
+                    <h1>Welcome to your IDE</h1>
+                    <p>Open a folder from the explorer to get started.</p>
+                </div>
+                <textarea id="editor-area" style="display: none;"></textarea>
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom Context Menu -->
+    <div id="context-menu" class="context-menu">
+        <ul>
+            <li class="context-menu-item" id="menu-rename">Rename</li>
+            <li class="context-menu-separator"></li>
+            <li class="context-menu-item" id="menu-copy">Copy</li>
+            <li class="context-menu-item" id="menu-paste">Paste</li>
+            <li class="context-menu-item" id="menu-move">Move</li>
+            <li class="context-menu-separator"></li>
+            <li class="context-menu-item" id="menu-delete" style="color: #f44336;">Delete</li>
+        </ul>
+    </div>
+
+
+    <footer class="status-bar"></footer>
+
+    <script>
+        // As a world-class software engineering assistant, I recommend adding interactivity
+        // in a clean and scalable way. This script makes the activity bar functional.
+
+        const activityBarLinks = document.querySelectorAll('nav a');
+        const explorerSidebar = document.getElementById('explorer-sidebar');
+        const openFolderButton = document.getElementById('openFolderButton');
+        const fileListContainer = document.getElementById('file-list-container');
+        const editorArea = document.getElementById('editor-area');
+        const editorPlaceholder = document.getElementById('editor-placeholder');
+        const explorerEmptyState = document.getElementById('explorer-empty-state');
+        const openFolderEmptyStateButton = document.getElementById('openFolderEmptyStateButton');
+        const uploadFilesLink = document.getElementById('uploadFilesLink');
+        const statusBar = document.querySelector('.status-bar');
+        const newFileButton = document.getElementById('newFileButton');
+        const newFolderButton = document.getElementById('newFolderButton');
+        const saveFileButton = document.getElementById('saveFileButton');
+        let rootDirectoryHandle = null; // Will store the handle of the opened folder
+        const contextMenu = document.getElementById('context-menu');
+        let contextMenuTarget = null; // Stores the file/folder handle for the context menu
+        let currentOpenFileHandle = null; // Stores the handle of the file currently in the editor
+
+        // --- IndexedDB for Persistence ---
+        const dbName = 'ide-storage';
+        const storeName = 'handles';
+        let db;
+
+        async function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, 1);
+                request.onupgradeneeded = () => {
+                    request.result.createObjectStore(storeName);
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function getHandle(key) {
+            db = db || await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readonly');
+                const request = tx.objectStore(storeName).get(key);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function setHandle(key, value) {
+            db = db || await openDB();
+            const tx = db.transaction(storeName, 'readwrite');
+            tx.objectStore(storeName).put(value, key);
+            return tx.complete;
+        }
+
+        // --- UI State Persistence (localStorage) ---
+        const EXPANDED_FOLDERS_KEY = 'ide-expanded-folders';
+
+        function getExpandedFolders() {
+            const stored = localStorage.getItem(EXPANDED_FOLDERS_KEY);
+            // Use a Set for efficient lookups
+            return stored ? new Set(JSON.parse(stored)) : new Set();
+        }
+
+        function addExpandedFolder(path) {
+            const paths = getExpandedFolders();
+            paths.add(path);
+            localStorage.setItem(EXPANDED_FOLDERS_KEY, JSON.stringify([...paths]));
+        }
+
+        function removeExpandedFolder(path) {
+            const paths = getExpandedFolders();
+            paths.delete(path);
+            localStorage.setItem(EXPANDED_FOLDERS_KEY, JSON.stringify([...paths]));
+        }
+
+
+        // This function handles the logic when an icon is clicked
+        function handleActivityClick(event) {
+            event.preventDefault(); // Prevent the default anchor tag behavior
+
+            // Use .currentTarget to ensure we get the element the listener was attached to (the <a> tag)
+            const clickedLink = event.currentTarget;
+            const viewTitle = clickedLink.title;
+
+            // 1. Reset all icons to their inactive state
+            activityBarLinks.forEach(link => {
+                const icon = link.querySelector('i');
+                icon.classList.remove('active');
+            });
+
+            // 2. Set the clicked icon to the active state
+            const clickedIcon = clickedLink.querySelector('i');
+            clickedIcon.classList.add('active');
+
+            // 3. Show/Hide the Explorer sidebar
+            if (viewTitle === 'Explorer') {
+                explorerSidebar.classList.toggle('hidden'); // Toggle visibility
+            } else {
+                explorerSidebar.classList.add('hidden'); // Hide for all other views
+            }
+
+            // 4. Update the main content area to reflect the selected view
+            // For now, we just hide the editor placeholder if it's not the explorer
+            if (viewTitle !== 'Explorer') {
+                editorPlaceholder.innerHTML = `<h1>${viewTitle} View</h1>`;
+            }
+        }
+
+        // Attach the click event listener to each link in the activity bar
+        activityBarLinks.forEach(link => {
+            link.addEventListener('click', handleActivityClick);
+        });
+
+        // Event listener for the Refresh Explorer button
+        document.getElementById('refreshExplorerButton').addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default anchor behavior
+            console.log("Explorer refreshed!"); // Simulate refresh action
+            const refreshIcon = event.currentTarget.querySelector('i');
+            refreshIcon.classList.add('active'); // Temporarily make it active
+            setTimeout(() => {
+                refreshIcon.classList.remove('active');
+            }, 500); // Remove active state after a short delay
+        });
+
+        // Global click listener to hide the context menu
+        window.addEventListener('click', () => {
+            contextMenu.style.display = 'none';
+        });
+
+
+        /**
+         * Checks if the file list is empty and toggles the empty state view.
+         */
+        function updateExplorerVisibility() {
+            if (fileListContainer.children.length === 0) {
+                explorerEmptyState.classList.remove('hidden');
+                fileListContainer.classList.add('hidden');
+            } else {
+                explorerEmptyState.classList.add('hidden');
+                fileListContainer.classList.remove('hidden');
+            }
+        }
+
+        // --- Load persisted folder on startup ---
+        async function loadPersistedFolder() {
+            try {
+                const handle = await getHandle('rootDirectory');
+                if (handle) {
+                    console.log("Found persisted directory handle. Verifying permission...");
+                    // Check if we still have permission. If not, this will return 'prompt'.
+                    if (await handle.queryPermission({ mode: 'readwrite' }) === 'granted') {
+                        console.log("Permission already granted. Loading folder.");
+                        rootDirectoryHandle = handle;
+                        await refreshExplorer();
+                        await loadLastOpenFile(); // Restore the last opened file
+                    } else {
+                        // Request permission again. This will show a browser prompt.
+                        if (await handle.requestPermission({ mode: 'readwrite' }) === 'granted') {
+                            console.log("Permission granted by user. Loading folder.");
+                            rootDirectoryHandle = handle;
+                            await refreshExplorer();
+                            await loadLastOpenFile(); // Restore the last opened file
+                        }
+                    }
+                } else {
+                    // If no handle is found, now we can safely show the empty state.
+                    updateExplorerVisibility();
+                }
+            } catch (err) {
+                console.error("Could not load persisted folder:", err);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', loadPersistedFolder);
+
+        /**
+         * Checks IndexedDB for the last opened file and restores it in the editor.
+         */
+        async function loadLastOpenFile() {
+            try {
+                const lastFileHandle = await getHandle('lastOpenFileHandle');
+                if (lastFileHandle) {
+                    console.log("Found last open file handle. Restoring in editor...");
+                    // The permission for the file is implicitly covered by the directory permission check.
+                    await openFileInEditor(lastFileHandle);
+                }
+            } catch (err) {
+                console.error("Could not restore the last open file:", err);
+                // Clear the handle if it's causing errors (e.g., file was deleted)
+                await setHandle('lastOpenFileHandle', null);
+            }
+        }
+
+        // --- File System Access API Implementation ---
+
+        /**
+         * Opens a directory picker and populates the file explorer.
+         * This function is now shared by the header icon and the empty state button.
+         */
+        async function openFolder() {
+            try {
+                // Use the modern File System Access API to ask the user to pick a directory
+                rootDirectoryHandle = await window.showDirectoryPicker();
+                await setHandle('rootDirectory', rootDirectoryHandle); // Save the handle
+                
+                fileListContainer.innerHTML = ''; // Clear the current file list
+                updateActiveTab(rootDirectoryHandle.name);
+                
+                // Recursively process the directory contents
+                await processDirectoryHandle(rootDirectoryHandle, fileListContainer, '');
+                updateExplorerVisibility();
+
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error("Error picking directory:", err);
+                    alert("Error: Could not open directory. Your browser might not support this feature.");
+                }
+            }
+        }
+
+        /**
+         * Opens a file picker for individual files and populates the explorer.
+         */
+        async function uploadIndividualFiles() {
+            try {
+                const fileHandles = await window.showOpenFilePicker({ multiple: true });
+                fileListContainer.innerHTML = ''; // Clear the current file list
+
+                for (const fileHandle of fileHandles) {
+                    addFileToExplorer(fileHandle, fileListContainer);
+                }
+                
+                if (fileHandles.length > 0) {
+                    updateActiveTab("Individual Files");
+                    updateExplorerVisibility();
+                }
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error("Error picking files:", err);
+                }
+            }
+        }
+
+        // Attach event listeners
+        openFolderButton.addEventListener('click', openFolder);
+        openFolderEmptyStateButton.addEventListener('click', openFolder);
+        uploadFilesLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            uploadIndividualFiles();
+        });
+
+        /**
+         * Creates an inline input field in the file explorer for creating a new file or folder.
+         * @param {'file' | 'folder'} type - The type of item to create.
+         */
+        function showCreationInput(type) {
+            if (!rootDirectoryHandle) {
+                alert(`Please open a folder first to create a new ${type}.`);
+                return;
+            }
+
+            // Create the list item and input field
+            const li = document.createElement('li');
+            li.className = 'file-list-item';
+
+            const icon = document.createElement('i');
+            icon.className = `file-icon fa-regular ${type === 'file' ? 'fa-file' : 'fa-folder'}`;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'creating-input';
+
+            li.appendChild(icon);
+            li.appendChild(input);
+
+            // Add it to the top of the file list
+            fileListContainer.prepend(li);
+            input.focus();
+
+            // --- Event Handlers for the input ---
+
+            // Finalize creation on blur (losing focus)
+            input.addEventListener('blur', handleFinalize);
+
+            // Finalize on 'Enter', cancel on 'Escape'
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    input.blur(); // Trigger the blur event to finalize
+                } else if (e.key === 'Escape') {
+                    // Remove the temporary input item and do nothing
+                    li.remove();
+                }
+            });
+
+            async function handleFinalize() {
+                const newName = input.value.trim();
+                
+                // Clean up the temporary item
+                li.remove();
+
+                if (!newName) {
+                    // If the name is empty, do nothing further.
+                    return;
+                }
+
+                try {
+                    if (type === 'file') {
+                        await rootDirectoryHandle.getFileHandle(newName, { create: true });
+                    } else {
+                        await rootDirectoryHandle.getDirectoryHandle(newName, { create: true });
+                    }
+                    // Refresh the entire explorer to show the new item correctly sorted
+                    await refreshExplorer();
+                } catch (err) {
+                    console.error(`Error creating ${type}:`, err);
+                    alert(`Could not create the ${type}. See console for details.`);
+                }
+            }
+        }
+
+        newFileButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            showCreationInput('file');
+        });
+
+        newFolderButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            showCreationInput('folder');
+        });
+
+        /**
+         * Clears and re-populates the file explorer.
+         */
+        async function refreshExplorer() {
+            if (!rootDirectoryHandle) {
+                console.log("No root directory to refresh.");
+                return;
+            }
+            console.log("Refreshing explorer...");
+            fileListContainer.innerHTML = '';
+            await processDirectoryHandle(rootDirectoryHandle, fileListContainer, '');
+            updateExplorerVisibility();
+        }
+
+        document.getElementById('refreshExplorerButton').addEventListener('click', refreshExplorer);
+
+        /**
+         * Recursively processes a directory handle and populates a <ul> element.
+         * @param {FileSystemDirectoryHandle} directoryHandle - The handle for the directory.
+         * @param {HTMLUListElement} parentElement - The <ul> element to append items to.
+         * @param {string} currentPath - The path of the current directory relative to the root.
+         */
+        async function processDirectoryHandle(directoryHandle, parentElement, currentPath) {
+            const entries = [];
+            // Separate files and directories to sort them
+            for await (const entry of directoryHandle.values()) {
+                entries.push(entry);
+            }
+
+            // Sort directories first, then files, all alphabetically
+            entries.sort((a, b) => {
+                if (a.kind === b.kind) {
+                    return a.name.localeCompare(b.name); // Sort alphabetically
+                }
+                return a.kind === 'directory' ? -1 : 1; // Directories first
+            });
+
+            for (const entry of entries) {
+                const entryPath = currentPath ? `${currentPath}/${entry.name}` : entry.name;
+                const expandedFolders = getExpandedFolders();
+
+                if (entry.kind === 'directory') {
+                    const folderLi = document.createElement('li');
+                    folderLi.className = 'folder-item';
+                    folderLi.innerHTML = `
+                        <div class="file-list-item">
+                            <i class="fa-solid fa-folder"></i>
+                            <i class="fa-solid fa-folder-open"></i>
+                            <span>${entry.name}</span>
+                        </div>
+                        <ul></ul>`;
+                    
+                    parentElement.appendChild(folderLi);
+
+                    // Restore expanded state
+                    if (expandedFolders.has(entryPath)) {
+                        folderLi.classList.add('open');
+                    }
+
+                    // --- Right-click context menu for folders ---
+                    folderLi.querySelector('.file-list-item').addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        contextMenuTarget = { handle: entry, element: folderLi.querySelector('.file-list-item span') };
+                        contextMenu.style.top = `${e.clientY}px`;
+                        contextMenu.style.left = `${e.clientX}px`;
+                        contextMenu.style.display = 'block';
+                    });
+
+                    // Click to expand/collapse folder
+                    folderLi.querySelector('.file-list-item').addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent file click event
+                        folderLi.classList.toggle('open');
+                        // Persist the new state
+                        if (folderLi.classList.contains('open')) {
+                            addExpandedFolder(entryPath);
+                        } else {
+                            removeExpandedFolder(entryPath);
+                        }
+                    });
+
+                    // Recursively process the subdirectory
+                    await processDirectoryHandle(entry, folderLi.querySelector('ul'), entryPath);
+
+                } else if (entry.kind === 'file') {
+                    addFileToExplorer(entry, parentElement);
+                }
+            }
+        }
+
+        /**
+         * Creates and appends a file list item to the parent element.
+         * @param {FileSystemFileHandle} fileHandle - The handle for the file.
+         * @param {HTMLElement} parentElement - The <ul> element to append to.
+         */
+        function addFileToExplorer(fileHandle, parentElement) {
+            /**
+             * Gets a specific Font Awesome icon class based on the file extension.
+             * @param {string} fileName - The name of the file.
+             * @returns {string} The corresponding icon class string.
+             */
+            function getIconForFile(fileName) {
+                const extension = fileName.split('.').pop().toLowerCase();
+                if (fileName.toLowerCase().includes('license')) return 'fa-regular fa-copyright';
+
+                switch (extension) {
+                    case 'html': return 'fa-brands fa-html5';
+                    case 'css': return 'fa-brands fa-css3-alt';
+                    case 'js': return 'fa-brands fa-js';
+                    case 'json': return 'fa-regular fa-file-code';
+                    case 'md': return 'fa-brands fa-markdown';
+                    case 'png':
+                    case 'jpg':
+                    case 'jpeg':
+                    case 'gif':
+                    case 'svg':
+                    case 'webp':
+                        return 'fa-regular fa-image';
+                    case 'gitignore': return 'fa-brands fa-git-alt';
+                    default: return 'fa-regular fa-file';
+                }
+            }
+
+            const fileLi = document.createElement('li');
+            fileLi.className = 'file-list-item';
+            const iconClass = getIconForFile(fileHandle.name);
+            fileLi.innerHTML = `<i class="file-icon ${iconClass}"></i><span>${fileHandle.name}</span>`;
+            fileLi.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openFileInEditor(fileHandle);
+            });
+
+            // --- Right-click context menu for files ---
+            fileLi.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                contextMenuTarget = { handle: fileHandle, element: fileLi.querySelector('span') };
+                contextMenu.style.top = `${e.clientY}px`;
+                contextMenu.style.left = `${e.clientX}px`;
+                contextMenu.style.display = 'block';
+            });
+            parentElement.appendChild(fileLi);
+        }
+
+        /**
+         * Reads a file handle and displays its content in the editor.
+         * @param {FileSystemFileHandle} fileHandle - The handle for the file.
+         */
+        async function openFileInEditor(fileHandle) {
+            // Store the handle of the file that is now open
+            currentOpenFileHandle = fileHandle;
+            await setHandle('lastOpenFileHandle', fileHandle); // Persist the handle for this file
+
+            try {
+                const file = await fileHandle.getFile();
+                const content = await file.text();
+                
+                updateActiveTab(file.name);
+                editorPlaceholder.style.display = 'none';
+                editorArea.value = ''; // Clear previous content before loading new
+                editorArea.value = content;
+                editorArea.style.display = 'block';
+
+                // Update status bar
+                statusBar.textContent = `Line 1, Column 1 | Spaces: 2 | UTF-8 | ${file.type || 'text/plain'}`;
+            } catch (err) {
+                console.error("Error reading file:", err);
+                alert(`Could not read the file: ${fileHandle.name}`);
+            }
+        }
+
+        // --- Manual Saving Logic ---
+
+        /**
+         * Updates the text of the currently active editor tab.
+         * @param {string} newName - The new name to display on the tab.
+         */
+        function updateActiveTab(newName) {
+            document.querySelector('.editor-tab.active .tab-filename').textContent = newName;
+        }
+
+        /**
+         * Saves the content of the editor to the currently open file.
+         */
+        async function saveCurrentFile() {
+            if (!currentOpenFileHandle) {
+                console.log("No file is open to save.");
+                return;
+            }
+
+            try {
+                const content = editorArea.value;
+                // Create a writable stream to the file.
+                const writable = await currentOpenFileHandle.createWritable();
+                // Write the new content.
+                await writable.write(content);
+                // Close the file and write the changes.
+                await writable.close();
+                
+                // Visual feedback
+                statusBar.textContent = `File "${currentOpenFileHandle.name}" saved.`;
+                console.log(`File "${currentOpenFileHandle.name}" saved successfully.`);
+            } catch (err) {
+                console.error("Error saving file:", err);
+                statusBar.textContent = `Error saving file.`;
+            }
+        }
+
+        // Save via button click
+        saveFileButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            saveCurrentFile();
+        });
+
+        // Save via Ctrl+S / Cmd+S
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault(); // Prevent browser's save dialog
+                saveCurrentFile();
+            }
+        });
+
+        // --- Context Menu Actions ---
+        document.getElementById('menu-rename').addEventListener('click', () => {
+            if (!contextMenuTarget) return;
+            
+            const { element } = contextMenuTarget;
+            const originalName = element.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'creating-input';
+            input.value = originalName;
+
+            element.style.display = 'none';
+            element.parentElement.appendChild(input);
+            input.focus();
+            input.select();
+
+            const finalizeRename = async () => {
+                const newName = input.value.trim();
+                // This is a placeholder. The File System Access API does not support renaming directly.
+                // A real implementation would require copying to a new file and deleting the old one.
+                console.log(`Attempting to rename "${originalName}" to "${newName}"`);
+                
+                // Restore UI
+                element.textContent = newName; // Optimistically update UI
+                element.style.display = 'inline';
+                input.remove();
+                alert("File renaming is not directly supported by the browser API yet. This is a UI demonstration.");
+            };
+
+            input.addEventListener('blur', finalizeRename);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') input.blur();
+                if (e.key === 'Escape') {
+                    element.style.display = 'inline';
+                    input.remove();
+                }
+            });
+        });
+
+        document.getElementById('menu-delete').addEventListener('click', async () => {
+            if (!contextMenuTarget) return;
+            const { handle } = contextMenuTarget;
+            
+            if (confirm(`Are you sure you want to delete "${handle.name}"?`)) {
+                try {
+                    // Note: The File System Access API does not have a native 'delete' method.
+                    // This requires using removeEntry() on the parent directory handle, which is complex.
+                    // We will simulate it and refresh.
+                    console.log(`Attempting to delete: ${handle.name}`);
+                    alert("File deletion is not fully supported by the browser API in this context. This is a UI demonstration. Refreshing explorer.");
+                    await refreshExplorer(); // Simulate by refreshing
+                } catch (err) {
+                    console.error("Error deleting:", err);
+                    alert(`Could not delete "${handle.name}". See console for details.`);
+                }
+            }
+        });
+
+        // Stubs for other actions
+        document.getElementById('menu-copy').addEventListener('click', () => {
+            if(contextMenuTarget) console.log('Copy:', contextMenuTarget.handle.name);
+        });
+        document.getElementById('menu-paste').addEventListener('click', () => {
+            if(contextMenuTarget) console.log('Paste into:', contextMenuTarget.handle.name);
+        });
+        document.getElementById('menu-move').addEventListener('click', () => {
+            if(contextMenuTarget) console.log('Move:', contextMenuTarget.handle.name);
+        });
+    </script>
+</body>
+</html>
