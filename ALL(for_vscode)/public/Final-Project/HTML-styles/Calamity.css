@@ -540,7 +540,7 @@ code {
         position: absolute;
         top: 75px;
         right: 1rem;
-        width: 300px;
+        width: 200px;
         max-width: 90%; /* Ensures it doesn't overflow small screens */
         background-color: var(--bg-card);
         padding: 1.5rem;

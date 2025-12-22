@@ -166,11 +166,54 @@
       </nav>
 
     <main class="container">
-        <div class="content-card">
-            <div class="accordion-header">
-                
-                
-        <div class="content-card" id="no-results-card" style="display: none;"><p class="no-results">No matching content found.</p></div>
+      <div class="content-card">
+        <div class="accordion-header">
+          <svg
+            class="header-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+            ></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
+          <h2>Contact Me</h2>
+        </div>
+        <div class="accordion-panel">
+          <p>
+            Have a question or want to get in touch? Fill out the form below and
+            I'll get back to you as soon as possible.
+          </p>
+          <!-- 
+                  IMPORTANT: Replace the action URL below with your actual Formspree endpoint URL.
+                -->
+          <form
+            id="contact-form"
+            class="contact-form"
+            action="https://formspree.io/f/mzzlggbe"
+            method="POST"
+          >
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required />
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required />
+
+            <label for="message">Message</label>
+            <textarea id="message" name="message" rows="6" required></textarea>
+
+            <button type="submit">Send Message</button>
+          </form>
+        </div>
+      </div>
+      <div class="content-card" id="no-results-card" style="display: none">
+        <p class="no-results">No matching content found.</p>
+      </div>
     </main>
 
     <button class="back-to-top" id="backToTopBtn">↑</button>
