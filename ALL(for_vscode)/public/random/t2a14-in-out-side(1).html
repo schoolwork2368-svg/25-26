@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>t2a14-in-out-rhys l.html</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+	:root {
+            --primary-glow: #6366f1; 
+            --secondary-glow: #a855f7; 
+            --text-color: #f3f4f6;
+            --bg-dark: #111827;
+            --bg-card: #1f2937;
+            --border-color: #374151;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #374151;
+            color: var(--text-color);
+        }
+	
+	#hiddenScrollIframe {
+    	    overflow: auto;
+    	    width: 100%;
+    	    height: 300px;
+    	    -webkit-overflow-scrolling: touch;
+        }
+
+	#hiddenScrollIframe::-webkit-scrollbar {
+    	    width: 0px; 
+	}
+
+	.bordered-box {
+	    width: 76px;
+  	    height: 94px;
+  	    border: 4px solid white;
+  	    overflow: hidden;
+	}
+
+	.content-to-scale {
+ 	    transform: scale(0.9);
+  	    transform-origin: top left;
+  	    transition: transform 0.3s ease-in-out;
+	}
+
+    </style>
+<body class="p-4 sm:p-8">
+
+	<input id="myNum01"type=text value="Lorem Ipsum" style="font-size: 17px; padding: 2px 5.2px; color: black; border: 2px; border-style: solid; border-color: black; border-radius: 0.5rem"><br>
+	<span id="mySpan01" style="position:relative; left:0px; top:0px; width:50px; height:30px;"><b>...</b></span><br>
+
+
+	<input type=button value="Update Text" style="font-size: 20px; padding: 2px 5.2px; color: black; background-color: #F0F0F0; border: 2px; border-style: solid; border-color: black; border-radius: 0.5rem" onclick="{;
+		document.getElementById('mySpan01').innerHTML = document.getElementById('myNum01').value}">
+
+<div class="bordered-box" style="border: 5px; border-style: solid; border-color: black; border-collapse: collapse; border-radius: 0.5rem;">
+  <div class="content-to-scale">
+
+<table style="border: 5px; border-style: solid; border-color: white; border-collapse: collapse; border-radius: 0.5rem;">
+
+
+<tr>
+
+
+<td style="border: 1px solid white; background-color: #767676;">
+<input type=button class="text-white" value="↖" style="font-size: 10px; padding: 2px 5.2px;" onclick="{
+		document.getElementById('mySpan01').style.left = 
+	parseInt(document.getElementById('mySpan01').style.left) - 10 + 'px'; 
+		document.getElementById('mySpan01').style.top = 
+	parseInt(document.getElementById('mySpan01').style.top) - 10 + 'px';}">
+</td>
+
+
+<td style="border: 1px solid white; background-color: #767676;">
+<input type=button class="text-white" value="W" style="font-size: 10px; padding: 3.5px 5px;" onclick="{
+		document.getElementById('mySpan01').style.left = 
+	parseInt(document.getElementById('mySpan01').style.left) + 0 + 'px'; 
+		document.getElementById('mySpan01').style.top = 
+	parseInt(document.getElementById('mySpan01').style.top) - 10 + 'px';}">
+</td>
+
+
+<td style="border: 1px solid white; background-color: #767676;">
+<input type=button class="text-white" value="↗" style="font-size: 10px; padding: 2px 5.2px;" onclick="{
+		document.getElementById('mySpan01').style.left = 
+	parseInt(document.getElementById('mySpan01').style.left) + 10 + 'px'; 
+		document.getElementById('mySpan01').style.top = 
+	parseInt(document.getElementById('mySpan01').style.top) - 10 + 'px';}">
+</td>
+
+
+</tr>
+
+
+<tr>
+
+
+<td style="border: 1px solid white; background-color: #767676;">
+<input type=button class="text-white" value="A" style="font-size: 10px; padding: 3px 5.5px;" onclick="{
+		document.getElementById('mySpan01').style.left = 
+	parseInt(document.getElementById('mySpan01').style.left) - 10 + 'px'; 
+		document.getElementById('mySpan01').style.top = 
+	parseInt(document.getElementById('mySpan01').style.top) + 0 + 'px';}">
+</td>
+
+
+<td style="border: 1px solid white; background-color: #767676;">
+<input type=button class="text-white" value="H" style="font-size: 10px; padding: 3px 5.8px;" onclick="{
+		document.getElementById('mySpan01').style.left = '0px'; 
+		document.getElementById('mySpan01').style.top = '0px';}">
+</td>
+
+
+<td style="border: 1px solid white; background-color: #767676;">
+<input type=button class="text-white" value="D" style="font-size: 10px; padding: 3px 5.3px;" onclick="{
+		document.getElementById('mySpan01').style.left = 
+	parseInt(document.getElementById('mySpan01').style.left) + 10 + 'px'; 
+		document.getElementById('mySpan01').style.top = 
+	parseInt(document.getElementById('mySpan01').style.top) + 0 + 'px';}">
+</td>
+
+
+</tr>
+
+
+<tr>
+
+
+<td style="border: 1px solid white; background-color: #767676;">
+<input type=button class="text-white" value="↙" style="font-size: 10px; padding: 2px 5.2px;" onclick="{
+		document.getElementById('mySpan01').style.left = 
+	parseInt(document.getElementById('mySpan01').style.left) - 10 + 'px'; 
+		document.getElementById('mySpan01').style.top = 
+	parseInt(document.getElementById('mySpan01').style.top) + 10 + 'px';}">
+</td>
+
+
+<td style="border: 1px solid white; background-color: #767676;">
+<input type=button class="text-white" value="S" style="font-size: 10px; padding: 3.5px 6.3px;" onclick="{
+		document.getElementById('mySpan01').style.left = 
+	parseInt(document.getElementById('mySpan01').style.left) + 0 + 'px'; 
+		document.getElementById('mySpan01').style.top = 
+	parseInt(document.getElementById('mySpan01').style.top) + 10 + 'px';}">
+</td>
+
+
+<td style="border: 1px solid white; background-color: #767676;">
+<input type=button class="text-white" value="↘" style="font-size: 10px; padding: 2px 5.2px;" onclick="{
+		document.getElementById('mySpan01').style.left = 
+	parseInt(document.getElementById('mySpan01').style.left) + 10 + 'px'; 
+		document.getElementById('mySpan01').style.top = 
+	parseInt(document.getElementById('mySpan01').style.top) + 10 + 'px';}">
+</td>
+
+
+</tr>
+
+
+</table>
+</div>
+</div>
+
+
+
+<script>
+	function sendHeight() {
+    // This is the line where we set the height to a fixed value.
+    const contentHeight = 800; // <<< CHANGE THIS NUMBER
+
+    console.log('IFRAME: Measured Height:', contentHeight); 
+    
+    window.parent.postMessage(
+        {
+            height: contentHeight,
+            source: 't2a13-iframe'
+        },
+        '*'
+    );
+}
+
+setInterval(sendHeight, 300);
+sendHeight();
+</script>
+
+
+</body>
+</html>

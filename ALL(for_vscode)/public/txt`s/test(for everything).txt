@@ -1,0 +1,28 @@
+<h1 align=center><b style="font-size: 25px; background-color: #000080; color: #FFFFFF;">James Leverentz</b>  (& Rhys Leverentz)</h1><br>
+<p class="text-gray-600 text-center">
+<div class="flex flex-col items-center justify-center p-12 bg-white rounded-xl shadow-xl space-y-6 max-w-lg w-full">
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>James Leverentz Book</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+<body class="p-4 sm:p-8 bg-gray-100 min-h-screen flex justify-center items-center font-sans">
+   <div class="flex flex-col items-center justify-center 
+                w-11/12 h-[90vh] bg-white rounded-3xl shadow-2xl space-y-8 p-4">
+ <h1 class="text-center">
+            <span class="text-5xl font-extrabold bg-blue-900 text-white px-6 py-3 rounded-2xl inline-block">
+                James Leverentz
+            </span>
+            <span class="text-2xl text-gray-500 block mt-3">
+                (& Rhys Leverentz)
+            </span>
+        </h1>
+
+    </div>
+    
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TerraFirmaGreg</title>
+    <link rel="stylesheet" href="../../HTML-styles/TFG.css">
+    <link rel="stylesheet" href="../../HTML-styles/TFG-animations.css">
+  </head>
+  <body>
+    <nav class="navbar">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <a href="0.html" class="navbar-brand"><img src="../../Finalpphotos/Site-logo.gif" alt="Site-logo.png" /></a>
+        <div class="menu-container">
+            <div id="menu-div">
+            <button
+              class="menu-toggle"
+              id="menu-toggle"
+              title="Toggle navigation menu"
+              aria-label="Toggle navigation menu"
+            >
+              <svg
+                class="menu-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                d="M4 6H20M4 12H20M4 18H20"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu">
+              <button class="menu-close-btn" id="menu-close-btn" aria-label="Close menu" style="position: absolute; top: 2px; right: 5px; z-index: 1000;">
+                &times;
+              </button>
+              <ul class="dropdown-menu""></ul>
+                        <li class="dropdown-item"><a href="0.html">Overview</a></li>
+                        <li class="dropdown-item"><a href="1.html">Getting Started</a></li>
+                        <li class="dropdown-item"><a href="2.html">Game Mechanics</a></li>
+                        <li class="dropdown-item"><a href="3.html">Plants</a></li>
+                        <li class="dropdown-item"><a href="4.html">Food</a></li>
+                        <li class="dropdown-item"><a href="5.html">Tools</a></li>
+                        <li class="dropdown-item"><a href="6.html">Ores</a></li>
+                        <li class="dropdown-item"><a href="7.html">Enemies</a></li>
+                        <li class="dropdown-item"><a href="8.html">Blacksmithing</a></li>
+                        <li class="dropdown-item"><a href="9.html">Terrain Generation</a></li>
+                        <li class="dropdown-item"><a href="10.html">Machinery</a></li>
+                        <li class="dropdown-item"><a href="11.html">GregTech</a></li>
+                        <li class="dropdown-item"><a href="12.html">Included Addons</a></li>
+                        <li class="dropdown-item"><a href="13.html">Contact</a></li>
+                    </ul>
+            </div>
+      </div>
+        <div class="nav-left-section">
+          <div class="back-to-home" id="back-to-home" style="display: flex; justify-content: center; align-items: center;">
+            <svg width="20px" height="64px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#33ff00"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M1 6V15H6V11C6 9.89543 6.89543 9 8 9C9.10457 9 10 9.89543 10 11V15H15V6L8 0L1 6Z" fill="#33ff00"></path> </g></svg>
+        </div>
+      </div>
+      </div>
+      <di style="display: flex; align-content: right; gap: 10px;">
+      <div class="nav-right-section">
+        <div class="search-container1" id="search-container1">
+          <input
+            type="text"
+            class="search-input"
+            id="search-input"
+            placeholder="Search..."
+            aria-label="Search through site content"
+          />
+          <button
+            class="search-close-btn"
+            id=""
+            title="Close search bar"
+            aria-label="Close search bar"
+          >
+            <svg
+              class="close-icon-svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 6L6 18M6 6l12 12"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+            <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M21 21L16.65 16.65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+      </div>
+      </div>
+      </div>
+        <div class="search-container2" id="search-container2">
+          <input
+            type="text"
+            class="search-input"
+            id="search-input"
+            placeholder="Search..."
+            aria-label="Search through site content"
+          />
+          <button
+            class="search-close-btn"
+            id="search-close-btn"
+            title="Close search bar"
+            aria-label="Close search bar"
+          >
+            <svg
+              class="close-icon-svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 6L6 18M6 6l12 12"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+            <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M21 21L16.65 16.65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="nav-controls">
+          <button
+            class="search-toggle"
+            id="search-toggle"
+            title="Toggle search bar"
+            aria-label="Toggle search bar"
+          >
+            <svg
+              class="menu-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+              <path
+                d="M21 21L16.65 16.65"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+          </button>
+      </nav>
+
+    <main class="container">
+      <div class="content-card">
+        <div class="accordion-header">
+          <svg class="header-icon" fill="#33ff00" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64px" height="25px" viewBox="0 0 494.24 494.24" xml:space="preserve" stroke="#33ff00" stroke-width="10.873258"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M199.725,0v36.025H85.211v421.66l114.514,0.094v36.459l209.085-37.555l0.216-418.867L199.725,0z M234.404,230.574 c7.022,0,12.715,7.408,12.715,16.545c0,9.139-5.692,16.545-12.715,16.545s-12.715-7.406-12.715-16.545 C221.688,237.982,227.382,230.574,234.404,230.574z M119.211,423.713V70.025h80.514v353.753L119.211,423.713z"></path> </g> </g></svg>
+          <h2>Welcome to TFG</h2>
+        </div>
+        <div class="accordion-panel">
+          <p>
+            TerraFirmaGreg is one of Minecraft's many modpacks. TerraFirmaGreg
+            enhances the average Minecraft's survival experience. Embarking on a
+            journey through a vast world with untamed wilderness, you must learn
+            to adapt and thrive using the resources around you.
+          </p>
+          <p>
+            TFG aims to be one of if not the most realistic Minecraft mod with some sci-fi elements. It
+            has a wide range of features that could help you flourish; or be
+            your downfall.
+          </p> 
+        </div> 
+      </div>
+
+      <div class="content-card">
+        <div class="accordion-header">
+          <svg class="header-icon" fill="#33ff00" width="64px" height="30px" viewBox="0 0 256 256" id="Flat" xmlns="http://www.w3.org/2000/svg" stroke="#33ff00"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M120,48v64a7.9954,7.9954,0,0,1-8,8H48a7.99539,7.99539,0,0,1-8-8V48a7.99539,7.99539,0,0,1,8-8h64A7.9954,7.9954,0,0,1,120,48Zm88-8H144a7.99539,7.99539,0,0,0-8,8v64a7.99539,7.99539,0,0,0,8,8h64a7.9954,7.9954,0,0,0,8-8V48A7.9954,7.9954,0,0,0,208,40Zm-96,96H48a7.99539,7.99539,0,0,0-8,8v64a7.99539,7.99539,0,0,0,8,8h64a7.9954,7.9954,0,0,0,8-8V144A7.9954,7.9954,0,0,0,112,136Zm96,0H144a7.99539,7.99539,0,0,0-8,8v64a7.99539,7.99539,0,0,0,8,8h64a7.9954,7.9954,0,0,0,8-8V144A7.9954,7.9954,0,0,0,208,136Z"></path> </g></svg>
+          <h2>Want to See More?</h2>
+        </div>
+        <div class="accordion-panel">
+          <div class="videos-grid">
+            <div class="video-container"> 
+              <video
+                controls
+                controlsList="nodownload"
+                oncontextmenu="return false;"
+                preload="metadata"
+              >
+                <source src="../../Finalpvideos/1.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div class="video-container">
+              <video
+                controls
+                controlsList="nodownload"
+                oncontextmenu="return false;"
+                preload="metadata"
+              >
+                <source src="../../Finalpvideos/2.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <div class="video-container">
+              <video
+                controls
+                controlsList="nodownload"
+                oncontextmenu="return false;"
+                preload="metadata"
+              >
+                <!-- Make sure to change this to a real video file -->
+                <source src="../../Finalpvideos/3.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="content-card">
+        <div class="accordion-header">
+          <svg
+            class="header-icon"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          <h2>Join the Community</h2>
+        </div>
+        <div class="accordion-panel">
+          <p>
+            Join our vibrant community of TerraFirmaGreg players! Share your
+            experiences, seek advice, and connect with fellow enthusiasts on
+            our official forums and social media channels. Whether you're a
+            seasoned player or just starting your journey, there's a place for
+            you in our community.
+          </p>
+          <hr>
+          <ul>
+            <li>
+              <a href="https://www.curseforge.com/minecraft/modpacks/terrafirmagreg-modern" target="_blank">CurseForge</a>
+            </li>
+            <li>
+              <a href="https://discord.com/servers/terrafirmagreg-400913133620822016" target="_blank">Discord</a>
+            </li>
+            <li>
+              <a href="https://terrafirmagreg.fandom.com/wiki/Beginner%E2%80%99s_Guide_to_TFG" target="_blank">Wiki</a>
+            </li>
+            <li>
+              <a href="https://github.com/TerraFirmaGreg-Team/Modpack-Modern/releases" target="_blank">Releases on GitHub</a>
+            </li>
+            <li>
+              <a href="https://www.reddit.com/r/TerraFirmaCraft/" target="_blank">Reddit</a>
+            </li>
+
+          </ul>
+        </div>
+      </div>
+
+      <div class="content-card" id="no-results-card" style="display: none">
+        <p class="no-results">No matching content found.</p>
+      </div>
+    </main>
+
+    <script>
+      const menuToggle = document.getElementById("menu-toggle");
+      const dropdownMenu = document.getElementById("dropdown-menu");
+      const searchToggle = document.getElementById("search-toggle");
+      const searchContainer2 = document.getElementById("search-container2");
+      const Homebtn = document.getElementById("back-to-home");
+
+      // --- Add event listener to the home button ---
+      Homebtn.addEventListener("click", () => {
+        window.location.href = "../../index.html";
+      });
+
+
+      // --- Slide-out Menu and Overlay ---
+      const navbar = document.querySelector(".navbar");
+
+      function setDropdownPosition() {
+        const navbarHeight = navbar.offsetHeight;
+        dropdownMenu.style.top = `${navbarHeight}px`;
+      }
+
+      setDropdownPosition(); // Set on initial load
+      const overlay = document.createElement('div');
+      overlay.className = 'overlay';
+      document.body.appendChild(overlay);
+
+      menuToggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        dropdownMenu.classList.add("show");
+        setDropdownPosition(); // Also set on open
+      });
+
+      function closeMenu() {
+        dropdownMenu.classList.remove("show");
+      }
+
+      // Add listener for the new close button
+      const menuCloseBtn = document.getElementById('menu-close-btn');
+      menuCloseBtn.addEventListener('click', closeMenu);
+
+
+
+      searchToggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        searchContainer2.classList.toggle("show");
+      });
+
+      const accordions = document.querySelectorAll(".accordion-header");
+      accordions.forEach((accordion) => {
+        accordion.addEventListener("click", function() {
+          const panel = this.nextElementSibling; // The .accordion-panel
+
+          this.classList.toggle("active");
+          
+          if (panel.style.maxHeight) {
+            panel.style.maxHeight = null;
+            panel.classList.remove("open");
+          } else {
+            const duration = Math.min(Math.max(panel.scrollHeight, 300), 800);
+            panel.style.transitionDuration = duration + "ms";
+            panel.classList.add("open");
+            panel.style.maxHeight = panel.scrollHeight + "px";
+          }
+        });
+      });
+
+      const searchInputs = document.querySelectorAll(".search-input");
+      const searchCloseBtn = document.getElementById("search-close-btn");
+      const contentCards = document.querySelectorAll(
+        ".content-card:not(#no-results-card)",
+      );
+      const noResultsCard = document.getElementById("no-results-card");
+
+      function performSearch() {
+        const query = this.value.toLowerCase().trim();
+        // Sync inputs
+        searchInputs.forEach(input => {
+            if (input !== this) input.value = this.value;
+        });
+
+        let resultsFound = false;
+        if (query === "") {
+          contentCards.forEach((card) => (card.style.display = "block"));
+          noResultsCard.style.display = "none";
+          return;
+        }
+        contentCards.forEach((card) => {
+          const header = card.querySelector(".accordion-header");
+          const headerText = header ? header.innerText.toLowerCase() : "";
+          const isMatch = headerText.includes(query);
+          card.style.display = isMatch ? "block" : "none";
+          if (isMatch) {
+            resultsFound = true;
+          }
+        });
+        noResultsCard.style.display = resultsFound ? "none" : "block";
+      }
+
+      searchInputs.forEach(input => input.addEventListener("keyup", performSearch));
+      if (searchCloseBtn) {
+          searchCloseBtn.addEventListener("click", () => searchContainer2.classList.remove("show"));
+      }
+
+      const backToTopBtn = document.getElementById("backToTopBtn");
+      if (backToTopBtn) {
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > 300) {
+            backToTopBtn.classList.add("show");
+          } else {
+            backToTopBtn.classList.remove("show");
+          }
+        });
+        backToTopBtn.addEventListener("click", () => {
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

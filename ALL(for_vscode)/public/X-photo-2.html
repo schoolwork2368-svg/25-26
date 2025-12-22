@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<!-- Add 'light' class by default, JS will manage this -->
+<html lang="en" class_name="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Mini Photo Editor</title>
+    <!-- Load Tailwind CSS for modern, responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        html { 
+            font-family: 'Inter', sans-serif; 
+            scroll-behavior: smooth;
+        }
+        /* Style the canvas to ensure it fits and is centered */
+        #editorCanvas {
+            max-width: 100%;
+            height: auto;
+            /* Use dark-mode compatible background */
+            background-color: #f1f5f9; /* slate-100 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            border-radius: 0.75rem; /* 12px */
+            transition: transform 0.3s ease;
+        }
+        /* Dark mode canvas background */
+        .dark #editorCanvas {
+            background-color: #1e293b; /* slate-800 */
+        }
+
+        /* Custom scrollbar for control panel */
+        #controls-panel::-webkit-scrollbar { width: 6px; }
+        #controls-panel::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; } /* slate-400 */
+        /* Dark mode scrollbar */
+        .dark #controls-panel::-webkit-scrollbar-thumb { background: #475569; } /* slate-600 */
+        .dark #controls-panel::-webkit-scrollbar-track { background: #334155; } /* slate-700 */
+
+        /* Custom styling for range inputs */
+        input[type="range"].accent-teal-500::-webkit-slider-thumb {
+            background: #14b8a6; /* teal-500 */
+        }
+        input[type="range"].accent-teal-500::-moz-range-thumb {
+            background: #14b8a6; /* teal-500 */
+        }
+        .dark input[type="range"].accent-teal-500 {
+            accent-color: #2dd4bf; /* teal-400 */
+        }
+        .dark input[type="range"].accent-teal-500::-webkit-slider-thumb {
+            background: #2dd4bf; /* teal-400 */
+        }
+        .dark input[type="range"].accent-teal-500::-moz-range-thumb {
+            background: #2dd4bf; /* teal-400 */
+        }
+    </style>
+</head>
+<body class="antialiased bg-slate-100 dark:bg-slate-900 min-h-screen p-4 sm:p-8 flex flex-col items-center transition-colors duration-300">
+
+    <div class="w-full max-w-7xl flex justify-between items-center mb-8">
+        <h1 class="text-4xl font-black text-slate-900 dark:text-white text-left">
+            Pro Image Editor <span class="text-teal-600 dark:text-teal-400">Refined UI</span>
+        </h1>
+        
+        <!-- Dark Mode Toggle Button -->
+        <button id="themeToggle" class="p-3 rounded-full shadow-md bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all duration-300 hover:scale-105 hover:bg-slate-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-4 focus:ring-teal-300 dark:focus:ring-teal-700">
+            <!-- Icon will be updated by JavaScript -->
+            <svg id="toggleIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <!-- Placeholder icon (Sun - Light Mode) -->
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+        </button>
+    </div>
+
+    <div class="w-full max-w-7xl flex flex-col lg:flex-row gap-8">
+
+        <!-- Image Display Area -->
+        <div id="image-container" class="lg:w-3/4 flex-grow bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl flex items-center justify-center min-h-[500px] border-4 border-slate-200 dark:border-slate-700 transition-colors duration-300">
+            <canvas id="editorCanvas" class="max-h-[80vh]"></canvas>
+            <p id="placeholder-message" class="text-slate-500 dark:text-slate-400 italic text-lg">Load an image to start editing!</p>
+        </div>
+
+        <!-- Controls Panel -->
+        <div id="controls-panel" class="lg:w-1/4 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl flex flex-col gap-6 overflow-y-auto max-h-[85vh] transition-colors duration-300">
+
+            <!-- File and History Controls -->
+            <div class="border-b pb-6 border-slate-200 dark:border-slate-700">
+                <h2 class="text-xl font-bold mb-4 text-teal-700 dark:text-teal-400">File & History</h2>
+                
+                <!-- Modern File Input -->
+                <label for="imageLoader" class="w-full text-center px-4 py-2.5 bg-teal-500 text-white font-semibold rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150 cursor-pointer block mb-3">
+                    Choose Image
+                </label>
+                <input type="file" id="imageLoader" class="hidden" accept="image/*" />
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="undoBtn" disabled class="flex items-center justify-center px-3 py-2 bg-amber-500 text-white font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150 disabled:bg-slate-400 dark:disabled:bg-slate-600">
+                        <!-- Undo Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><polygon points="3 11 3 22 22 22 22 11 15 11 15 2 11 2 11 11 3 11"></polygon></svg>
+                        Undo
+                    </button>
+                    <button id="redoBtn" disabled class="flex items-center justify-center px-3 py-2 bg-amber-500 text-white font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150 disabled:bg-slate-400 dark:disabled:bg-slate-600">
+                        Redo
+                        <!-- Redo Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><polygon points="17 11 17 22 2 22 2 11 9 11 9 2 13 2 13 11 17 11"></polygon></svg>
+                    </button>
+                </div>
+
+                <button id="downloadBtn" class="w-full mt-3 px-4 py-2.5 bg-emerald-600 dark:bg-emerald-500 text-white font-bold rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150 disabled:bg-slate-400 dark:disabled:bg-slate-600" disabled>
+                    Download Image (PNG)
+                </button>
+            </div>
+
+            <!-- Enhanced Adjustments Section -->
+            <div class="border-b pb-6 border-slate-200 dark:border-slate-700">
+                <h2 class="text-xl font-bold mb-4 text-teal-700 dark:text-teal-400">Adjustments</h2>
+
+                <!-- Sliders for Adjustments -->
+                <div id="adjustments-group" class="space-y-5">
+                    <!-- Brightness -->
+                    <div class="flex flex-col">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="brightness" class="text-base font-medium text-slate-700 dark:text-slate-300">Brightness</label>
+                            <div class="flex items-center">
+                                <input type="number" id="brightness-num" min="0" max="200" value="100" class="w-16 text-right border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-md p-1 text-sm focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-400 outline-none" />
+                                <span class="ml-2 text-sm text-slate-500 dark:text-slate-400">%</span>
+                            </div>
+                        </div>
+                        <input type="range" id="brightness" min="0" max="200" value="100" data-default="100" data-unit="%" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500" />
+                    </div>
+                    
+                    <!-- Exposure -->
+                    <div class="flex flex-col">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="exposure" class="text-base font-medium text-slate-700 dark:text-slate-300">Exposure</label>
+                            <div class="flex items-center">
+                                <input type="number" id="exposure-num" min="50" max="150" value="100" class="w-16 text-right border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-md p-1 text-sm focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-400 outline-none" />
+                                <span class="ml-2 text-sm text-slate-500 dark:text-slate-400">%</span>
+                            </div>
+                        </div>
+                        <input type="range" id="exposure" min="50" max="150" value="100" data-default="100" data-unit="%" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500" />
+                    </div>
+                    
+                    <!-- Contrast -->
+                    <div class="flex flex-col">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="contrast" class="text-base font-medium text-slate-700 dark:text-slate-300">Contrast</label>
+                            <div class="flex items-center">
+                                <input type="number" id="contrast-num" min="0" max="200" value="100" class="w-16 text-right border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-md p-1 text-sm focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-400 outline-none" />
+                                <span class="ml-2 text-sm text-slate-500 dark:text-slate-400">%</span>
+                            </div>
+                        </div>
+                        <input type="range" id="contrast" min="0" max="200" value="100" data-default="100" data-unit="%" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500" />
+                    </div>
+                    
+                    <!-- Saturation -->
+                    <div class="flex flex-col">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="saturation" class="text-base font-medium text-slate-700 dark:text-slate-300">Saturation</label>
+                            <div class="flex items-center">
+                                <input type="number" id="saturation-num" min="0" max="200" value="100" class="w-16 text-right border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-md p-1 text-sm focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-400 outline-none" />
+                                <span class="ml-2 text-sm text-slate-500 dark:text-slate-400">%</span>
+                            </div>
+                        </div>
+                        <input type="range" id="saturation" min="0" max="200" value="100" data-default="100" data-unit="%" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500" />
+                    </div>
+                    
+                    <!-- Hue -->
+                    <div class="flex flex-col">
+                        <div class="flex justify-between items-center mb-2">
+                            <label for="hue" class="text-base font-medium text-slate-700 dark:text-slate-300">Hue</label>
+                            <div class="flex items-center">
+                                <input type="number" id="hue-num" min="0" max="360" value="0" class="w-16 text-right border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-md p-1 text-sm focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-400 outline-none" />
+                                <span class="ml-2 text-sm text-slate-500 dark:text-slate-400">°</span>
+                            </div>
+                        </div>
+                        <input type="range" id="hue" min="0" max="360" value="0" data-default="0" data-unit="°" class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500" />
+                    </div>
+                    
+                </div>
+                <button id="resetAdjustmentsBtn" class="w-full mt-4 px-4 py-2 bg-slate-200 dark:bg-slate-600 text-slate-800 dark:text-white font-medium rounded-lg hover:opacity-90 active:scale-95 transition-all duration-150 text-sm">
+                    Reset All Adjustments
+                </button>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="border-b pb-6 border-slate-200 dark:border-slate-700">
+                <h2 class="text-xl font-bold mb-4 text-teal-700 dark:text-teal-400">Filters & Effects</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <button data-filter="grayscale" class="filterBtn px-3 py-2 bg-sky-600 dark:bg-sky-500 text-white font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150">Grayscale</button>
+                    <button data-filter="sepia" class="filterBtn px-3 py-2 bg-sky-600 dark:bg-sky-500 text-white font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150">Sepia</button>
+                    <button data-filter="invert" class="filterBtn px-3 py-2 bg-sky-600 dark:bg-sky-500 text-white font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150">Invert</button>
+                    <button data-filter="vignette" class="filterBtn px-3 py-2 bg-violet-600 dark:bg-violet-500 text-white font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150">Vignette</button>
+                    <button data-filter="blur" class="filterBtn px-3 py-2 bg-violet-600 dark:bg-violet-500 text-white font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150">Blur (Light)</button>
+                    <button data-filter="original" class="filterBtn px-3 py-2 bg-slate-500 dark:bg-slate-600 text-white font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150">Original</Fbutton>
+                </div>
+            </div>
+
+            <!-- Transformations Section -->
+            <div>
+                <h2 class="text-xl font-bold mb-4 text-teal-700 dark:text-teal-400">Transform</h2>
+                <div class="space-y-4">
+                    <!-- Rotation Input -->
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="rotation-angle-input" class="text-base font-medium text-slate-700 dark:text-slate-300">Rotation Angle</label>
+                            <div class="flex items-center">
+                                <input type="number" id="rotation-angle-input" min="0" max="360" step="1" value="0" class="w-16 text-right border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-md p-1 text-sm focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-rose-500 dark:focus:border-rose-400 outline-none" />
+                                <span class="ml-2 text-sm text-slate-500 dark:text-slate-400">°</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="flipHBtn" class="px-3 py-2 bg-rose-600 dark:bg-rose-500 text-white font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150">
+                            Flip Horizontal
+                        </button>
+                        <button id="flipVBtn" class="px-3 py-2 bg-rose-600 dark:bg-rose-500 text-white font-medium rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all duration-150">
+                            Flip Vertical
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Error/Status Message Box -->
+    <div id="statusBox" class="fixed bottom-4 right-4 text-white p-3 rounded-lg shadow-xl opacity-0 transition-all duration-300 pointer-events-none z-50">
+        <!-- Status messages appear here -->
+    </div>
+
+    <script>
+        // --- Dark Mode Logic ---
+        const htmlElement = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        /**
+         * Updates the toggle icon based on the current theme.
+         * @param {boolean} isDark - True if dark mode is active.
+         */
+        function updateToggleIcon(isDark) {
+            toggleIcon.innerHTML = ''; // Clear existing icon
+            if (!isDark) {
+                // Sun Icon (Light Mode)
+                toggleIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                `;
+            } else {
+                // Moon Icon (Dark Mode)
+                toggleIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                `;
+            }
+        }
+
+        /**
+         * Toggles the theme and saves the preference.
+         */
+        function toggleDarkMode() {
+            const isDark = htmlElement.classList.contains('dark');
+            if (isDark) {
+                htmlElement.classList.remove('dark');
+                htmlElement.classList.add('light');
+                localStorage.setItem('theme', 'light');
+                updateToggleIcon(false);
+            } else {
+                htmlElement.classList.remove('light');
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                updateToggleIcon(true);
+            }
+        }
+
+        /**
+         * Initializes the theme on page load.
+         */
+        function initializeTheme() {
+            const storedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            let initialTheme = 'light';
+
+            if (storedTheme) {
+                initialTheme = storedTheme;
+            } else if (prefersDark) {
+                initialTheme = 'dark';
+            }
+
+            if (initialTheme === 'dark') {
+                htmlElement.classList.remove('light');
+                htmlElement.classList.add('dark');
+                updateToggleIcon(true);
+            } else {
+                htmlElement.classList.remove('dark');
+                htmlElement.classList.add('light');
+                updateToggleIcon(false);
+            }
+        }
+
+        // Attach event listener for the toggle button
+        themeToggle.addEventListener('click', toggleDarkMode);
+
+        // --- Core Application Setup ---
+        const canvas = document.getElementById('editorCanvas');
+        const ctx = canvas.getContext('2d');
+        const imageLoader = document.getElementById('imageLoader');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
+        const adjustmentsGroup = document.getElementById('adjustments-group');
+        const resetAdjustmentsBtn = document.getElementById('resetAdjustmentsBtn');
+        const placeholderMessage = document.getElementById('placeholder-message');
+        const statusBox = document.getElementById('statusBox');
+
+        // Element References
+        const rotationAngleInput = document.getElementById('rotation-angle-input');
+
+
+        let originalImage = new Image();
+        let currentWidth = 0;
+        let currentHeight = 0;
+        let rotationAngle = 0; // 0 to 360 degrees
+        let flippedH = 1; // 1 or -1
+        let flippedV = 1; // 1 or -1
+        let currentFilter = 'none'; // Track active filter for history
+
+        // History Stack
+        let history = [];
+        let historyIndex = -1;
+        const MAX_HISTORY = 10; // Max states to keep
+
+        // Adjustment Values (used for current state)
+        let adjustments = {
+            brightness: 100, // 0 to 200
+            exposure: 100,   // 50 to 150
+            contrast: 100,   // 0 to 200
+            saturation: 100, // 0 to 200
+            hue: 0           // 0 to 360
+        };
+
+        // --- Utility Functions ---
+
+        /**
+         * Displays a temporary status message (e.g., error or success).
+         * @param {string} message The message to display.
+         * @param {string} type 'success' or 'error' (changes background color).
+         */
+        function showStatus(message, type = 'error') {
+            statusBox.textContent = message;
+            // Use new color palette
+            statusBox.className = `fixed bottom-4 right-4 text-white p-3 rounded-lg shadow-xl opacity-100 transition-all duration-300 pointer-events-auto z-50 ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
+            setTimeout(() => {
+                statusBox.className = statusBox.className.replace('opacity-100', 'opacity-0').replace('pointer-events-auto', 'pointer-events-none');
+            }, 3000);
+        }
+
+        /**
+         * Pushes the current canvas state onto the history stack.
+         * Call after every major, completed operation.
+         */
+        function pushHistory() {
+            // If we are not at the end of the history, remove subsequent states
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+
+            // Get current canvas data URL and push it
+            const dataUrl = canvas.toDataURL();
+            history.push({
+                dataUrl: dataUrl,
+                width: canvas.width,
+                height: canvas.height,
+                adjustments: JSON.parse(JSON.stringify(adjustments)), // Deep copy
+                rotationAngle: rotationAngle,
+                flippedH: flippedH,
+                flippedV: flippedV,
+                filter: currentFilter // Store the filter state
+            });
+
+            // Limit history size
+            if (history.length > MAX_HISTORY) {
+                history.shift();
+            } else {
+                historyIndex++;
+            }
+
+            updateHistoryButtons();
+        }
+
+        /**
+         * Loads a state from history and redraws the image.
+         * @param {number} index The index of the state to load.
+         */
+        function loadHistoryState(index) {
+            if (index >= 0 && index < history.length) {
+                historyIndex = index;
+                const state = history[historyIndex];
+
+                // Restore image data
+                const img = new Image();
+                img.onload = () => {
+                    // Restore canvas size
+                    canvas.width = state.width;
+                    canvas.height = state.height;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Restore transformations, adjustments, and filter
+                    adjustments = JSON.parse(JSON.stringify(state.adjustments));
+                    rotationAngle = state.rotationAngle;
+                    flippedH = state.flippedH;
+                    flippedV = state.flippedV;
+                    currentFilter = state.filter || 'none'; // Default to 'none' if undefined
+
+                    // Redraw the base image and apply all effects
+                    redrawImage(true); // Redraw without pushing new history state
+                    updateAdjustmentControls();
+                    updateHistoryButtons();
+                    updateRotationControl(); // Update rotation input
+                };
+                img.src = state.dataUrl;
+            }
+        }
+
+        /**
+         * Updates the disabled state of the Undo/Redo buttons.
+         */
+        function updateHistoryButtons() {
+            undoBtn.disabled = historyIndex <= 0;
+            redoBtn.disabled = historyIndex >= history.length - 1;
+        }
+
+        /**
+         * Updates the UI elements (sliders and number inputs) to match the current adjustment state.
+         */
+        function updateAdjustmentControls() {
+            // Update sliders and number inputs for adjustments
+            Object.keys(adjustments).forEach(key => {
+                const rangeInput = document.getElementById(key);
+                const numInput = document.getElementById(`${key}-num`);
+
+                if (rangeInput) rangeInput.value = adjustments[key];
+                if (numInput) numInput.value = adjustments[key];
+            });
+            
+            // Update the rotation input
+            updateRotationControl();
+        }
+        
+        /**
+         * Updates the UI element for rotation.
+         */
+        function updateRotationControl() {
+            if (rotationAngleInput) {
+                rotationAngleInput.value = rotationAngle;
+            }
+        }
+
+        // --- Core Image Manipulation Functions ---
+
+        /**
+         * Converts RGB to HSL for Hue manipulation.
+         * @returns {Array<number>} [h, s, l]
+         */
+        function rgbToHsl(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            let max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0; // achromatic
+            } else {
+                let d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return [h * 360, s, l]; // Hue in degrees, S/L in 0-1
+        }
+
+        /**
+         * Converts HSL back to RGB.
+         * @param {number} h Hue in degrees (0-360)
+         * @returns {Array<number>} [r, g, b] (0-255)
+         */
+        function hslToRgb(h, s, l) {
+            let r, g, b;
+            h /= 360;
+
+            if (s === 0) {
+                r = g = b = l; // achromatic
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1 / 6) return p + (q - p) * 6 * t;
+                    if (t < 1 / 2) return q;
+                    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                    return p;
+                };
+                let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                let p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1 / 3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1 / 3);
+            }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+
+
+        /**
+         * Applies the current brightness, contrast, saturation, exposure, and hue rotation.
+         */
+        function applyAdjustments() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const len = data.length;
+
+            // B/C/S/E/H values mapped
+            const b = (adjustments.brightness / 100) - 1;   // -1 to 1 (Brightness add/subtract)
+            const c = adjustments.contrast / 100;          // 0 to 2 (Contrast scale)
+            const s = adjustments.saturation / 100;        // 0 to 2 (Saturation scale)
+            const e = adjustments.exposure / 100;          // 0.5 to 1.5 (Exposure scale)
+            const h_offset = adjustments.hue;              // 0 to 360 degrees
+
+            // Pre-calculate contrast factor
+            const contrastFactor = (259 * (c + 255)) / (255 * (259 - c));
+
+            for (let i = 0; i < len; i += 4) {
+                let r = data[i];
+                let g = data[i + 1];
+                let b_val = data[i + 2];
+
+                // --- 1. Exposure ---
+                r *= e;
+                g *= e;
+                b_val *= e;
+
+                // --- 2. Contrast ---
+                r = contrastFactor * (r - 128) + 128;
+                g = contrastFactor * (g - 128) + 128;
+                b_val = contrastFactor * (b_val - 128) + 128;
+
+                // --- 3. Hue Rotation & Saturation (HSL based) ---
+                if (s !== 1.0 || h_offset !== 0) {
+                    let [h, sat, l] = rgbToHsl(r, g, b_val);
+
+                    // Apply Saturation
+                    sat *= s;
+                    sat = Math.max(0, Math.min(1, sat)); // Clamp saturation
+
+                    // Apply Hue Shift
+                    h = (h + h_offset) % 360;
+                    if (h < 0) h += 360;
+
+                    [r, g, b_val] = hslToRgb(h, sat, l);
+                }
+
+                // --- 4. Brightness (Applied last for visual impact) ---
+                r += b * 255;
+                g += b * 255;
+                b_val += b * 255;
+
+                // Clamp values and update data
+                data[i] = Math.min(255, Math.max(0, r));
+                data[i + 1] = Math.min(255, Math.max(0, g));
+                data[i + 2] = Math.min(255, Math.max(0, b_val));
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        /**
+         * Applies a 3x3 Box Blur (Convolution).
+         */
+        function applyBlur() {
+            const originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const originalData = originalImageData.data;
+            const outputImageData = ctx.createImageData(canvas.width, canvas.height);
+            const outputData = outputImageData.data;
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Simple 3x3 Box Blur kernel
+            const kernel = [1, 1, 1, 1, 1, 1, 1, 1, 1];
+            const kernelWeight = 9;
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    let r = 0, g = 0, b = 0;
+                    for (let ky = -1; ky <= 1; ky++) {
+                        for (let kx = -1; kx <= 1; kx++) {
+                            const nx = x + kx;
+                            const ny = y + ky;
+                            // Clamp coordinates to image boundaries
+                            const pixelX = Math.min(w - 1, Math.max(0, nx));
+                            const pixelY = Math.min(h - 1, Math.max(0, ny));
+
+                            const idx = (pixelY * w + pixelX) * 4;
+                            const kernelIndex = (ky + 1) * 3 + (kx + 1);
+                            const weight = kernel[kernelIndex];
+
+                            r += originalData[idx] * weight;
+                            g += originalData[idx + 1] * weight;
+                            b += originalData[idx + 2] * weight;
+                        }
+                    }
+
+                    const outputIdx = (y * w + x) * 4;
+                    outputData[outputIdx] = r / kernelWeight;
+                    outputData[outputIdx + 1] = g / kernelWeight;
+                    outputData[outputIdx + 2] = b / kernelWeight;
+                    outputData[outputIdx + 3] = 255; // Alpha
+                }
+            }
+
+            ctx.putImageData(outputImageData, 0, 0);
+        }
+
+        /**
+         * Applies a Vignette (darkening edges) effect.
+         */
+        function applyVignette() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const w = canvas.width;
+            const h = canvas.height;
+            const center = { x: w / 2, y: h / 2 };
+            const maxDistance = Math.sqrt(center.x * center.x + center.y * center.y); // Max radius
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const i = (y * w + x) * 4;
+                    const dx = x - center.x;
+                    const dy = y - center.y;
+                    const distance = Math.sqrt(dx * dx * dy);
+
+                    // Calculate falloff: 0.8 starts the effect earlier, 0.4 controls the intensity
+                    const ratio = (distance / maxDistance);
+                    const vignetteFactor = 1 - (ratio * ratio * 0.4);
+
+                    data[i] = data[i] * vignetteFactor;
+                    data[i + 1] = data[i + 1] * vignetteFactor;
+                    data[i + 2] = data[i + 2] * vignetteFactor;
+                }
+            }
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+
+        /**
+         * Resets canvas, applies rotation and flip transforms, and redraws the image.
+         */
+        function redrawImage(skipHistory = false) {
+            if (!originalImage.src) return;
+
+            // Normalize rotation angle to 0, 90, 180, 270 based on typed input
+            // Find the closest 90-degree increment for transformation calculation
+            const normalizedRotation = Math.round(rotationAngle / 90) * 90;
+            const effectiveRotation = normalizedRotation % 360;
+
+            // Calculate new dimensions based on rotation
+            const isRotated = effectiveRotation === 90 || effectiveRotation === 270 || effectiveRotation === -90 || effectiveRotation === -270;
+            const newW = isRotated ? currentHeight : currentWidth;
+            const newH = isRotated ? currentWidth : currentHeight;
+
+            canvas.width = newW;
+            canvas.height = newH;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Apply transformations
+            ctx.translate(newW / 2, newH / 2);
+            // Use the original typed angle for smooth rendering
+            ctx.rotate(rotationAngle * Math.PI / 180);
+            ctx.scale(flippedH, flippedV);
+
+            // Draw the original image back (centered)
+            ctx.drawImage(originalImage, -currentWidth / 2, -currentHeight / 2, currentWidth, currentHeight);
+
+            // Reset the transform matrix
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+            // Apply filters and adjustments
+            if (currentFilter === 'blur') {
+                applyBlur(); // Blur must run on the original image first
+            }
+
+            applyAdjustments();
+
+            // Apply specific pixel filters (grayscale, sepia, invert)
+            if (currentFilter !== 'none' && currentFilter !== 'blur' && currentFilter !== 'vignette') {
+                applyPixelFilter(currentFilter);
+            }
+
+            // Apply cosmetic filter last
+            if (currentFilter === 'vignette') {
+                applyVignette();
+            }
+
+            // Push state to history if not skipping
+            if (!skipHistory) {
+                pushHistory();
+            }
+        }
+
+        /**
+         * Applies simple pixel filters (Grayscale, Sepia, Invert).
+         * @param {string} filter The name of the filter to apply.
+         */
+        function applyPixelFilter(filter) {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                let r = data[i];
+                let g = data[i + 1];
+                let b_val = data[i + 2];
+
+                if (filter === 'grayscale') {
+                    const avg = (r + g + b_val) / 3;
+                    r = g = b_val = avg;
+                } else if (filter === 'sepia') {
+                    r = Math.min(255, (data[i] * 0.393) + (data[i + 1] * 0.769) + (data[i + 2] * 0.189));
+                    g = Math.min(255, (data[i] * 0.349) + (data[i + 1] * 0.686) + (data[i + 2] * 0.168));
+                    b_val = Math.min(255, (data[i] * 0.272) + (data[i + 1] * 0.534) + (data[i + 2] * 0.131));
+                } else if (filter === 'invert') {
+                    r = 255 - r;
+                    g = 255 - g;
+                    b_val = 255 - b_val;
+                }
+
+                data[i] = r;
+                data[i + 1] = g;
+                data[i + 2] = b_val;
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // --- Event Listeners & Handlers ---
+
+        imageLoader.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Update file input label
+            const label = document.querySelector('label[for="imageLoader"]');
+            if(file.name.length > 20) {
+                label.textContent = file.name.substring(0, 17) + '...';
+            } else {
+                label.textContent = file.name;
+            }
+            label.classList.remove('bg-teal-500');
+            label.classList.add('bg-slate-600');
+
+
+            // Hide placeholder and enable controls
+            placeholderMessage.classList.add('hidden');
+            downloadBtn.disabled = false;
+            document.querySelectorAll('.filterBtn').forEach(btn => btn.disabled = false);
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                originalImage.onload = () => {
+                    // Set base dimensions (width and height of the image without rotation)
+                    currentWidth = originalImage.width;
+                    currentHeight = originalImage.height;
+
+                    // Reset all states
+                    rotationAngle = 0;
+                    flippedH = 1;
+                    flippedV = 1;
+                    currentFilter = 'none';
+                    adjustments = { brightness: 100, exposure: 100, contrast: 100, saturation: 100, hue: 0 };
+                    history = [];
+                    historyIndex = -1;
+                    updateAdjustmentControls();
+
+                    // Initial draw and push history
+                    redrawImage();
+                };
+                originalImage.src = event.target.result;
+            };
+            reader.onerror = () => showStatus('Error reading file.', 'error');
+            reader.readAsDataURL(file);
+        });
+
+        // --- History Handlers ---
+        undoBtn.addEventListener('click', () => {
+            if (historyIndex > 0) {
+                loadHistoryState(historyIndex - 1);
+            }
+        });
+
+        redoBtn.addEventListener('click', () => {
+            if (historyIndex < history.length - 1) {
+                loadHistoryState(historyIndex + 1);
+            }
+        });
+
+        // --- Adjustment Handlers (Sync Range and Number Inputs) ---
+
+        /**
+         * Handles changes on either the range or number input for an adjustment.
+         * Syncs the values and redraws the image for live preview.
+         * @param {Event} e The input or change event.
+         */
+        function handleAdjustmentInput(e) {
+            const input = e.target;
+            let key, value;
+            let isNumberInput = input.id.endsWith('-num');
+
+            if (isNumberInput) {
+                // Number input changed: get key and sanitize value
+                key = input.id.replace('-num', '');
+                value = parseInt(input.value, 10);
+                
+                const rangeInput = document.getElementById(key);
+                if (!rangeInput) return; // Safety check
+                
+                const min = parseInt(rangeInput.min);
+                const max = parseInt(rangeInput.max);
+
+                // Clamp value to min/max
+                if (isNaN(value)) {
+                    value = adjustments[key]; // Revert if invalid
+                }
+                value = Math.min(max, Math.max(min, value));
+                input.value = value;
+                
+                // Sync to range input
+                rangeInput.value = value;
+
+            } else if (input.type === 'range') {
+                // Range input changed: get key and value
+                key = input.id;
+                value = parseInt(input.value, 10);
+
+                // Sync to number input
+                const numInput = document.getElementById(`${key}-num`);
+                if (numInput) numInput.value = value;
+            } else {
+                return;
+            }
+
+            // Update adjustment state
+            adjustments[key] = value;
+            
+            // Re-draw immediately on input change for live preview, skip history push
+            redrawImage(true);
+        }
+        
+        // Handle 'blur' event for number inputs to ensure value is sane
+        adjustmentsGroup.addEventListener('blur', (e) => {
+             if (e.target.id.endsWith('-num')) {
+                 const key = e.target.id.replace('-num', '');
+                 if (isNaN(parseInt(e.target.value, 10))) {
+                     e.target.value = adjustments[key]; // Reset to last good value
+                 }
+             }
+        }, true); // Use capture phase
+
+        // Listen for input on range (live drag) and change on number (typing finished)
+        adjustmentsGroup.addEventListener('input', handleAdjustmentInput);
+        
+        // Use 'change' event to push to history. This triggers on slider release or number input blur/enter.
+        adjustmentsGroup.addEventListener('change', (e) => {
+            if (originalImage.src) {
+                pushHistory();
+                showStatus('Adjustment saved.', 'success');
+            }
+        });
+
+        resetAdjustmentsBtn.addEventListener('click', () => {
+            if (!originalImage.src) return;
+            adjustments = { brightness: 100, exposure: 100, contrast: 100, saturation: 100, hue: 0 };
+            updateAdjustmentControls();
+            redrawImage();
+            showStatus('All adjustments reset.', 'success');
+        });
+
+        // --- Filter Handlers ---
+        document.querySelectorAll('.filterBtn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                if (!originalImage.src) return;
+
+                const filter = e.target.getAttribute('data-filter');
+
+                currentFilter = (filter === 'original') ? 'none' : filter;
+
+                redrawImage();
+                showStatus(`${e.target.textContent.trim()} effect applied.`, 'success');
+            });
+        });
+
+        // --- Transformation Handlers ---
+
+        /**
+         * Handles direct typing into the rotation angle input.
+         */
+        rotationAngleInput.addEventListener('input', (e) => {
+            if (!originalImage.src) return;
+            let value = parseInt(e.target.value, 10);
+            
+            // Clamp and normalize value
+            value = isNaN(value) ? 0 : Math.min(360, Math.max(0, value));
+            
+            rotationAngle = value;
+            redrawImage(true); // Live preview without history push
+        });
+        
+        rotationAngleInput.addEventListener('change', (e) => {
+             if (originalImage.src) {
+                // Sanitize on change (e.g., if user leaves it empty)
+                let value = parseInt(e.target.value, 10);
+                value = isNaN(value) ? 0 : Math.min(360, Math.max(0, value));
+                e.target.value = value;
+                rotationAngle = value;
+                
+                pushHistory();
+                showStatus('Rotation angle set.', 'success');
+            }
+        });
+
+        document.getElementById('flipHBtn').addEventListener('click', () => {
+            if (!originalImage.src) return;
+            flippedH *= -1;
+            redrawImage();
+            showStatus('Flipped Horizontal.', 'success');
+        });
+
+
+
+        document.getElementById('flipVBtn').addEventListener('click', () => {
+            if (!originalImage.src) return;
+            flippedV *= -1;
+            redrawImage();
+            showStatus('Flipped Vertical.', 'success');
+        });
+
+        // --- Download Handler ---
+        downloadBtn.addEventListener('click', () => {
+            if (!originalImage.src) {
+                showStatus('No image to download.', 'error');
+                return;
+            }
+            const dataURL = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = dataURL;
+            a.download = 'pro_edited_image.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showStatus('Image downloaded successfully!', 'success');
+        });
+
+        // Initialize the theme as soon as the script runs
+        initializeTheme();
+
+    </script>
+</body>
+</html>

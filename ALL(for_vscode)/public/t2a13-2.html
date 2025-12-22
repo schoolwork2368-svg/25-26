@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode: Two Sum</title>
+</head>
+<body>
+
+    <h1>Problem: Two Sum</h1>
+
+<p><strong>Goal:</strong> Find the indices of two numbers in the array that add up to the Target Sum.</p>
+
+    <div>
+        <p><strong>Input Example:</strong> nums = [2, 7, 11, 15], target = 9</p>
+        <p><strong>Expected Output:</strong> [1, 2] (because 2 + 7 = 9)</p>
+    </div>
+
+    <h2>Test Your Array</h2>
+
+    <div>
+        <p>Enter Array (separated by commas):</p>
+<pre><li><input
+            type="text"
+            id="numInput"
+            placeholder="e.g., 2, 7, 11, 15"
+            value="2, 7, 11, 15"
+        >
+    </li></pre></div>
+    <div>
+        <p>Enter Target Sum:</p>
+<pre><li><input
+            type="number"
+            id="targetInput"
+            placeholder="e.g., 9"
+            value="9"
+        >
+    </li></pre></div>
+    
+    <button onclick="findTwoSum()">
+        Find Sum Indices
+    </button>
+
+    <h2>Result:</h2>
+    <pre id="result"></pre>
+
+    <h2>The Solution Logic (O(n)):</h2>
+    <pre>
+function twoSum(nums, target) {
+    // 1. Initialize a Map to store (value: index) pairs.
+    const map = new Map();
+
+    // 2. Iterate through the array once.
+    for (let i = 0; i < nums.length; i++) {
+        const currentNum = nums[i];
+        
+        // 3. Calculate the 'complement' needed to reach the target.
+        const complement = target - currentNum;
+
+        // 4. Check if the complement already exists in the map.
+        if (map.has(complement)) {
+            // If it exists, we found the pair! Return the stored index
+            // of the complement and the current index 'i'.
+            return [map.get(complement), i];
+        }
+
+        // 5. If the complement is not found, store the current number
+        // and its index for future checks.
+        map.set(currentNum, i);
+    }
+
+    // Since the problem guarantees a solution, this line is theoretically unreachable.
+    return []; 
+}
+    </pre>
+
+    <script>
+        // The core logic for the LeetCode problem, using a Map for O(N) efficiency.
+        function twoSum(nums, target) {
+            // Map stores { number: index }
+            const numMap = new Map(); 
+
+            for (let i = 0; i < nums.length; i++) {
+                const currentNum = nums[i];
+                const complement = target - currentNum;
+
+                // Check if the required complement is already in the map
+                if (numMap.has(complement)) {
+                    // Return the index of the complement and the current index
+                    return [numMap.get(complement), i];
+                }
+
+                // Store the current number and its index
+                numMap.set(currentNum, i);
+            }
+
+            // Should not be reached based on problem constraints
+            return []; 
+        }
+
+        // Function to handle the HTML input/output flow.
+        function findTwoSum() {
+            const inputElement = document.getElementById('numInput');
+            const targetElement = document.getElementById('targetInput');
+            const resultElement = document.getElementById('result');
+            
+            const rawInput = inputElement.value.trim();
+            const rawTarget = targetElement.value.trim();
+
+            if (rawInput === "" || rawTarget === "") {
+                resultElement.textContent = "Please enter both the array elements and the target sum.";
+                return;
+            }
+
+            // Parse the array input string into an array of integers.
+            const nums = rawInput.split(',')
+                                 .map(s => s.trim())
+                                 .filter(s => s !== '')
+                                 .map(s => parseInt(s, 10));
+            
+            const target = parseInt(rawTarget, 10);
+
+            // Validation checks
+            if (nums.some(isNaN) || isNaN(target)) {
+                 resultElement.textContent = "Error: Input must contain only numbers.";
+                 return;
+            }
+
+            // Run the core algorithm
+            const indices = twoSum(nums, target);
+
+            // Display the formatted result
+            let resultText = `Input Array: [${nums.join(', ')}]\n`;
+            resultText += `Target Sum: ${target}\n`;
+            
+            if (indices.length === 2) {
+                 const [index1, index2] = indices;
+                 resultText += `Result Indices: [${index1}, ${index2}]\n`;
+                 resultText += `Verification: nums[${index1}] (${nums[index1]}) + nums[${index2}] (${nums[index2]}) = ${nums[index1] + nums[index2]}`;
+            } else {
+                 resultText += "Result: Solution not found (This should not happen based on problem constraints).";
+            }
+
+            resultElement.textContent = resultText;
+        }
+        
+        // Run on load with the default value
+        window.onload = findTwoSum;
+    
+
+
+function sendHeight() {
+        // This is the multi-measurement method to ensure we get the true height.
+        const contentHeight = Math.max(
+            document.body.scrollHeight, 
+            document.documentElement.scrollHeight,
+            document.body.offsetHeight, 
+            document.documentElement.offsetHeight,
+            document.body.clientHeight, 
+            document.documentElement.clientHeight
+        );
+        
+        // **DEBUGGING CHECK:** See what height is being measured.
+        console.log('IFRAME: Measured Height:', contentHeight); 
+        
+        // Send a message to the parent window
+        window.parent.postMessage(
+            {
+                height: contentHeight,
+                source: 't2a13-iframe' // Identifier for the parent to check
+            },
+            '*' // Target origin: '*' is for testing; replace with parent domain for security
+        );
+    }
+
+    // Aggressively send the height every 1/4 second to catch dynamic content loading.
+    // This often fixes initial load timing issues.
+    setInterval(sendHeight, 250); 
+    
+    // You should also call it once right away in case the interval is too slow.
+    sendHeight();
+
+</script>
+
+
+
+	</div>
+
+</body>
+</html>

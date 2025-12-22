@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Image Combiner & Cropper</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the cropping overlay and cursor */
+        #mainCanvas {
+            border: 2px solid #3b82f6; /* Blue border */
+            cursor: crosshair;
+            display: block;
+            width: 100%; /* Ensure canvas takes full container width */
+            height: auto; /* Height calculated by JS to maintain aspect ratio */
+            touch-action: none; /* Prevents unwanted scrolling/pinching on the document */
+            background-color: #f3f4f6;
+            transition: box-shadow 0.2s; /* Smooth visual feedback */
+        }
+
+        #mainCanvas:hover {
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Responsive container for the canvas to maintain aspect ratio */
+        .canvas-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Modal Backdrop */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85); /* Darker backdrop for mobile clarity */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .modal-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem; /* Reduced padding for mobile */
+            border-radius: 0.75rem;
+            max-width: 95%; /* Better fit on small screens */
+            max-height: 95%;
+            overflow: auto;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease-out;
+        }
+        
+        .modal-backdrop.active .modal-content {
+            transform: scale(1);
+        }
+
+        /* Responsive button sizing */
+        .mode-btn {
+            min-height: 44px; /* Minimum touch target size */
+            white-space: nowrap;
+        }
+        
+        /* Custom spinner for loading state */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 font-sans">
+
+    <!-- Modal for Preview -->
+    <div id="previewModal" class="modal-backdrop">
+        <div class="modal-content">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-4" id="previewTitle">Combined Image Preview</h2>
+            <div class="mb-6 flex justify-center items-center p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                <!-- Cropped image will be displayed here -->
+                <img id="previewImage" alt="Combined Image Preview" class="max-w-full max-h-[70vh] rounded-lg shadow-xl" /> 
+            </div>
+            <button id="closeModalButton" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-150 shadow-md">
+                Close Preview
+            </button>
+        </div>
+    </div>
+
+
+    <div class="max-w-6xl mx-auto">
+        <header class="text-center mb-6 md:mb-10 p-2">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900">
+                Multi-Image Combiner & Cropper
+            </h1>
+            <p class="text-sm md:text-base text-gray-600 mt-2">
+                Load, crop, and then **combine** multiple images into a single final file.
+            </p>
+        </header>
+
+        <!-- Main Interface -->
+        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-2xl space-y-6">
+
+            <!-- 1. File Upload / URL Load -->
+            <div class="border-b pb-4">
+                <label for="imageUpload" class="block text-base font-semibold text-gray-700 mb-2">
+                    1a. Upload Local Image(s)
+                </label>
+                <!-- Added 'multiple' attribute here -->
+                <input type="file" id="imageUpload" accept="image/*" multiple class="w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100 cursor-pointer
+                ">
+                
+                <label for="imageUrlInput" class="block text-base font-semibold text-gray-700 mt-4 mb-2">
+                    1b. Load Image from URL (One at a time)
+                </label>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="url" id="imageUrlInput" placeholder="Paste image URL here (e.g., https://placehold.co/800x600)"
+                           class="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <button id="loadUrlButton" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-150 shadow-md sm:w-auto">
+                        Load URL
+                    </button>
+                </div>
+            </div>
+
+            <!-- Image Navigation Controls -->
+            <div id="imageControls" class="flex justify-between items-center py-2 border-b border-t" style="display: none;">
+                <button id="prevButton" class="bg-gray-500 text-white p-2 rounded-lg disabled:opacity-50 hover:bg-gray-600 transition">
+                    &larr; Previous Image
+                </button>
+                <span id="statusDisplay" class="font-semibold text-gray-700 text-sm md:text-base">
+                    Image 1 of 1
+                </span>
+                <button id="nextButton" class="bg-gray-500 text-white p-2 rounded-lg disabled:opacity-50 hover:bg-gray-600 transition">
+                    Next Image &rarr;
+                </button>
+            </div>
+
+
+            <!-- 2. Cropping Modes (Responsive Flex) -->
+            <div class="border-b pb-4">
+                <label class="block text-base font-semibold text-gray-700 mb-3">
+                    2. Select Cropping Shape
+                </label>
+                <div id="cropModeButtons" class="flex flex-wrap gap-2 md:gap-3">
+                    <button data-mode="square" class="mode-btn flex-1 min-w-[45%] md:min-w-0 bg-blue-600 text-white hover:bg-blue-700 py-2 px-3 rounded-lg shadow-md transition duration-150 active">
+                        Square Crop
+                    </button>
+                    <button data-mode="circle" class="mode-btn flex-1 min-w-[45%] md:min-w-0 bg-gray-200 text-gray-700 hover:bg-gray-300 py-2 px-3 rounded-lg transition duration-150">
+                        Circle Crop
+                    </button>
+                    <button data-mode="triangle" class="mode-btn flex-1 min-w-[45%] md:min-w-0 bg-gray-200 text-gray-700 hover:bg-gray-300 py-2 px-3 rounded-lg transition duration-150">
+                        Triangle Crop
+                    </button>
+                    <button data-mode="freehand" class="mode-btn flex-1 min-w-[45%] md:min-w-0 bg-gray-200 text-gray-700 hover:bg-gray-300 py-2 px-3 rounded-lg transition duration-150">
+                        Freehand Rect
+                    </button>
+                    <button data-mode="polygon" class="mode-btn flex-1 min-w-[95%] md:min-w-0 bg-gray-200 text-gray-700 hover:bg-gray-300 py-2 px-3 rounded-lg transition duration-150">
+                        Polygon Draw
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. Canvas Display -->
+            <div class="text-center">
+                <label class="block text-base font-semibold text-gray-700 mb-3">
+                    3. Draw Selection on Image
+                </label>
+                <div class="canvas-container bg-white overflow-hidden">
+                    <canvas id="mainCanvas"></canvas>
+                </div>
+                <!-- Message Box below canvas for visibility -->
+                <div id="messageBox" class="mt-4 p-3 text-sm bg-yellow-100 border border-yellow-300 text-yellow-800 rounded-lg hidden text-left" role="alert">
+                    Please upload an image first.
+                </div>
+            </div>
+            
+            <!-- 4. Combination Layout Selection -->
+            <div class="border-t pt-4">
+                <label class="block text-base font-semibold text-gray-700 mb-3">
+                    4. Select Combination Layout (For 2+ Images)
+                </label>
+                <div id="combineModeRadios" class="flex gap-4 p-3 bg-gray-50 rounded-lg">
+                    <label class="flex items-center text-gray-700 cursor-pointer">
+                        <input type="radio" name="combineMode" value="horizontal" checked class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                        <span class="ml-2 font-medium text-sm">Horizontal (Side-by-Side)</span>
+                    </label>
+                    <label class="flex items-center text-gray-700 cursor-pointer">
+                        <input type="radio" name="combineMode" value="vertical" class="form-radio h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                        <span class="ml-2 font-medium text-sm">Vertical (Stacked)</span>
+                    </label>
+                </div>
+            </div>
+
+
+            <!-- 5. Actions: Preview and Download (Responsive Flex) -->
+            <div class="pt-4 flex flex-col sm:flex-row gap-4">
+                <!-- ZOOM/PAN TOGGLE BUTTON -->
+                <button id="toggleZoomPanBtn" class="w-full sm:w-1/3 text-white font-bold py-3 px-8 rounded-xl shadow-xl transition duration-150 text-base md:text-lg bg-gray-500 hover:bg-gray-600">
+                    Activate Zoom/Pan
+                </button>
+                
+                <button id="previewButton" disabled class="w-full sm:w-1/3 bg-yellow-500 text-white font-bold py-3 px-8 rounded-xl shadow-xl hover:bg-yellow-600 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed text-base md:text-lg flex justify-center items-center">
+                    <div id="previewSpinner" class="hidden spinner mr-2"></div>
+                    <svg id="previewIcon" class="w-5 h-5 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    Preview Combined
+                </button>
+                <button id="downloadButton" disabled class="w-full sm:w-1/3 bg-green-600 text-white font-bold py-3 px-8 rounded-xl shadow-xl hover:bg-green-700 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed text-base md:text-lg flex justify-center items-center">
+                    <div id="downloadSpinner" class="hidden spinner mr-2"></div>
+                    <svg id="downloadIcon" class="w-5 h-5 inline mr-2 -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download Combined
+                </button>
+            </div>
+            
+            <div class="pt-4 text-center">
+                 <p class="text-xs text-gray-500">
+                    Keyboard controls are optimized for desktop use. **Pinch-to-zoom** is active on mobile.
+                </p>
+            </div>
+        </div>
+
+        <!-- Hidden Canvas for final cropping/combining -->
+        <canvas id="cropCanvas" style="display: none;"></canvas>
+        <canvas id="tempCanvas" style="display: none;"></canvas>
+
+    </div>
+
+    <script>
+        // --- Core Variables and Elements ---
+        const mainCanvas = document.getElementById('mainCanvas');
+        const mainCtx = mainCanvas.getContext('2d');
+        const cropCanvas = document.getElementById('cropCanvas');
+        const cropCtx = cropCanvas.getContext('2d');
+        const tempCanvas = document.getElementById('tempCanvas'); // New canvas for single-image cropping
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        const imageUpload = document.getElementById('imageUpload');
+        const downloadButton = document.getElementById('downloadButton');
+        const previewButton = document.getElementById('previewButton');
+        const cropModeButtons = document.getElementById('cropModeButtons');
+        const toggleZoomPanBtn = document.getElementById('toggleZoomPanBtn'); 
+
+        // New DOM elements for URL loading
+        const imageUrlInput = document.getElementById('imageUrlInput');
+        const loadUrlButton = document.getElementById('loadUrlButton');
+        
+        // Navigation elements
+        const imageControls = document.getElementById('imageControls');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        const statusDisplay = document.getElementById('statusDisplay');
+        const previewTitle = document.getElementById('previewTitle');
+        const combineModeRadios = document.getElementById('combineModeRadios');
+
+        // Modal elements
+        const previewModal = document.getElementById('previewModal');
+        const previewImage = document.getElementById('previewImage');
+        const closeModalButton = document.getElementById('closeModalButton');
+        
+        const previewSpinner = document.getElementById('previewSpinner');
+        const previewIcon = document.getElementById('previewIcon');
+        const downloadSpinner = document.getElementById('downloadSpinner');
+        const downloadIcon = document.getElementById('downloadIcon');
+        
+        // --- MULTI-IMAGE STATE ---
+        let images = []; 
+        let currentImageIndex = -1; 
+        
+        // --- ACTIVE IMAGE STATE (These global variables hold the state of the *current* image) ---
+        let cropMode = 'square'; 
+        let zoom = 1;
+        let minZoom = 0.2, maxZoom = 10;
+        let pan = { x: 0, y: 0 };
+        let cropRect = { x: 0, y: 0, w: 0, h: 0 }; 
+        let polygonPoints = [];
+        let isDrawingPolygon = false; 
+        
+        let combineMode = 'horizontal'; // 'horizontal' or 'vertical'
+        
+        let canvasWidth, canvasHeight; // Dimensions of the "world" (set by canvas container width)
+        
+        // Global for messages
+        const messageBox = document.getElementById('messageBox');
+
+        // Interaction state management
+        let isPanning = false;
+        let isSpacebarDown = false;
+        let isZoomPanActive = false; 
+        let isPinching = false;
+        let interactionMode = 'none'; 
+        let dragStart = { x: 0, y: 0 }; 
+        let currentMouseCanvasPos = { x: 0, y: 0 }; 
+        const TAP_THRESHOLD = 10; 
+        const closeThreshold = 15; 
+
+        // --- UTILITIES ---
+
+        function getCurrentImgObj() {
+            return images[currentImageIndex];
+        }
+
+        // Function to display messages to the user
+        function showMessage(text, type = 'warning') {
+            messageBox.textContent = text;
+            messageBox.className = `mt-4 p-3 text-sm rounded-lg text-left ${type === 'warning' ? 'bg-yellow-100 border-yellow-300 text-yellow-800' : type === 'success' ? 'bg-green-100 border-green-300 text-green-800' : 'bg-blue-100 border-blue-300 text-blue-800'} transition-opacity duration-300`;
+            messageBox.style.display = 'block';
+            
+            if (type !== 'warning') {
+                setTimeout(() => {
+                    messageBox.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        function setProcessingState(isProcessing) {
+            previewButton.disabled = isProcessing || images.length === 0 || isDrawingPolygon;
+            downloadButton.disabled = isProcessing || images.length === 0 || isDrawingPolygon;
+
+            previewSpinner.style.display = isProcessing ? 'inline-block' : 'none';
+            previewIcon.style.display = isProcessing ? 'none' : 'inline';
+            
+            downloadSpinner.style.display = isProcessing ? 'inline-block' : 'none';
+            downloadIcon.style.display = isProcessing ? 'none' : 'inline';
+        }
+        
+        // Basic coordinate transformation functions (unchanged)
+        function getEventList(evt) { /* ... (same as before) ... */ return evt.touches && evt.touches.length > 0 ? evt.touches : (evt.changedTouches && evt.changedTouches.length > 0 ? evt.changedTouches : null);}
+        function getCanvasMousePos(evt) { /* ... (same as before) ... */ 
+            const rect = mainCanvas.getBoundingClientRect();
+            let x, y;
+            const list = getEventList(evt);
+            if (list) {
+                x = list[0].clientX - rect.left;
+                y = list[0].clientY - rect.top;
+            } else {
+                x = evt.clientX - rect.left;
+                y = evt.clientY - rect.top;
+            }
+            return { x, y };
+        }
+        function getClientPos(evt) { /* ... (same as before) ... */
+             const list = getEventList(evt);
+            if (list) {
+                return { x: list[0].clientX, y: list[0].clientY };
+            } else {
+                return { x: evt.clientX, y: evt.clientY };
+            }
+        }
+        function getTouchDistance(touches) { /* ... (same as before) ... */
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.hypot(dx, dy);
+        }
+        function getPinchCenter(touches) { /* ... (same as before) ... */
+            const rect = mainCanvas.getBoundingClientRect();
+            const canvasX = (touches[0].clientX + touches[1].clientX) / 2 - rect.left;
+            const canvasY = (touches[0].clientY + touches[1].clientY) / 2 - rect.top;
+            return getWorldPos({ x: canvasX, y: canvasY });
+        }
+        function getWorldPos(canvasPos) {
+            return {
+                x: (canvasPos.x - pan.x) / zoom,
+                y: (canvasPos.y - pan.y) / zoom
+            };
+        }
+        function getCanvasPos(worldPos) {
+            return {
+                x: worldPos.x * zoom + pan.x,
+                y: worldPos.y * zoom + pan.y
+            };
+        }
+
+        // --- STATE MANAGEMENT (Save/Load) ---
+        
+        function saveCurrentImageState() {
+            if (currentImageIndex === -1) return;
+            const currentImgObj = getCurrentImgObj();
+            
+            // Save active global state variables to the image object
+            currentImgObj.cropRect = { ...cropRect };
+            currentImgObj.polygonPoints = polygonPoints.map(p => ({ ...p }));
+            currentImgObj.isDrawingPolygon = isDrawingPolygon;
+            currentImgObj.cropMode = cropMode;
+            currentImgObj.zoom = zoom;
+            currentImgObj.pan = { ...pan };
+            
+            currentImgObj.history = currentImgObj.history || [];
+            currentImgObj.historyIndex = currentImgObj.historyIndex !== undefined ? currentImgObj.historyIndex : -1;
+            
+            if (!isUndoRedo) {
+                const currentState = deepCopyCropState();
+                const lastState = currentImgObj.history[currentImgObj.historyIndex];
+                
+                if (!lastState || JSON.stringify(currentState) !== JSON.stringify(lastState)) {
+                    currentImgObj.history.splice(currentImgObj.historyIndex + 1);
+                    currentImgObj.history.push(currentState);
+                    currentImgObj.historyIndex = currentImgObj.history.length - 1;
+                }
+            }
+            
+            updateNavigationUI();
+        }
+
+        function loadCurrentImageState() {
+            if (currentImageIndex === -1) return;
+            const currentImgObj = getCurrentImgObj();
+            const img = currentImgObj.img;
+            
+            // Load state from the image object into global variables
+            cropRect = { ...currentImgObj.cropRect };
+            polygonPoints = currentImgObj.polygonPoints.map(p => ({ ...p }));
+            isDrawingPolygon = currentImgObj.isDrawingPolygon;
+            cropMode = currentImgObj.cropMode;
+            zoom = currentImgObj.zoom;
+            pan = { ...currentImgObj.pan };
+            
+            updateModeButtonsUI(cropMode);
+            setupCanvasDimensions(img); 
+            redrawCanvas(); 
+            updateNavigationUI();
+        }
+        
+        function deepCopyCropState() {
+             return {
+                cropRect: { ...cropRect },
+                polygonPoints: polygonPoints.map(p => ({ ...p })), 
+                isDrawingPolygon: isDrawingPolygon,
+                cropMode: cropMode
+            };
+        }
+        
+        let isUndoRedo = false;
+        function loadCropState(state) {
+            if (!state) return;
+            isUndoRedo = true;
+            
+            cropRect = { ...state.cropRect };
+            polygonPoints = state.polygonPoints.map(p => ({ ...p }));
+            isDrawingPolygon = state.isDrawingPolygon;
+            cropMode = state.cropMode;
+            
+            updateModeButtonsUI(cropMode); 
+            redrawCanvas();
+            
+            isUndoRedo = false;
+        }
+
+        function undo() {
+            if (currentImageIndex === -1) return showMessage("No image loaded to undo.", "warning");
+            const currentImgObj = getCurrentImgObj();
+            
+            if (currentImgObj.historyIndex <= 0) {
+                showMessage("Cannot undo further.", "warning");
+                return;
+            }
+            currentImgObj.historyIndex--;
+            loadCropState(currentImgObj.history[currentImgObj.historyIndex]);
+            showMessage(`Undo successful for image ${currentImageIndex + 1}.`, "info");
+        }
+
+        function redo() {
+            if (currentImageIndex === -1) return showMessage("No image loaded to redo.", "warning");
+            const currentImgObj = getCurrentImgObj();
+            
+            if (currentImgObj.historyIndex >= currentImgObj.history.length - 1) {
+                showMessage("Cannot redo further.", "warning");
+                return;
+            }
+            currentImgObj.historyIndex++;
+            loadCropState(currentImgObj.history[currentImgObj.historyIndex]);
+            showMessage(`Redo successful for image ${currentImageIndex + 1}.`, "info");
+        }
+
+        // --- NAVIGATION AND UI ---
+        
+        function switchImage(direction) {
+            if (currentImageIndex === -1) return;
+
+            // 1. Save the state of the image we are leaving
+            saveCurrentImageState();
+            
+            // 2. Calculate the new index
+            let newIndex = currentImageIndex + direction;
+
+            if (newIndex >= 0 && newIndex < images.length) {
+                currentImageIndex = newIndex;
+                
+                // 3. Load the state of the new image
+                loadCurrentImageState(); 
+                showMessage(`Switched to Image ${currentImageIndex + 1} of ${images.length}.`, "info");
+            }
+        }
+        
+        function updateNavigationUI() {
+            const total = images.length;
+            if (total <= 1) {
+                imageControls.style.display = 'none';
+            } else {
+                imageControls.style.display = 'flex';
+                statusDisplay.textContent = `Image ${currentImageIndex + 1} of ${total}`;
+                prevButton.disabled = currentImageIndex === 0;
+                nextButton.disabled = currentImageIndex === total - 1;
+            }
+            
+            setProcessingState(false);
+        }
+
+        function updateZoomPanToggleUI() {
+            if (isZoomPanActive) {
+                toggleZoomPanBtn.textContent = 'Zoom/Pan Active (Click to Disable)';
+                toggleZoomPanBtn.classList.remove('bg-gray-500', 'hover:bg-gray-600');
+                toggleZoomPanBtn.classList.add('bg-orange-500', 'hover:bg-orange-600');
+            } else {
+                toggleZoomPanBtn.textContent = 'Activate Zoom/Pan';
+                toggleZoomPanBtn.classList.remove('bg-orange-500', 'hover:bg-orange-600');
+                toggleZoomPanBtn.classList.add('bg-gray-500', 'hover:bg-gray-600');
+            }
+        }
+        
+        function updateModeButtonsUI(mode) {
+             document.querySelectorAll('.mode-btn').forEach(btn => {
+                if (btn.dataset.mode === mode) {
+                    btn.classList.add('bg-blue-600', 'text-white', 'active');
+                    btn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white', 'active');
+                    btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                }
+            });
+        }
+
+
+        // --- Canvas Setup and Image Drawing ---
+
+        function setupCanvasDimensions(img) {
+            const container = mainCanvas.parentElement;
+            
+            canvasWidth = container.clientWidth; 
+            const aspectRatio = img.naturalWidth / img.naturalHeight;
+            canvasHeight = canvasWidth / aspectRatio; 
+
+            mainCanvas.width = canvasWidth;
+            mainCanvas.height = canvasHeight;
+        }
+        
+        function addImageAndInitializeState(img) {
+            const initialCropMode = cropMode; 
+            
+            const containerWidth = mainCanvas.parentElement.clientWidth;
+            const aspectRatio = img.naturalWidth / img.naturalHeight;
+            const initialCanvasWidth = containerWidth;
+            const initialCanvasHeight = initialCanvasWidth / aspectRatio; 
+            
+            const defaultSize = Math.min(initialCanvasWidth, initialCanvasHeight) * 0.5;
+            const initialCropRect = {
+                x: (initialCanvasWidth - defaultSize) / 2,
+                y: (initialCanvasHeight - defaultSize) / 2,
+                w: defaultSize,
+                h: defaultSize
+            };
+            
+            const newImageObj = {
+                id: Date.now() + Math.random(),
+                img: img,
+                naturalWidth: img.naturalWidth,
+                naturalHeight: img.naturalHeight,
+                // State
+                cropRect: initialCropRect,
+                polygonPoints: [],
+                isDrawingPolygon: false,
+                cropMode: initialCropMode,
+                zoom: 1,
+                pan: { x: 0, y: 0 },
+                // History
+                history: [],
+                historyIndex: -1
+            };
+
+            saveCurrentImageState(); 
+            
+            images.push(newImageObj);
+            currentImageIndex = images.length - 1;
+            
+            loadCurrentImageState(); 
+            
+            saveCurrentImageState(); 
+        }
+
+        function redrawCanvas() {
+            const currentImgObj = getCurrentImgObj();
+            if (!currentImgObj) {
+                 mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+                 return;
+            }
+            const originalImage = currentImgObj.img;
+
+            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+            // 2. Save context, apply pan and zoom
+            mainCtx.save();
+            mainCtx.translate(pan.x, pan.y);
+            mainCtx.scale(zoom, zoom);
+
+            // 3. Draw the image (in world space)
+            mainCtx.drawImage(originalImage, 0, 0, originalImage.naturalWidth, originalImage.naturalHeight, 0, 0, canvasWidth, canvasHeight);
+            
+            // 4. Restore transform - all subsequent draws are in CANVAS space
+            mainCtx.restore();
+
+            // 5. Draw the cropping overlay (in canvas space)
+            drawCropOverlay();
+        }
+        
+        // Helper function to draw the clipping/stroke path (in CANVAS coordinates)
+        function drawShapePath(ctx, rect, shapeMode, points) {
+             const R = {
+                 x: Math.min(rect.x, rect.x + rect.w),
+                 y: Math.min(rect.y, rect.y + rect.h),
+                 w: Math.abs(rect.w),
+                 h: Math.abs(rect.h)
+            };
+            
+            ctx.beginPath();
+            
+            if (shapeMode === 'circle') {
+                const center = getCanvasPos({ x: R.x + R.w / 2, y: R.y + R.h / 2 });
+                const radius = (Math.min(R.w, R.h) / 2) * zoom; 
+                ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+
+            } else if (shapeMode === 'triangle') {
+                const side = Math.min(R.w, R.h);
+                const leftOffset = (R.w - side) / 2;
+                const topOffset = (R.h - side) / 2;
+                
+                const p1 = getCanvasPos({ x: R.x + leftOffset + side / 2, y: R.y + topOffset });
+                const p2 = getCanvasPos({ x: R.x + leftOffset, y: R.y + topOffset + side });
+                const p3 = getCanvasPos({ x: R.x + leftOffset + side, y: R.y + topOffset + side });
+
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.lineTo(p3.x, p3.y);
+                ctx.closePath();
+                
+            } else if (shapeMode === 'polygon' && points.length >= 2) {
+                const startPoint = getCanvasPos(points[0]);
+                ctx.moveTo(startPoint.x, startPoint.y);
+                for (let i = 1; i < points.length; i++) {
+                    const canvasP = getCanvasPos(points[i]);
+                    ctx.lineTo(canvasP.x, canvasP.y);
+                }
+                if (!isDrawingPolygon) {
+                    ctx.closePath(); 
+                }
+            } else { 
+                // square or freehand
+                const canvasRect = getCanvasPos(R);
+                ctx.rect(canvasRect.x, canvasRect.y, R.w * zoom, R.h * zoom);
+            }
+        }
+
+        // Draws the actual selection area on the main canvas
+        function drawCropOverlay() {
+            const hasRectShape = cropMode !== 'polygon' && cropRect.w > 10 && cropRect.h > 10;
+            const hasPolygonShape = cropMode === 'polygon' && polygonPoints.length >= 3 && !isDrawingPolygon; 
+            const hasAnyShape = hasRectShape || hasPolygonShape;
+            
+            if (!hasAnyShape && !(cropMode === 'polygon' && isDrawingPolygon)) return; 
+
+            // --- 1. Draw the semi-transparent overlay (if a shape is defined) ---
+            if (hasAnyShape) {
+                mainCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                mainCtx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+                // --- 2. Punch a hole for the selected shape ---
+                mainCtx.save();
+                drawShapePath(mainCtx, cropRect, cropMode, polygonPoints); 
+                mainCtx.clip(); 
+                
+                // Redraw the full, panned/zoomed image *inside* the hole
+                mainCtx.save();
+                mainCtx.translate(pan.x, pan.y);
+                mainCtx.scale(zoom, zoom);
+                mainCtx.drawImage(getCurrentImgObj().img, 0, 0, getCurrentImgObj().naturalWidth, getCurrentImgObj().naturalHeight, 0, 0, canvasWidth, canvasHeight);
+                mainCtx.restore(); 
+                
+                mainCtx.restore(); 
+
+                // --- 3. Draw the dashed stroke *around* the shape ---
+                mainCtx.strokeStyle = '#fff';
+                mainCtx.lineWidth = 4; 
+                mainCtx.setLineDash([10, 5]);
+                drawShapePath(mainCtx, cropRect, cropMode, polygonPoints); 
+                mainCtx.stroke(); 
+                mainCtx.setLineDash([]);
+            }
+            
+            if (cropMode !== 'polygon') {
+                // --- 4. Draw Handles for Rect-based Shapes (in CANVAS space) ---
+                const visualRect = {
+                    x: Math.min(cropRect.x, cropRect.x + cropRect.w),
+                    y: Math.min(cropRect.y, cropRect.y + cropRect.h),
+                    w: Math.abs(cropRect.w),
+                    h: Math.abs(cropRect.h)
+                };
+                
+                const topMiddle = getCanvasPos({ x: visualRect.x + visualRect.w / 2, y: visualRect.y });
+                const bottomRight = getCanvasPos({ x: visualRect.x + visualRect.w, y: visualRect.y + visualRect.h });
+                
+                const handleSize = 16;
+                const handleX = topMiddle.x - handleSize / 2;
+                const handleY = topMiddle.y - handleSize / 2; 
+
+                // Draw Move Handle (Top Center)
+                mainCtx.fillStyle = '#3b82f6'; 
+                mainCtx.strokeStyle = '#fff';
+                mainCtx.lineWidth = 2;
+                mainCtx.fillRect(handleX, handleY, handleSize, handleSize);
+                mainCtx.strokeRect(handleX, handleY, handleSize, handleSize);
+
+                // Draw Resize Handle (Bottom Right)
+                mainCtx.fillStyle = '#fff';
+                mainCtx.fillRect(bottomRight.x - 5, bottomRight.y - 5, 10, 10);
+                
+                mainCanvas.handleRect = { x: handleX, y: handleY, w: handleSize, h: handleSize };
+            }
+
+            // --- 5. Polygon Mode Drawing Feedback (in CANVAS space) ---
+            if (cropMode === 'polygon' && polygonPoints.length > 0) {
+                polygonPoints.forEach((p, index) => {
+                    const canvasP = getCanvasPos(p);
+                    mainCtx.beginPath();
+                    const radius = index === 0 && isDrawingPolygon ? 6 : 4;
+                    mainCtx.fillStyle = index === 0 && isDrawingPolygon ? '#ef4444' : '#3b82f6';
+                    mainCtx.arc(canvasP.x, canvasP.y, radius, 0, Math.PI * 2);
+                    mainCtx.fill();
+                });
+                
+                if (isDrawingPolygon && currentMouseCanvasPos && polygonPoints.length > 0) {
+                    mainCtx.strokeStyle = '#fff';
+                    mainCtx.lineWidth = 2;
+                    mainCtx.setLineDash([5, 5]);
+                    mainCtx.beginPath();
+                    
+                    const lastPointCanvas = getCanvasPos(polygonPoints[polygonPoints.length - 1]);
+                    mainCtx.moveTo(lastPointCanvas.x, lastPointCanvas.y);
+                    
+                    const firstPointCanvas = getCanvasPos(polygonPoints[0]);
+                    const dist = Math.hypot(currentMouseCanvasPos.x - firstPointCanvas.x, currentMouseCanvasPos.y - firstPointCanvas.y);
+                    
+                    if (polygonPoints.length >= 3 && dist < closeThreshold) {
+                         mainCtx.strokeStyle = '#ef4444'; 
+                         mainCtx.lineTo(firstPointCanvas.x, firstPointCanvas.y);
+                    } else {
+                         mainCtx.lineTo(currentMouseCanvasPos.x, currentMouseCanvasPos.y);
+                    }
+                    mainCtx.stroke();
+                    mainCtx.setLineDash([]);
+                }
+            }
+        }
+        
+        // --- Polygon Point Placement Logic ---
+        function placePolygonPoint(worldPos, canvasPos) {
+            if (currentImageIndex === -1) return;
+            
+            if (!isDrawingPolygon && polygonPoints.length >= 3) {
+                 showMessage("Polygon shape is finalized. Switch mode or click 'Polygon Draw' again to reset.", "warning");
+                 return;
+            }
+            
+            if (polygonPoints.length >= 3) {
+                const firstPointCanvas = getCanvasPos(polygonPoints[0]);
+                const dist = Math.hypot(canvasPos.x - firstPointCanvas.x, canvasPos.y - firstPointCanvas.y);
+                
+                if (dist < closeThreshold) {
+                    isDrawingPolygon = false;
+                    showMessage("Polygon shape finalized! Click Preview or Download to proceed.", "success");
+                    updateNavigationUI();
+                    redrawCanvas();
+                    saveCurrentImageState(); 
+                    return;
+                }
+            }
+
+            polygonPoints.push(worldPos);
+            isDrawingPolygon = true; 
+            updateNavigationUI();
+            showMessage(`Added point #${polygonPoints.length}. Tap the red dot (point 1) to close the shape.`, "info");
+            redrawCanvas();
+            saveCurrentImageState(); 
+        }
+
+        // --- Interaction Handlers (omitted for brevity, assume handleDown/Move/Up/Wheel are defined and correctly handle state updates as in previous response) ---
+        function handleDown(evt) {
+            // ... (existing logic) ...
+            if (currentImageIndex === -1) return;
+            evt.preventDefault();
+            
+            const clientPos = getClientPos(evt);
+            const canvasPos = getCanvasMousePos(evt);
+            const worldPos = getWorldPos(canvasPos);
+            const isTouchStart = !!evt.touches;
+            
+            if (isTouchStart) {
+                touchStartPos = clientPos;
+            }
+
+            const isTwoFingerTouch = isTouchStart && evt.touches.length === 2;
+            if (isZoomPanActive && isTwoFingerTouch) { 
+                isPinching = true;
+                lastTouchDistance = getTouchDistance(evt.touches);
+                pinchCenterWorld = getPinchCenter(evt.touches);
+                isPanning = false;
+                interactionMode = 'none';
+                return; 
+            }
+            
+            const isSingleTouchPan = isTouchStart && evt.touches.length === 1 && interactionMode === 'none';
+            if (isZoomPanActive && (isSpacebarDown || evt.button === 1 || isSingleTouchPan)) { 
+                isPanning = true;
+                panStart = clientPos;
+                mainCanvas.style.cursor = 'grabbing';
+                return;
+            }
+            
+            if (isZoomPanActive) return;
+
+            if (cropMode === 'polygon') {
+                if (isTouchStart) return; 
+                placePolygonPoint(worldPos, canvasPos);
+                return;
+            }
+
+            const handleType = isOverHandle(canvasPos);
+
+            if (handleType === 'move') {
+                interactionMode = 'move';
+                dragStartCanvas = canvasPos;
+                dragStartCropRect = { ...cropRect };
+                mainCanvas.style.cursor = 'move';
+                
+            } else if (handleType === 'resize') {
+                 interactionMode = 'resize';
+                 dragStartCanvas = canvasPos;
+                 dragStartCropRect = { ...cropRect }; 
+                 mainCanvas.style.cursor = 'nwse-resize';
+            }
+            
+            else {
+                interactionMode = 'select';
+                dragStart = worldPos;
+                cropRect = { x: dragStart.x, y: dragStart.y, w: 0, h: 0 };
+                mainCanvas.style.cursor = 'crosshair';
+            }
+             mainCanvas.handleRect = null;
+        }
+
+        function handleMove(evt) {
+            // ... (existing logic) ...
+            if (currentImageIndex === -1) return;
+            evt.preventDefault();
+            
+            const clientPos = getClientPos(evt);
+            const canvasPos = getCanvasMousePos(evt);
+            currentMouseCanvasPos = canvasPos;
+            
+            if (isZoomPanActive && isPinching && evt.touches && evt.touches.length === 2) { 
+                const currentDistance = getTouchDistance(evt.touches);
+                const distanceDelta = currentDistance - lastTouchDistance;
+                
+                const zoomFactor = 1 + distanceDelta * 0.005; 
+                let newZoom = zoom * zoomFactor;
+                newZoom = Math.max(minZoom, Math.min(newZoom, maxZoom));
+                
+                if (newZoom !== zoom) {
+                    const centerCanvas = getCanvasMousePos({ touches: evt.touches });
+                    
+                    pan.x = centerCanvas.x - pinchCenterWorld.x * newZoom;
+                    pan.y = centerCanvas.y - pinchCenterWorld.y * newZoom;
+                    
+                    zoom = newZoom;
+                    redrawCanvas();
+                }
+                
+                lastTouchDistance = currentDistance;
+                return;
+            }
+
+            if (isZoomPanActive && isPanning) { 
+                const dx = clientPos.x - panStart.x;
+                const dy = clientPos.y - panStart.y;
+                pan.x += dx;
+                pan.y += dy;
+                panStart = clientPos;
+                redrawCanvas();
+                return;
+            }
+            
+            if (isZoomPanActive) return;
+
+            if (cropMode === 'polygon' && isDrawingPolygon) {
+                redrawCanvas();
+                return;
+            }
+            
+            if (interactionMode === 'none') {
+                 const handleType = isOverHandle(canvasPos);
+                 if (handleType === 'move') {
+                     mainCanvas.style.cursor = 'move';
+                 } else if (handleType === 'resize') {
+                     mainCanvas.style.cursor = 'nwse-resize';
+                 } else {
+                     mainCanvas.style.cursor = isSpacebarDown ? 'grab' : 'crosshair';
+                 }
+                 return;
+            }
+            
+            if (interactionMode === 'move') {
+                const dxWorld = (canvasPos.x - dragStartCanvas.x) / zoom;
+                const dyWorld = (canvasPos.y - dragStartCanvas.y) / zoom;
+                cropRect.x = dragStartCropRect.x + dxWorld;
+                cropRect.y = dragStartCropRect.y + dyWorld;
+                
+            } else if (interactionMode === 'select' || interactionMode === 'resize') {
+                const worldPos = getWorldPos(canvasPos);
+                let currentW, currentH;
+                
+                if (interactionMode === 'select') {
+                    currentW = worldPos.x - dragStart.x;
+                    currentH = worldPos.y - dragStart.y;
+                } else { 
+                    const dxWorld = (canvasPos.x - dragStartCanvas.x) / zoom;
+                    const dyWorld = (canvasPos.y - dragStartCanvas.y) / zoom;
+                    currentW = dragStartCropRect.w + dxWorld;
+                    currentH = dragStartCropRect.h + dyWorld;
+                    cropRect.x = dragStartCropRect.x;
+                    cropRect.y = dragStartCropRect.y;
+                }
+                
+                if (cropMode === 'square' || cropMode === 'circle') {
+                    let side;
+                    
+                    if (interactionMode === 'select') {
+                        side = Math.max(Math.abs(currentW), Math.abs(currentH));
+                        cropRect.w = currentW < 0 ? -side : side;
+                        cropRect.h = currentH < 0 ? -side : side;
+                    } else { 
+                         side = Math.min(Math.abs(currentW), Math.abs(currentH));
+                         cropRect.w = currentW < 0 ? -side : side;
+                         cropRect.h = currentH < 0 ? -side : side;
+                    }
+                } else {
+                    cropRect.w = currentW;
+                    cropRect.h = currentH;
+                }
+            }
+            redrawCanvas();
+        }
+
+        function handleUp(evt) {
+            // ... (existing logic) ...
+            if (currentImageIndex === -1) return;
+            evt.preventDefault();
+            
+            const isTouchEnd = !!evt.changedTouches;
+
+            if (isTouchEnd && cropMode === 'polygon' && !isPanning && !isPinching) {
+                const endPos = getClientPos(evt); 
+                const distance = Math.hypot(endPos.x - touchStartPos.x, endPos.y - touchStartPos.y);
+                
+                if (distance <= TAP_THRESHOLD) {
+                    const canvasPos = getCanvasMousePos(evt);
+                    const worldPos = getWorldPos(canvasPos);
+                    placePolygonPoint(worldPos, canvasPos);
+                    return;
+                }
+            }
+            
+            if (isPanning) {
+                isPanning = false;
+                mainCanvas.style.cursor = isZoomPanActive ? 'grab' : 'crosshair'; 
+                saveCurrentImageState();
+                return;
+            }
+            
+            if (isPinching) {
+                isPinching = false;
+                lastTouchDistance = 0;
+                pinchCenterWorld = null;
+                saveCurrentImageState();
+                return;
+            }
+            
+            if (cropMode === 'polygon') return;
+            if (isZoomPanActive) return;
+
+            if (interactionMode !== 'none') {
+                if (interactionMode === 'select') {
+                    const finalX = Math.min(dragStart.x, dragStart.x + cropRect.w);
+                    const finalY = Math.min(dragStart.y, dragStart.y + cropRect.h);
+                    const finalW = Math.abs(cropRect.w);
+                    const finalH = Math.abs(cropRect.h);
+
+                    cropRect = { x: finalX, y: finalY, w: finalW, h: finalH };
+                } else if (interactionMode === 'move' || interactionMode === 'resize') {
+                     cropRect.w = Math.abs(cropRect.w);
+                     cropRect.h = Math.abs(cropRect.h);
+                }
+                
+                if (cropRect.w < 50 || cropRect.h < 50) {
+                    const defaultSize = Math.min(canvasWidth, canvasHeight) * 0.5;
+                    cropRect = {
+                        x: (canvasWidth - defaultSize) / 2,
+                        y: (canvasHeight - defaultSize) / 2,
+                        w: defaultSize,
+                        h: defaultSize
+                    };
+                }
+                
+                interactionMode = 'none';
+                mainCanvas.style.cursor = 'crosshair';
+                redrawCanvas();
+                saveCurrentImageState(); 
+            }
+        }
+        
+        function isOverHandle(canvasPos) {
+            if (!mainCanvas.handleRect || cropRect.w === 0) return false;
+            const handle = mainCanvas.handleRect;
+            if (canvasPos.x >= handle.x && canvasPos.x <= handle.x + handle.w &&
+                canvasPos.y >= handle.y && canvasPos.y <= handle.y + handle.h) {
+                return 'move';
+            }
+            const visualRect = {
+                x: Math.min(cropRect.x, cropRect.x + cropRect.w),
+                y: Math.min(cropRect.y, cropRect.y + cropRect.h),
+                w: Math.abs(cropRect.w),
+                h: Math.abs(cropRect.h)
+            };
+            const bottomRight = getCanvasPos({ x: visualRect.x + visualRect.w, y: visualRect.y + visualRect.h });
+            if (canvasPos.x >= bottomRight.x - 10 && canvasPos.x <= bottomRight.x + 10 &&
+                canvasPos.y >= bottomRight.y - 10 && canvasPos.y <= bottomRight.y + 10) {
+                return 'resize';
+            }
+            return false;
+        }
+
+        const handleWheel = (evt) => {
+            if (currentImageIndex === -1) return; 
+            
+            if (isZoomPanActive && evt.ctrlKey) { 
+                evt.preventDefault();
+                
+                const canvasPos = getCanvasMousePos(evt);
+                const worldPosBefore = getWorldPos(canvasPos);
+                
+                const zoomFactor = evt.deltaY < 0 ? 1.1 : 1 / 1.1;
+                let newZoom = zoom * zoomFactor;
+                newZoom = Math.max(minZoom, Math.min(newZoom, maxZoom));
+
+                pan.x = canvasPos.x - worldPosBefore.x * newZoom;
+                pan.y = canvasPos.y - worldPosBefore.y * newZoom;
+                
+                zoom = newZoom;
+                
+                redrawCanvas();
+                saveCurrentImageState();
+            }
+        };
+
+        function loadImageFromUrl(url) {
+            if (!url) {
+                showMessage("Please enter a valid image URL.", "warning");
+                return;
+            }
+            messageBox.style.display = 'none'; 
+            showMessage("Attempting to load image from URL... CORS issues may prevent editing.", "info");
+
+            const img = new Image();
+            img.crossOrigin = 'Anonymous'; 
+            
+            img.onload = () => {
+                addImageAndInitializeState(img);
+                showMessage(`Image ${images.length} loaded successfully from URL!`, "success");
+                imageUrlInput.value = ''; 
+            };
+
+            img.onerror = () => {
+                showMessage(`Failed to load image from URL: ${url}. This is often due to **CORS security policies**.`, "warning");
+            };
+
+            img.src = url;
+        }
+
+
+        // --- CROPPING LOGIC (Single Image Extraction) ---
+        
+        // Helper to draw clipping path for final output
+        function drawShapePathFinal(ctx, rect, mode) {
+             const R = rect;
+             ctx.beginPath();
+             
+             if (mode === 'circle') {
+                const centerX = R.w / 2;
+                const centerY = R.h / 2;
+                const radius = Math.min(R.w, R.h) / 2;
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+
+            } else if (mode === 'triangle') {
+                const side = Math.min(R.w, R.h);
+                const leftOffset = (R.w - side) / 2;
+                const topOffset = (R.h - side) / 2;
+
+                const p1 = { x: R.x + leftOffset + side / 2, y: R.y + topOffset };
+                const p2 = { x: R.x + leftOffset, y: R.y + topOffset + side };
+                const p3 = { x: R.x + leftOffset + side, y: R.y + topOffset + side };
+
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.lineTo(p3.x, p3.y);
+                ctx.closePath();
+            } else { // square or freehand
+                ctx.rect(R.x, R.y, R.w, R.h);
+            }
+        }
+        
+        /**
+         * Crops a single image based on its stored state.
+         * Returns an Image object containing the cropped result.
+         */
+        function cropSingleImage(imgObj) {
+            const { img, naturalWidth, naturalHeight, cropRect, polygonPoints, cropMode, isDrawingPolygon } = imgObj;
+            
+            if (cropMode !== 'polygon' && (cropRect.w <= 10 || cropRect.h <= 10)) {
+                // If rect crop is invalid, use a default square crop (middle 50%)
+                const size = Math.min(naturalWidth, naturalHeight) * 0.5;
+                const defaultRect = { 
+                    x: (naturalWidth - size) / 2, 
+                    y: (naturalHeight - size) / 2, 
+                    w: size, 
+                    h: size 
+                };
+                
+                tempCanvas.width = defaultRect.w;
+                tempCanvas.height = defaultRect.h;
+                tempCtx.drawImage(img, defaultRect.x, defaultRect.y, defaultRect.w, defaultRect.h, 0, 0, defaultRect.w, defaultRect.h);
+                showMessage(`Image ${images.indexOf(imgObj) + 1} crop was invalid; using default 50% square crop.`, "warning");
+            } else if (cropMode === 'polygon' && (isDrawingPolygon || polygonPoints.length < 3)) {
+                 // If polygon crop is invalid, return an empty image or placeholder (for combining)
+                 tempCanvas.width = 50;
+                 tempCanvas.height = 50;
+                 tempCtx.fillStyle = '#ccc';
+                 tempCtx.fillRect(0, 0, 50, 50);
+                 tempCtx.fillStyle = '#000';
+                 tempCtx.font = '10px Arial';
+                 tempCtx.fillText('Invalid', 5, 25);
+                 showMessage(`Image ${images.indexOf(imgObj) + 1} polygon crop is incomplete; using placeholder.`, "warning");
+            } else {
+                 // --- Valid Crop (Rect or Polygon) ---
+                 
+                 const scaleX = naturalWidth / canvasWidth;
+                 const scaleY = naturalHeight / canvasHeight;
+
+                 tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+                 tempCtx.save();
+                 
+                 if (cropMode === 'polygon') {
+                    const minX = Math.min(...polygonPoints.map(p => p.x));
+                    const minY = Math.min(...polygonPoints.map(p => p.y));
+                    const maxX = Math.max(...polygonPoints.map(p => p.x));
+                    const maxY = Math.max(...polygonPoints.map(p => p.y));
+                    
+                    const rectW = maxX - minX;
+                    const rectH = maxY - minY;
+                    
+                    const sourceSource = { 
+                        x: minX * scaleX, 
+                        y: minY * scaleY, 
+                        w: rectW * scaleX, 
+                        h: rectH * scaleY 
+                    };
+
+                    const finalOutputW = sourceSource.w;
+                    const finalOutputH = sourceSource.h;
+                    tempCanvas.width = finalOutputW;
+                    tempCanvas.height = finalOutputH;
+
+                    tempCtx.beginPath();
+                    
+                    tempCtx.moveTo((polygonPoints[0].x - minX) * scaleX, (polygonPoints[0].y - minY) * scaleY);
+                    
+                    for (let i = 1; i < polygonPoints.length; i++) {
+                        const p = polygonPoints[i];
+                        const translatedX = (p.x - minX) * scaleX;
+                        const translatedY = (p.y - minY) * scaleY;
+                        tempCtx.lineTo(translatedX, translatedY);
+                    }
+                    tempCtx.closePath();
+                    tempCtx.clip();
+                    
+                    tempCtx.drawImage(
+                        img,
+                        sourceSource.x, sourceSource.y, sourceSource.w, sourceSource.h, 
+                        0, 0, finalOutputW, finalOutputH
+                    );
+
+                 } else {
+                    const visualRect = {
+                        x: Math.min(cropRect.x, cropRect.x + cropRect.w),
+                        y: Math.min(cropRect.y, cropRect.y + cropRect.h),
+                        w: Math.abs(cropRect.w),
+                        h: Math.abs(cropRect.h)
+                    };
+                    
+                    const cropSource = {
+                        x: visualRect.x * scaleX,
+                        y: visualRect.y * scaleY,
+                        w: visualRect.w * scaleX,
+                        h: visualRect.h * scaleY
+                    };
+                    
+                    const outputW = cropSource.w;
+                    const outputH = cropSource.h;
+
+                    tempCanvas.width = outputW;
+                    tempCanvas.height = outputH;
+
+                    tempCtx.beginPath();
+                    const finalDrawRect = { x: 0, y: 0, w: outputW, h: outputH };
+                    
+                    drawShapePathFinal(tempCtx, finalDrawRect, cropMode);
+                    
+                    tempCtx.clip();
+
+                    tempCtx.drawImage(
+                        img,
+                        cropSource.x, cropSource.y, cropSource.w, cropSource.h, 
+                        0, 0, outputW, outputH                              
+                    );
+                }
+                tempCtx.restore();
+            }
+            
+            // Convert tempCanvas content to an Image object for easy drawing onto the final canvas
+            const croppedImg = new Image();
+            croppedImg.src = tempCanvas.toDataURL('image/png');
+            croppedImg.width = tempCanvas.width;
+            croppedImg.height = tempCanvas.height;
+            
+            return croppedImg;
+        }
+
+        // --- COMBINING LOGIC (Orchestrator) ---
+
+        /**
+         * Orchestrates the cropping of all images and combines them onto the main cropCanvas.
+         * Returns the DataURL of the final combined image.
+         */
+        async function getCombinedImage() {
+            if (images.length === 0) {
+                showMessage("Please load at least one image first.", "warning");
+                return null;
+            }
+            
+            // 1. Ensure the state of the current image is saved before combining
+            saveCurrentImageState();
+
+            // 2. Crop all images asynchronously
+            const croppedImages = [];
+            for (const imgObj of images) {
+                // Must wait for image to load before drawing it (critical for async loop)
+                const cropped = await new Promise(resolve => {
+                    const img = cropSingleImage(imgObj);
+                    if (img.complete) {
+                        resolve(img);
+                    } else {
+                        img.onload = () => resolve(img);
+                        img.onerror = () => {
+                            showMessage(`Failed to load cropped result for image ID ${imgObj.id}.`, "warning");
+                            resolve(null);
+                        };
+                    }
+                });
+                if (cropped) {
+                    croppedImages.push(cropped);
+                }
+            }
+            
+            if (croppedImages.length === 0) {
+                 showMessage("All crops failed or were invalid.", "warning");
+                 return null;
+            }
+
+            // 3. Calculate final dimensions and combine
+            let totalWidth = 0;
+            let totalHeight = 0;
+            let largestWidth = 0;
+            let largestHeight = 0;
+            const PADDING = 10; // Padding between images
+            
+            croppedImages.forEach(img => {
+                largestWidth = Math.max(largestWidth, img.width);
+                largestHeight = Math.max(largestHeight, img.height);
+                totalWidth += img.width;
+                totalHeight += img.height;
+            });
+            
+            // Calculate final canvas size based on mode and padding
+            const paddingCount = croppedImages.length > 1 ? (croppedImages.length - 1) : 0;
+            
+            if (combineMode === 'horizontal') {
+                cropCanvas.width = totalWidth + paddingCount * PADDING;
+                cropCanvas.height = largestHeight;
+            } else { // vertical
+                cropCanvas.width = largestWidth;
+                cropCanvas.height = totalHeight + paddingCount * PADDING;
+            }
+
+            cropCtx.clearRect(0, 0, cropCanvas.width, cropCanvas.height);
+            cropCtx.fillStyle = '#fff'; // White background for the combination
+            cropCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+
+            // 4. Draw combined image
+            let currentX = 0;
+            let currentY = 0;
+
+            croppedImages.forEach(img => {
+                if (combineMode === 'horizontal') {
+                    // Draw centered vertically
+                    const offsetY = (largestHeight - img.height) / 2;
+                    cropCtx.drawImage(img, currentX, offsetY, img.width, img.height);
+                    currentX += img.width + PADDING;
+                } else { // vertical
+                    // Draw centered horizontally
+                    const offsetX = (largestWidth - img.width) / 2;
+                    cropCtx.drawImage(img, offsetX, currentY, img.width, img.height);
+                    currentY += img.height + PADDING;
+                }
+            });
+
+            return cropCanvas.toDataURL('image/png');
+        }
+        
+        // --- Modal Control Functions ---
+        async function showPreview() {
+            setProcessingState(true);
+            
+            const dataUrl = await getCombinedImage();
+            
+            if (dataUrl) {
+                previewImage.src = dataUrl;
+                previewTitle.textContent = images.length > 1 ? 
+                    `Combined Image Preview (${combineMode.toUpperCase()})` : 
+                    `Cropped Image Preview`;
+                previewModal.classList.add('active');
+            }
+            setProcessingState(false);
+        }
+        
+        function hidePreview() {
+            previewModal.classList.remove('active');
+            setTimeout(() => {
+                previewImage.src = ''; 
+            }, 300);
+        }
+
+        // --- Initialization and Event Binding ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // 1. Image Upload Handler (Supports Multiple)
+            imageUpload.addEventListener('change', (e) => {
+                // ... (existing logic) ...
+                const files = e.target.files;
+                if (files.length > 0) {
+                    showMessage(`Loading ${files.length} image(s)...`, "info");
+                    
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                addImageAndInitializeState(img);
+                            };
+                            img.src = event.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                    e.target.value = ''; 
+                }
+            });
+            
+            // 2. URL Load Handlers
+            loadUrlButton.addEventListener('click', () => {
+                const url = imageUrlInput.value.trim();
+                loadImageFromUrl(url);
+            });
+            
+            imageUrlInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    loadImageFromUrl(imageUrlInput.value.trim());
+                }
+            });
+            
+            // 3. Navigation Handlers
+            prevButton.addEventListener('click', () => switchImage(-1));
+            nextButton.addEventListener('click', () => switchImage(1));
+            
+            // 4. Zoom/Pan Toggle Handler
+            toggleZoomPanBtn.addEventListener('click', () => {
+                if (currentImageIndex === -1) {
+                    showMessage("Please upload an image first.", "warning");
+                    return;
+                }
+                isZoomPanActive = !isZoomPanActive;
+                updateZoomPanToggleUI();
+                
+                if (isZoomPanActive) {
+                    interactionMode = 'none';
+                    isDrawingPolygon = false;
+                    showMessage("Zoom/Pan is active. Use Ctrl+Scroll/Pinch to zoom and Space+Drag to pan. Drawing is disabled.", "info");
+                } else {
+                    showMessage("Zoom/Pan is disabled. Click on the image to draw/select a crop area.", "info");
+                }
+                mainCanvas.style.cursor = isZoomPanActive ? 'grab' : 'crosshair';
+                redrawCanvas();
+            });
+            
+            // 5. Combination Mode Handler
+            combineModeRadios.addEventListener('change', (e) => {
+                if (e.target.name === 'combineMode') {
+                    combineMode = e.target.value;
+                    showMessage(`Combination mode set to: ${combineMode.charAt(0).toUpperCase() + combineMode.slice(1)}.`, "info");
+                }
+            });
+
+
+            // 6. Cropping Mode Selection Handler
+            cropModeButtons.addEventListener('click', (e) => {
+                const button = e.target.closest('.mode-btn');
+                if (button) {
+                    cropMode = button.dataset.mode;
+                    
+                    polygonPoints = [];
+                    isDrawingPolygon = false;
+                    
+                    updateModeButtonsUI(cropMode);
+
+                    if (currentImageIndex !== -1) {
+                         const defaultSize = Math.min(canvasWidth, canvasHeight) * 0.5;
+                         cropRect = {
+                             x: (canvasWidth - defaultSize) / 2,
+                             y: (canvasHeight - defaultSize) / 2,
+                             w: defaultSize,
+                             h: defaultSize
+                         };
+                        redrawCanvas();
+                        
+                        updateNavigationUI();
+                        saveCurrentImageState(); 
+                    }
+                    
+                    let message = `Cropping mode set to: ${cropMode.charAt(0).toUpperCase() + cropMode.slice(1)}`;
+                    if (cropMode === 'polygon') {
+                        message += ". Tap (mobile) or click (desktop) on the image to place vertices!";
+                    }
+                    showMessage(message, "info");
+                }
+            });
+
+
+            // 7. Preview Handler & Download Handler
+            previewButton.addEventListener('click', showPreview);
+            
+            downloadButton.addEventListener('click', async () => {
+                setProcessingState(true);
+                const dataUrl = await getCombinedImage();
+                
+                if (dataUrl) {
+                    const a = document.createElement('a');
+                    a.href = dataUrl;
+                    const filename = `combined_${combineMode}_${Date.now()}.png`;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    showMessage(`Download started for ${filename}!`, "success");
+                }
+                setProcessingState(false);
+            });
+            
+            // Modal close handlers
+            closeModalButton.addEventListener('click', hidePreview);
+            previewModal.addEventListener('click', (e) => {
+                if (e.target === previewModal) {
+                    hidePreview();
+                }
+            });
+
+            // --- Window/Document Listeners ---
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) { 
+                    const key = e.key.toLowerCase();
+                    if (key === 'z') {
+                        e.preventDefault();
+                        undo();
+                    } else if (key === 'y') {
+                        e.preventDefault();
+                        redo();
+                    }
+                }
+                
+                if (isZoomPanActive && e.key === ' ' && !isSpacebarDown) {
+                    isSpacebarDown = true;
+                    if (!isPanning) {
+                         mainCanvas.style.cursor = 'grab';
+                    }
+                    e.preventDefault();
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                 if (e.key === ' ') {
+                    isSpacebarDown = false;
+                    if (isZoomPanActive && !isPanning) { 
+                         mainCanvas.style.cursor = 'grab';
+                    } else if (!isZoomPanActive) { 
+                        mainCanvas.style.cursor = 'crosshair';
+                    }
+                    e.preventDefault();
+                }
+            });
+
+            // Mouse and Touch Listeners for the canvas
+            mainCanvas.addEventListener('mousedown', handleDown);
+            mainCanvas.addEventListener('mousemove', handleMove);
+            mainCanvas.addEventListener('mouseup', handleUp);
+            mainCanvas.addEventListener('mouseleave', handleUp); 
+            mainCanvas.addEventListener('wheel', handleWheel, { passive: false });
+
+            // Touch support
+            mainCanvas.addEventListener('touchstart', handleDown);
+            mainCanvas.addEventListener('touchmove', handleMove);
+            mainCanvas.addEventListener('touchend', handleUp);
+
+            // Responsive behavior: Recalculate canvas size on window resize
+            window.addEventListener('resize', () => {
+                if (currentImageIndex !== -1) {
+                    setupCanvasDimensions(getCurrentImgObj().img);
+                    redrawCanvas();
+                    showMessage("Layout adjusted.", "info");
+                }
+            });
+
+            showMessage("Please load one or more images. Use Previous/Next to cycle through them, crop, and then use the Combine actions.", "info");
+        });
+    </script>
+</body>
+</html>

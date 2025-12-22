@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Equation Solver & Physics Guide</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <style>
+        @import url('https://fonts.fonts.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+        }
+        .accordion-content.open {
+            max-height: 3500px; /* Increased size to accommodate new content */
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        /* Style for plain-text equations - Adjusted font size for compactness */
+        .plain-eq {
+            font-family: 'Courier New', monospace;
+            font-size: 1.125rem; /* Reduced size for compactness (text-lg equivalent) */
+            font-weight: bold;
+            display: block;
+            text-align: center;
+            background-color: #e0e7ff; /* Lighter indigo background */
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            color: #3730a3; /* Darker indigo text */
+            margin-top: 0.75rem;
+            margin-bottom: 0.75rem;
+            white-space: pre-wrap; /* Allows wrapping for long equations */
+        }
+        /* Styling for the expanded legend list */
+        .legend-list li {
+            padding: 0.25rem 0;
+            border-bottom: 1px dashed #e5e7eb;
+            display: flex;
+            align-items: flex-start;
+        }
+        .legend-list li:last-child {
+            border-bottom: none;
+        }
+        .legend-symbol {
+            font-weight: bold;
+            min-width: 4rem;
+            display: inline-block;
+            text-align: right;
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            color: #1e3a8a; /* Dark blue for symbols */
+        }
+        .legend-description {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl">
+
+        <!-- Header -->
+        <header class="p-6 sm:p-8 bg-indigo-700 text-white rounded-t-xl">
+            <h1 class="text-3xl sm:text-4xl font-extrabold mb-1">Universal Equations Guide</h1>
+            <p class="text-indigo-200 text-lg">In-depth explanations for Mathematics, Physics, and Advanced Concepts.</p>
+        </header>
+
+        <!-- Main Content (Accordion) -->
+        <main class="p-4 sm:p-8 space-y-4">
+
+            <!-- Helper Script -->
+            <script>
+                function toggleAccordion(button) {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('svg');
+                    const isOpen = content.classList.contains('open');
+
+                    // Close all others and reset icons
+                    document.querySelectorAll('.accordion-content').forEach(c => {
+                        if (c !== content) {
+                            c.classList.remove('open');
+                        }
+                    });
+                    document.querySelectorAll('.accordion-icon').forEach(i => {
+                        if (i !== icon) {
+                            i.classList.remove('rotate-180');
+                        }
+                    });
+
+                    // Toggle current one
+                    if (!isOpen) {
+                        content.classList.add('open');
+                        icon.classList.add('rotate-180');
+                    } else {
+                        content.classList.remove('open');
+                        icon.classList.remove('rotate-180');
+                    }
+                }
+            </script>
+
+            <!-- 1. BEDMAS/PEMDAS (Order of Operations) -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">1. BEDMAS / PEMDAS (Order of Operations)</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">This rule dictates the sequence of mathematical operations to ensure consistent results. Without it, a single equation could have many different answers.</p>
+                    <p class="font-mono bg-gray-100 p-2 rounded-md inline-block text-sm">BEDMAS: Brackets, Exponents, Division/Multiplication, Addition/Subtraction</p>
+                    <p class="font-mono bg-gray-100 p-2 rounded-md inline-block text-sm mt-1">PEMDAS: Parentheses, Exponents, Multiplication/Division, Addition/Subtraction</p>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">In-Depth Explanation:</h4>
+                    <ul class="list-disc list-inside space-y-1 ml-4">
+                        <li>**Brackets/Parentheses (B/P):** Always resolve expressions inside grouping symbols first.</li>
+                        <li>**Exponents (E):** Calculate powers and roots next.</li>
+                        <li>**Division and Multiplication (DM):** These have equal priority. You must solve them from **left to right** in the equation.</li>
+                        <li>**Addition and Subtraction (AS):** These also have equal priority. Solve them from **left to right**.</li>
+                    </ul>
+                    <p class="mt-3">**Example Equation:**</p>
+                    <span class="plain-eq"> 10 - 2 &times; 3 + 6 / 2 </span>
+                    <p>1. **DM (Left to Right):** 2 &times; 3 = 6 and 6 / 2 = 3. The equation becomes: <span class="plain-eq"> 10 - 6 + 3 </span></p>
+                    <p>2. **AS (Left to Right):** 10 - 6 = 4. The equation becomes: <span class="plain-eq"> 4 + 3 = 7 </span></p>
+                </div>
+            </section>
+
+            <!-- 2. Solving Linear Equations -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">2. Solving Equations (Linear)</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">Solving an equation means finding the value of the unknown variable (usually **x**) that makes the two sides of the equation equal. This is achieved through **inverse operations**.</p>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">The Inverse Operation Principle:</h4>
+                    <p>For any equation, whatever operation you perform on one side of the equals sign, you must perform the exact same operation on the other side to maintain the balance.</p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-2">
+                        <li>Addition's inverse is Subtraction, and vice versa.</li>
+                        <li>Multiplication's inverse is Division, and vice versa.</li>
+                        <li>Squaring's inverse is the Square Root (&radic;), and vice versa.</li>
+                    </ul>
+
+                    <p class="mt-3">**Example Equation:**</p>
+                    <span class="plain-eq"> 3x + 7 = 19 </span>
+                    <p>1. **Isolate the term with x:** Subtract 7 from both sides: <span class="plain-eq"> 3x = 19 - 7 -> 3x = 12 </span></p>
+                    <p>2. **Isolate x:** Divide both sides by 3: <span class="plain-eq"> x = 12 / 3 -> x = 4 </span></p>
+                    <p class="mt-3 font-semibold">The goal is always to 'undo' the operations surrounding **x** in reverse-BEDMAS order.</p>
+                </div>
+            </section>
+
+            <!-- 3. Fractions -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">3. Fractions (Arithmetic)</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">Fractions represent a part of a whole, where the numerator is the count of parts and the denominator is the total number of parts in the whole. (e.g., 1/2 means 1 part out of a total of 2 parts).</p>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">Addition/Subtraction:</h4>
+                    <p>You MUST have a **Common Denominator (LCD)** before adding or subtracting.</p>
+                    <p class="mt-2">**Equation:**</p>
+                    <span class="plain-eq"> 1/3 + 1/4 </span>
+                    <p>The LCD of 3 and 4 is 12. Adjust the fractions: <span class="plain-eq"> 4/12 + 3/12 = 7/12 </span></p>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">Multiplication:</h4>
+                    <p>Multiply the numerators together and the denominators together (no common denominator needed!)</p>
+                    <span class="plain-eq"> 2/3 &times; 5/7 = (2&times;5) / (3&times;7) = 10/21 </span>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">Division:</h4>
+                    <p>The rule is "Keep, Change, Flip." Keep the first fraction, change division to multiplication, and flip (take the reciprocal of) the second fraction.</p>
+                    <span class="plain-eq"> 3/5 &divide; 2/7 = 3/5 &times; 7/2 = 21/10 </span>
+                </div>
+            </section>
+
+            <!-- 4. Polynomials and FOIL -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">4. Polynomials & FOIL (Binomial Multiplication)</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">A polynomial is an expression consisting of variables and coefficients, involving only the operations of addition, subtraction, multiplication, and non-negative integer exponents. **FOIL** is a mnemonic device for multiplying two **binomials** (two-term polynomials).</p>
+
+                    <p class="font-mono bg-gray-100 p-2 rounded-md inline-block text-sm">FOIL: First, Outer, Inner, Last</p>
+                    <p class="mt-3">**Equation (General Form):**</p>
+                    <span class="plain-eq"> (a + b) &times; (c + d) </span>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-2">
+                        <li>**F (First):** a &times; c = ac</li>
+                        <li>**O (Outer):** a &times; d = ad</li>
+                        <li>**I (Inner):** b &times; c = bc</li>
+                        <li>**L (Last):** b &times; d = bd</li>
+                    </ul>
+                    <p class="mt-3">**Resulting Equation:** <span class="plain-eq"> ac + ad + bc + bd </span></p>
+                    <p class="mt-2">**Example:** <span class="plain-eq"> (x + 2) &times; (x - 5) = x^2 - 5x + 2x - 10 = x^2 - 3x - 10 </span></p>
+                </div>
+            </section>
+
+            <!-- 5. Graphing Linear Equations -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">5. Graphing (Slope-Intercept Form)</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">Linear equations are typically graphed using the **Slope-Intercept Form**, which immediately reveals the line's starting point and direction.</p>
+
+                    <p class="plain-eq"> y = mx + b </p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-4">
+                        <li>**y and x:** The coordinates of any point on the line.</li>
+                        <li>**m (Slope):** The "rise over run" (change in y / change in x), which determines the steepness and direction of the line.</li>
+                        <li>**b (y-Intercept):** The point where the line crosses the y-axis (the y value when x=0).</li>
+                    </ul>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">How the Equation Works:</h4>
+                    <p>The equation y=mx+b states that the final y-value of any point is the fixed starting point (**b**) plus the amount of change (**mx**) that occurs as you move horizontally (**x**) based on the rate of change (**m**).</p>
+                    <p class="mt-2">**Example:** Graphing <span class="plain-eq"> y = 2x - 1 </span></p>
+                    <p>1. **Start:** The y-intercept (**b**) is -1. Plot the point (0, -1).</p>
+                    <p>2. **Move:** The slope (**m**) is 2, or 2/1. From (0, -1), move up 2 units (rise) and right 1 unit (run) to find the next point, (1, 1). Connect the points.</p>
+                </div>
+            </section>
+
+            <!-- 6. Physics: Kinematics (Motion) -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">6. Physics: Kinematics (Motion with Constant Acceleration)</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">Kinematics is the study of motion. A fundamental equation relates final velocity, initial velocity, acceleration, and time.</p>
+
+                    <p class="plain-eq"> v_f = v_i + a &times; t </p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-4">
+                        <li>**v_f**: Final velocity (m/s)</li>
+                        <li>**v_i**: Initial velocity (m/s)</li>
+                        <li>**a**: Constant acceleration (m/s&sup2;)</li>
+                        <li>**t**: Time interval (s)</li>
+                    </ul>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">How the Equation Works:</h4>
+                    <p>The core definition of acceleration (**a**) is how much velocity changes (&Delta;v) over time (**t**). Since &Delta;v is v_f - v_i, we have: <span class="plain-eq"> a = (v_f - v_i) / t </span></p>
+                    <p>When rearranged, the equation shows that your final velocity (**v_f**) is equal to your starting velocity (**v_i**) plus the total change in velocity (**a &times; t**).</p>
+                </div>
+            </section>
+
+            <!-- 7. Astronomical Math (Orbital Velocity) -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">7. Astronomical Math (Orbital Velocity)</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">The speed required for a satellite to maintain a circular orbit around a large body (like Earth) is determined by the gravitational force.</p>
+
+                    <p class="plain-eq"> v = &radic;( (G &times; M) / r ) </p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-4">
+                        <li>**v**: Orbital velocity (m/s)</li>
+                        <li>**G**: Gravitational constant (a fixed number: $6.674 \times 10^{-11}$)</li>
+                        <li>**M**: Mass of the central body (kg) (e.g., Earth)</li>
+                        <li>**r**: Radius of the orbit (m) (distance from the center of mass)</li>
+                    </ul>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">How the Equation Works:</h4>
+                    <p>This equation comes from balancing the **centripetal force** (the force needed to keep an object moving in a circle) and the **gravitational force** pulling the objects together. After canceling the satellite's mass, we are left with this formula. It shows that faster orbits happen closer to the central mass (**r** is small) or around heavier objects (**M** is large).</p>
+                </div>
+            </section>
+
+            <!-- 8. Advanced Physics: Mass-Energy Equivalence -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">8. Advanced Physics: Mass-Energy Equivalence ($E=mc^2$)</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">Albert Einstein's famous equation from the theory of Special Relativity. It defines the relationship between mass and energy.</p>
+
+                    <p class="plain-eq"> E = m &times; c^2 </p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-4">
+                        <li>**E**: Energy (Joules, J)</li>
+                        <li>**m**: Mass (kilograms, kg)</li>
+                        <li>**c**: Speed of light in a vacuum (a very large fixed number: $300,000,000$ m/s)</li>
+                    </ul>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">In-Depth Explanation:</h4>
+                    <p>The equation states that **mass (m) is a highly concentrated form of energy (E)**, and they can be converted into one another. Because the speed of light (**c**) is so large, and it is squared ($c^2$), it means a tiny amount of mass can be converted into an enormous amount of energy, which is the principle behind nuclear power.</p>
+                </div>
+            </section>
+
+            <!-- 9. Calculus & Analysis: The Derivative -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">9. Calculus & Analysis: The Derivative</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">Calculus measures **rates of change**. The derivative ($f'(x)$) finds the instantaneous slope of a function at a single point, known as the **slope of the tangent line**.</p>
+                    
+                    <p class="plain-eq"> f'(x) = lim (h -> 0) [ (f(x+h) - f(x)) / h ] </p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-4">
+                        <li>**$\lim_{h\to 0}$**: The limit as $h$ approaches zero.</li>
+                        <li>**$f(x+h) - f(x)$**: The change in the $y$ value (the "rise").</li>
+                        <li>**$h$**: The change in the $x$ value (the "run").</li>
+                    </ul>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">How the Equation Works:</h4>
+                    <p>This is the **limit definition** of the derivative. It calculates the average slope between two points, $x$ and $x+h$, and then uses the limit to squeeze those two points together, finding the slope at exactly the point $x$.</p>
+                </div>
+            </section>
+
+            <!-- 10. Trigonometry: Pythagorean Identity -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">10. Trigonometry: Pythagorean Identity</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">This is the most important identity in trigonometry, derived from the Pythagorean theorem applied to the **unit circle** ($x^2 + y^2 = r^2$).</p>
+                    
+                    <p class="plain-eq"> sin²($\theta$) + cos²($\theta$) = 1 </p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-4">
+                        <li>**$\sin\theta$**: The $y$-coordinate on the unit circle.</li>
+                        <li>**$\cos\theta$**: The $x$-coordinate on the unit circle.</li>
+                    </ul>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">How the Equation Works:</h4>
+                    <p>Since the hypotenuse of the triangle formed in the unit circle is always 1 (the radius), and since $\sin\theta = y/1$ and $\cos\theta = x/1$, squaring and adding the sine and cosine must always equal $1^2$, or **1**.</p>
+                </div>
+            </section>
+
+            <!-- 11. Advanced Algebra: The Quadratic Formula -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">11. Advanced Algebra: The Quadratic Formula</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">The quadratic formula solves for the roots (or **x-intercepts**) of *any* quadratic equation in standard form: $ax^2 + bx + c = 0$.</p>
+                    
+                    <p class="plain-eq"> x = [-b $\pm$ sqrt(b² - 4ac)] / 2a </p>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">Key Components:</h4>
+                    <ul class="list-disc list-inside space-y-1 ml-4">
+                        <li>**$\pm$ (Plus/Minus):** Indicates that there are usually two solutions (roots).</li>
+                        <li>**$b^2 - 4ac$ (The Discriminant):** This part tells you how many solutions exist. If it's positive, two real solutions. If it's zero, one solution. If it's negative, no real solutions.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 12. Geometry & Topology: Euler Characteristic -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">12. Geometry & Topology: Euler Characteristic</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">This formula describes a fundamental property of all simple, convex polyhedra (like cubes, pyramids, or soccer balls).</p>
+                    
+                    <p class="plain-eq"> V - E + F = 2 </p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-4">
+                        <li>**V**: Number of **Vertices** (corners).</li>
+                        <li>**E**: Number of **Edges** (lines connecting corners).</li>
+                        <li>**F**: Number of **Faces** (flat surfaces).</li>
+                    </ul>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">Example (Cube):</h4>
+                    <p>A cube has 8 vertices, 12 edges, and 6 faces. $8 - 12 + 6 = 2$. The relationship always holds true!</p>
+                </div>
+            </section>
+
+            <!-- 13. Statistics & Probability: Z-Score -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">13. Statistics & Probability: Z-Score</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">The Z-score (or standard score) tells you exactly how many **standard deviations** a specific value ($x$) is away from the average (mean, $\mu$).</p>
+                    
+                    <p class="plain-eq"> z = (x - $\mu$) / $\sigma$ </p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-4">
+                        <li>**$x$**: The raw data value.</li>
+                        <li>**$\mu$ (Mu)**: The mean (average) of the data set.</li>
+                        <li>**$\sigma$ (Sigma)**: The standard deviation (how spread out the data is).</li>
+                    </ul>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">Purpose:</h4>
+                    <p>The Z-score allows you to compare data points from completely different sets. For example, you can use it to compare a test score from a math class to a score from a history class.</p>
+                </div>
+            </section>
+
+            <!-- 14. Discrete Math & Logic: Combinations -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">14. Discrete Math & Logic: Combinations</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">Combinations ($C(n, k)$) count the number of ways to choose $k$ items from a larger set of $n$ items, **when the order doesn't matter**.</p>
+                    
+                    <p class="plain-eq"> C(n, k) = n! / [k! (n-k)!] </p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-4">
+                        <li>**$n$**: Total number of items in the set.</li>
+                        <li>**$k$**: Number of items to choose.</li>
+                        <li>**$!$ (Factorial):** $n! = n \times (n-1) \times \dots \times 1$.</li>
+                    </ul>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">Example:</h4>
+                    <p>How many ways can you choose a 3-person team from 10 students? This is $C(10, 3)$, because picking Jane, Joe, then Sue is the same as picking Sue, Jane, then Joe.</p>
+                </div>
+            </section>
+            
+            <!-- 15. Applied Mathematics: The Wave Equation -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">15. Applied Mathematics: The Wave Equation</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">This is a famous **Partial Differential Equation (PDE)** that describes how waves—like sound, light, or a vibrating string—move through space and time.</p>
+                    
+                    <p class="plain-eq"> u_tt = c² u_xx </p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-4">
+                        <li>**$u$**: The displacement (height) of the wave.</li>
+                        <li>**$u_{tt}$**: How the wave's displacement changes over time (acceleration).</li>
+                        <li>**$u_{xx}$**: How the wave curves in space.</li>
+                        <li>**$c$**: The speed of the wave.</li>
+                    </ul>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">Physical Meaning:</h4>
+                    <p>The equation shows that the acceleration of a wave part (its curvature in time) is directly proportional to its curvature in space. This relationship is what allows waves to travel and keep their shape.</p>
+                </div>
+            </section>
+            
+            <!-- 16. Number Theory: Modular Arithmetic -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">16. Number Theory: Modular Arithmetic (The Clock)</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-3">Modular arithmetic is the mathematics of "wrapping around," similar to how a clock works. It's used in computer science for things like cryptography.</p>
+                    
+                    <p class="plain-eq"> a $\equiv$ b (mod m) </p>
+                    <ul class="list-disc list-inside space-y-1 ml-4 mt-4">
+                        <li>**$a$ and $b$**: The two numbers being compared.</li>
+                        <li>**$m$**: The modulus (the number you divide by).</li>
+                        <li>**$\equiv$**: The symbol for **congruence** (not just equality).</li>
+                    </ul>
+
+                    <h4 class="font-bold mt-4 mb-2 text-indigo-700">Example:</h4>
+                    <p>The equation $15 \equiv 3 \pmod{12}$ is true because when you divide 15 by 12, the remainder is 3. Similarly, 3 divided by 12 also has a remainder of 3. On a 12-hour clock, 15:00 is the same as 3:00.</p>
+                </div>
+            </section>
+
+            <!-- 17. Legend of Common Mathematical Symbols -->
+            <section class="border border-indigo-200 rounded-lg">
+                <button onclick="toggleAccordion(this)" class="w-full text-left flex justify-between items-center p-4 sm:p-5 bg-indigo-50 hover:bg-indigo-100 transition duration-150 rounded-lg focus:outline-none">
+                    <span class="text-xl font-semibold text-indigo-800">17. Legend of Common Mathematical Symbols (Expanded)</span>
+                    <svg class="w-6 h-6 text-indigo-600 accordion-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="accordion-content px-4 bg-white text-gray-700">
+                    <p class="mb-4">This comprehensive table includes symbols from basic math through advanced topics like Calculus, Analysis, Set Theory, and Logic.</p>
+
+                    <!-- Section: Basic Arithmetic, Algebra, & Comparison -->
+                    <h4 class="font-bold mb-2 text-indigo-700">I. Arithmetic, Algebra, & Comparison</h4>
+                    <ul class="legend-list space-y-0.5 mb-4 text-sm">
+                        <li><span class="legend-symbol">+</span> <span class="legend-description">Addition | <strong>Example: $5 + 3 = 8$</strong></span></li>
+                        <li><span class="legend-symbol">-</span> <span class="legend-description">Subtraction | <strong>Example: $10 - 4 = 6$</strong></span></li>
+                        <li><span class="legend-symbol">&times;</span> <span class="legend-description">Multiplication | <strong>Example: $2 \times 5 = 10$</strong></span></li>
+                        <li><span class="legend-symbol">&divide;</span> <span class="legend-description">Division | <strong>Example: $15 \div 3 = 5$</strong></span></li>
+                        <li><span class="legend-symbol">=</span> <span class="legend-description">Equality / Is equal to | <strong>Example: $2x + 1 = 7$</strong></span></li>
+                        <li><span class="legend-symbol">&ne;</span> <span class="legend-description">Inequality / Is not equal to | <strong>Example: $5 \ne 6$</strong></span></li>
+                        <li><span class="legend-symbol">&le;</span> <span class="legend-description">Less than or equal to | <strong>Example: $x \le 5$</strong></span></li>
+                        <li><span class="legend-symbol">&ge;</span> <span class="legend-description">Greater than or equal to | <strong>Example: $y \ge 10$</strong></span></li>
+                        <li><span class="legend-symbol">&approx;</span> <span class="legend-description">Approximately equal to | <strong>Example: $\pi \approx 3.14$</strong></span></li>
+                        <li><span class="legend-symbol">&propto;</span> <span class="legend-description">Proportional to | <strong>Example: $y \propto x^2$</strong></span></li>
+                        <li><span class="legend-symbol">&radic;</span> <span class="legend-description">Square root | <strong>Example: $\sqrt{25} = 5$</strong></span></li>
+                        <li><span class="legend-symbol">^x</span> <span class="legend-description">raised to a power of x | <strong>Example: $2^3 = 8$</strong></span></li>
+                        <li><span class="legend-symbol">|x|</span> <span class="legend-description">Absolute value of x | <strong>Example: $|-4| = 4$</strong></span></li>
+                        <li><span class="legend-symbol">f(x)</span> <span class="legend-description">Function notation (f of x) | <strong>Example: $f(x) = x^2 + 1$</strong></span></li>
+                    </ul>
+
+                    <!-- Section: Geometry & Trigonometry -->
+                    <h4 class="font-bold mb-2 text-indigo-700">II. Geometry & Trigonometry</h4>
+                    <ul class="legend-list space-y-0.5 mb-4 text-sm">
+                        <li><span class="legend-symbol">&pi;</span> <span class="legend-description">Pi (ratio of circumference to diameter) | <strong>Example: $C = 2\pi r$</strong></span></li>
+                        <li><span class="legend-symbol">&ang;</span> <span class="legend-description">Angle | <strong>Example: $\angle ABC$</strong></span></li>
+                        <li><span class="legend-symbol">&theta;</span> <span class="legend-description">Theta (common variable for angles) | <strong>Usage: $\sin(\theta)$</strong></span></li>
+                        <li><span class="legend-symbol">&deg;</span> <span class="legend-description">Degree (for angle measurement) | <strong>Example: $90^\circ$</strong></span></li>
+                        <li><span class="legend-symbol">&triangle;</span> <span class="legend-description">Triangle | <strong>Example: $\triangle PQR$</strong></span></li>
+                        <li><span class="legend-symbol">&parallel;</span> <span class="legend-description">Is parallel to | <strong>Example: $L_1 \parallel L_2$</strong></span></li>
+                        <li><span class="legend-symbol">&perp;</span> <span class="legend-description">Is perpendicular to | <strong>Example: $AB \perp CD$</strong></span></li>
+                        <li><span class="legend-symbol">sin</span> <span class="legend-description">Sine function (opposite/hypotenuse) | <strong>Example: $\sin(\theta) = 0.5$</strong></span></li>
+                        <li><span class="legend-symbol">cos</span> <span class="legend-description">Cosine function (adjacent/hypotenuse) | <strong>Example: $\cos(0) = 1$</strong></span></li>
+                        <li><span class="legend-symbol">tan</span> <span class="legend-description">Tangent function (opposite/adjacent) | <strong>Example: $\tan(45^\circ) = 1$</strong></span></li>
+                        <li><span class="legend-symbol">sec</span> <span class="legend-description">Secant function (1/cos) | <strong>Example: $\sec(x) = \frac{1}{\cos(x)}$</strong></span></li>
+                        <li><span class="legend-symbol">csc</span> <span class="legend-description">Cosecant function (1/sin) | <strong>Example: $\csc(x) = \frac{1}{\sin(x)}$</strong></span></li>
+                        <li><span class="legend-symbol">cot</span> <span class="legend-description">Cotangent function (1/tan) | <strong>Example: $\cot(x) = \frac{1}{\tan(x)}$</strong></span></li>
+                    </ul>
+                    
+                    <!-- Section: Calculus, Analysis, & Applied Math -->
+                    <h4 class="font-bold mb-2 text-indigo-700">III. Calculus, Analysis, & Applied Math</h4>
+                    <ul class="legend-list space-y-0.5 mb-4 text-sm">
+                        <li><span class="legend-symbol">&sum;</span> <span class="legend-description">Summation (sum of) | <strong>Example: $\sum_{i=1}^{n} i$</strong></span></li>
+                        <li><span class="legend-symbol">&int;</span> <span class="legend-description">Integral of (area under the curve) | <strong>Example: $\int x^2 dx$</strong></span></li>
+                        <li><span class="legend-symbol">&int;&int;</span> <span class="legend-description">Double integral (volume) | <strong>Example: $\iint_D f(x, y) dA$</strong></span></li>
+                        <li><span class="legend-symbol">&part;</span> <span class="legend-description">Partial derivative | <strong>Example: $\frac{\partial f}{\partial x}$</strong></span></li>
+                        <li><span class="legend-symbol">&infin;</span> <span class="legend-description">Infinity (limitless quantity) | <strong>Example: $\lim_{x\to \infty} \frac{1}{x} = 0$</strong></span></li>
+                        <li><span class="legend-symbol">lim</span> <span class="legend-description">Limit (value a function approaches) | <strong>Example: $\lim_{x\to 0} \frac{\sin x}{x}$</strong></span></li>
+                        <li><span class="legend-symbol">&nabla;</span> <span class="legend-description">Nabla / Gradient (vector of partial derivatives) | <strong>Example: $\nabla f$</strong></span></li>
+                        <li><span class="legend-symbol">e</span> <span class="legend-description">Euler's Number (base of natural logarithm, $\approx 2.718$) | <strong>Example: $e^{i\pi} + 1 = 0$</strong></span></li>
+                    </ul>
+
+                    <!-- Section: Set Theory, Discrete Math, & Mathematical Logic -->
+                    <h4 class="font-bold mb-2 text-indigo-700">IV. Set Theory, Discrete Math, & Logic</h4>
+                    <ul class="legend-list space-y-0.5 mb-4 text-sm">
+                        <li><span class="legend-symbol">&isin;</span> <span class="legend-description">Is an element of (membership) | <strong>Example: $3 \in \mathbb{Z}$</strong></span></li>
+                        <li><span class="legend-symbol">&notin;</span> <span class="legend-description">Is not an element of | <strong>Example: $\frac{1}{2} \notin \mathbb{Z}$</strong></span></li>
+                        <li><span class="legend-symbol">&cup;</span> <span class="legend-description">Union (elements in either set) | <strong>Example: $A \cup B$</strong></span></li>
+                        <li><span class="legend-symbol">&cap;</span> <span class="legend-description">Intersection (elements common to both sets) | <strong>Example: $A \cap B$</strong></span></li>
+                        <li><span class="legend-symbol">&sube;</span> <span class="legend-description">Is a subset of or equal to | <strong>Example: $A \subseteq B$</strong></span></li>
+                        <li><span class="legend-symbol">&empty;</span> <span class="legend-description">The empty set ($\{\}$) | <strong>Example: $A \cap \emptyset = \emptyset$</strong></span></li>
+                        <li><span class="legend-symbol">\</span> <span class="legend-description">Set difference (A but not B) | <strong>Example: $A \setminus B$</strong></span></li>
+                        <li><span class="legend-symbol">&forall;</span> <span class="legend-description">For all / For every (Universal quantifier) | <strong>Example: $\forall x \in \mathbb{R}$</strong></span></li>
+                        <li><span class="legend-symbol">&exist;</span> <span class="legend-description">There exists (Existential quantifier) | <strong>Example: $\exists y$ such that $y>0$</strong></span></li>
+                        <li><span class="legend-symbol">&and;</span> <span class="legend-description">Logical AND / Conjunction | <strong>Example: $P \land Q$</strong></span></li>
+                        <li><span class="legend-symbol">&or;</span> <span class="legend-description">Logical OR / Disjunction | <strong>Example: $P \lor Q$</strong></span></li>
+                        <li><span class="legend-symbol">&not;</span> <span class="legend-description">Logical NOT / Negation | <strong>Example: $\neg P$</strong></span></li>
+                        <li><span class="legend-symbol">&implies;</span> <span class="legend-description">Implies (P $\to$ Q) | <strong>Example: $P \implies Q$</strong></span></li>
+                        <li><span class="legend-symbol">&hArr;</span> <span class="legend-description">If and only if (Biconditional) | <strong>Example: $P \iff Q$</strong></span></li>
+                    </ul>
+
+                    <!-- V. Statistics & Probability -->
+                    <h4 class="font-bold mb-2 text-indigo-700">V. Statistics & Probability</h4>
+                    <ul class="legend-list space-y-0.5 mb-4 text-sm">
+                        <li><span class="legend-symbol">P(A)</span> <span class="legend-description">Probability of event A | <strong>Example: $P(\text{Heads}) = 0.5$</strong></span></li>
+                        <li><span class="legend-symbol">E(X)</span> <span class="legend-description">Expected Value of variable X | <strong>Example: $E(X) = \sum x P(x)$</strong></span></li>
+                        <li><span class="legend-symbol">!</span> <span class="legend-description">Factorial ($n! = n \times (n-1) \times \dots \times 1$) | <strong>Example: $4! = 24$</strong></span></li>
+                        <li><span class="legend-symbol">μ</span> <span class="legend-description">Mu (Population mean/average) | <strong>Example: $\mu = 10$</strong></span></li>
+                        <li><span class="legend-symbol">&sigma;</span> <span class="legend-description">Sigma (Standard deviation) | <strong>Example: $\sigma = 2$</strong></span></li>
+                        <li><span class="legend-symbol">&sigma;&sup2;</span> <span class="legend-description">Variance | <strong>Example: $\sigma^2 = 4$</strong></span></li>
+                        <li><span class="legend-symbol">&Chi;&sup2;</span> <span class="legend-description">Chi-squared (for distribution tests) | <strong>Example: $\chi^2$ test</strong></span></li>
+                    </ul>
+
+                    <!-- VI. Number Theory, Analysis, & Topology -->
+                    <h4 class="font-bold mb-2 text-indigo-700">VI. Number Theory, Analysis, & Topology</h4>
+                    <ul class="legend-list space-y-0.5 mb-4 text-sm">
+                        <li><span class="legend-symbol">&equiv;</span> <span class="legend-description">Congruence (in modular arithmetic) | <strong>Example: $10 \equiv 4 \pmod{6}$</strong></span></li>
+                        <li><span class="legend-symbol">|</span> <span class="legend-description">Divides (e.g., $3|9$) | <strong>Example: $3 | 6$</strong></span></li>
+                        <li><span class="legend-symbol">&nmid;</span> <span class="legend-description">Does not divide | <strong>Example: $4 \nmid 7$</strong></span></li>
+                        <li><span class="legend-symbol">&there4;</span> <span class="legend-description">Therefore | <strong>Usage: $\because A, \therefore B$</strong></span></li>
+                        <li><span class="legend-symbol">&because;</span> <span class="legend-description">Because | <strong>Usage: $B \because A$</strong></span></li>
+                        <li><span class="legend-symbol">&Zopf;</span> <span class="legend-description">Set of Integers ($\mathbb{Z}$) | <strong>Example: $\mathbb{Z} = \{\dots, -1, 0, 1, \dots\}$</strong></span></li>
+                        <li><span class="legend-symbol">&Ropf;</span> <span class="legend-description">Set of Real Numbers ($\mathbb{R}$) | <strong>Example: $x \in \mathbb{R}$</strong></span></li>
+                        <li><span class="legend-symbol">&Copf;</span> <span class="legend-description">Set of Complex Numbers ($\mathbb{C}$) | <strong>Example: $i \in \mathbb{C}$</strong></span></li>
+                        <li><span class="legend-symbol">A&compfn;</span> <span class="legend-description">Interior of set A (Topology) | <strong>Example: $\text{int}(A)$</strong></span></li>
+                        <li><span class="legend-symbol">A&overline;</span> <span class="legend-description">Closure of set A (Topology) | <strong>Example: $\overline{A}$</strong></span></li>
+                    </ul>
+
+                    <!-- VII. Greek Letters (Common Variables) -->
+                    <h4 class="font-bold mb-2 text-indigo-700">VII. Greek Letters (Common Variables)</h4>
+                    <ul class="legend-list space-y-0.5 mb-4 text-sm">
+                        <li><span class="legend-symbol">&alpha;</span> <span class="legend-description">Alpha (angles, coefficients) | <strong>Usage: $\alpha + \beta = 90^\circ$</strong></span></li>
+                        <li><span class="legend-symbol">&beta;</span> <span class="legend-description">Beta (angles, regression coefficients) | <strong>Usage: $\beta_1 x + \beta_0$</strong></span></li>
+                        <li><span class="legend-symbol">&gamma;</span> <span class="legend-description">Gamma | <strong>Usage: $\Gamma(n)$ (Gamma Function)</strong></span></li>
+                        <li><span class="legend-symbol">&Delta;</span> <span class="legend-description">Capital Delta (change or difference) | <strong>Usage: $\Delta x$ (Change in $x$)</strong></span></li>
+                        <li><span class="legend-symbol">&delta;</span> <span class="legend-description">Lowercase Delta (small change) | <strong>Usage: $\delta-\epsilon$ proof</strong></span></li>
+                        <li><span class="legend-symbol">&lambda;</span> <span class="legend-description">Lambda (wavelength, eigenvalues) | <strong>Usage: $\lambda = h/p$</strong></span></li>
+                        <li><span class="legend-symbol">&mu;</span> <span class="legend-description">Mu (mean) | <strong>Usage: $\mu_x$</strong></span></li>
+                        <li><span class="legend-symbol">&Omega;</span> <span class="legend-description">Capital Omega (Ohms, solid angle) | <strong>Usage: $\Omega$ (Ohms in resistance)</strong></span></li>
+                        <li><span class="legend-symbol">&omega;</span> <span class="legend-description">Lowercase Omega (angular velocity) | <strong>Usage: $\omega = 2\pi f$</strong></span></li>
+                    </ul>
+
+                    <!-- VIII. Mathematical Constants -->
+                    <h4 class="font-bold mb-2 text-indigo-700">VIII. Mathematical Constants</h4>
+                    <ul class="legend-list space-y-0.5 mb-4 text-sm">
+                        <li><span class="legend-symbol">&tau;</span> <span class="legend-description">Tau (Ratio of circumference to radius: $2\pi \approx 6.283$) | <strong>Usage: $\tau = 2\pi$</strong></span></li>
+                        <li><span class="legend-symbol">&phi;</span> <span class="legend-description">Golden Ratio / Fibonacci Constant ($\approx 1.618$) | <strong>Example: $\phi = \frac{1+\sqrt{5}}{2}$</strong></span></li>
+                        <li><span class="legend-symbol">137.5&deg;</span> <span class="legend-description">Golden Angle (Optimizes spiral growth in nature) | <strong>Usage: $\theta = 137.5^\circ$</strong></span></li>
+                        <li><span class="legend-symbol">&rho;</span> <span class="legend-description">Tribonacci Constant ($\approx 1.839$) | <strong>Usage: $\rho$ (Density in Physics)</strong></span></li>
+                        <li><span class="legend-symbol">K₀</span> <span class="legend-description">Khinchin's Constant ($\approx 2.685$) | <strong>Usage: $K_0$ in Continued Fractions</strong></span></li>
+                        <li><span class="legend-symbol">A</span> <span class="legend-description">Glaisher-Kinkelin Constant ($\approx 1.285$) | <strong>Usage: $A$ in number theory formulas</strong></span></li>
+                    </ul>
+                </div>
+            </section>
+
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="p-6 text-center text-sm text-gray-500 border-t border-indigo-200 rounded-b-xl">
+            Study hard, and remember that every complex equation is built from simple concepts!
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Page</title>
+    <link rel="stylesheet" href="HTML-styles/Main.css">
+    <link rel="stylesheet" href="HTML-styles/Main-animations.css">
+  </head>
+  <body>
+    <nav class="navbar">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <img src="Finalpphotos/Main-logo.png" alt="Site-logo.png" class="navbar-brand" style="width: 108px;"/>
+        <div class="menu-container">
+            <div id="menu-div">
+            <button
+              class="menu-toggle"
+              id="menu-toggle"
+              title="Toggle navigation menu"
+              aria-label="Toggle navigation menu"
+            >
+              <svg
+                class="menu-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                d="M4 6H20M4 12H20M4 18H20"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu">
+              <button class="menu-close-btn" id="menu-close-btn" aria-label="Close menu" style="position: absolute; top: 2px; right: 5px; z-index: 1000;">
+                &times;
+              </button>
+              <ul class="dropdown-menu""></ul>
+                        <li class="dropdown-item"><a href="HTML/TFG-HTML/0.html">TFG wiki</a></li>
+                        <li class="dropdown-item"><a href="HTML/Calamity-HTML/0c.html">Calamity wiki</a></li>
+                    </ul>
+            </div>
+          </div>
+      </div>
+    </nav>
+
+    <main class="container">
+      <div class="landing-page" >
+        <h1>Welcome to the WIKI KITCHEN</h1>
+        <p>If you wish to explore the available wikis, use the navigation menu on the top left.</p>
+      </div>
+    </main>
+
+    <script>
+      const menuToggle = document.getElementById("menu-toggle");
+      const dropdownMenu = document.getElementById("dropdown-menu");
+      const searchToggle = document.getElementById("search-toggle");
+      const searchContainer2 = document.getElementById("search-container2");
+
+      // --- Slide-out Menu and Overlay ---
+      const navbar = document.querySelector(".navbar");
+
+      function setDropdownPosition() {
+        const navbarHeight = navbar.offsetHeight;
+        dropdownMenu.style.top = `${navbarHeight}px`;
+      }
+
+      setDropdownPosition(); // Set on initial load
+      const overlay = document.createElement('div');
+      overlay.className = 'overlay';
+      document.body.appendChild(overlay);
+
+      menuToggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        dropdownMenu.classList.add("show");
+        setDropdownPosition(); // Also set on open
+      });
+
+      function closeMenu() {
+        dropdownMenu.classList.remove("show");
+      }
+
+      // Add listener for the new close button
+      const menuCloseBtn = document.getElementById('menu-close-btn');
+      menuCloseBtn.addEventListener('click', closeMenu);
+
+
+
+      searchToggle.addEventListener("click", (event) => {
+        event.stopPropagation();
+        searchContainer2.classList.toggle("show");
+      });
+
+      const accordions = document.querySelectorAll(".accordion-header");
+      accordions.forEach((accordion) => {
+        accordion.addEventListener("click", function() {
+          const panel = this.nextElementSibling; // The .accordion-panel
+
+          this.classList.toggle("active");
+          
+          if (panel.style.maxHeight) {
+            panel.style.maxHeight = null;
+            panel.classList.remove("open");
+          } else {
+            const duration = Math.min(Math.max(panel.scrollHeight, 300), 800);
+            panel.style.transitionDuration = duration + "ms";
+            panel.classList.add("open");
+            panel.style.maxHeight = panel.scrollHeight + "px";
+          }
+        });
+      });
+
+      const searchInputs = document.querySelectorAll(".search-input");
+      const searchCloseBtn = document.getElementById("search-close-btn");
+      const contentCards = document.querySelectorAll(
+        ".content-card:not(#no-results-card)",
+      );
+      const noResultsCard = document.getElementById("no-results-card");
+
+      function performSearch() {
+        const query = this.value.toLowerCase().trim();
+        // Sync inputs
+        searchInputs.forEach(input => {
+            if (input !== this) input.value = this.value;
+        });
+
+        let resultsFound = false;
+        if (query === "") {
+          contentCards.forEach((card) => (card.style.display = "block"));
+          noResultsCard.style.display = "none";
+          return;
+        }
+        contentCards.forEach((card) => {
+          const header = card.querySelector(".accordion-header");
+          const headerText = header ? header.innerText.toLowerCase() : "";
+          const isMatch = headerText.includes(query);
+          card.style.display = isMatch ? "block" : "none";
+          if (isMatch) {
+            resultsFound = true;
+          }
+        });
+        noResultsCard.style.display = resultsFound ? "none" : "block";
+      }
+
+      searchInputs.forEach(input => input.addEventListener("keyup", performSearch));
+      if (searchCloseBtn) {
+          searchCloseBtn.addEventListener("click", () => searchContainer2.classList.remove("show"));
+      }
+
+      const backToTopBtn = document.getElementById("backToTopBtn");
+      if (backToTopBtn) {
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > 300) {
+            backToTopBtn.classList.add("show");
+          } else {
+            backToTopBtn.classList.remove("show");
+          }
+        });
+        backToTopBtn.addEventListener("click", () => {
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1356 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Getting started</title>
+    <link rel="stylesheet" href="../../HTML-styles/TFG.css">
+    <link rel="stylesheet" href="../../HTML-styles/TFG-animations.css">
+  </head>
+  <body>
+    <nav class="navbar">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <a href="0.html" class="navbar-brand"><img src="../../Finalpphotos/Site-logo.gif" alt="Site-logo.png" /></a>
+        <div class="menu-container">
+            <div id="menu-div">
+            <button
+              class="menu-toggle"
+              id="menu-toggle"
+              title="Toggle navigation menu"
+              aria-label="Toggle navigation menu"
+            >
+              <svg
+                class="menu-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                d="M4 6H20M4 12H20M4 18H20"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu">
+              <button class="menu-close-btn" id="menu-close-btn" aria-label="Close menu" style="position: absolute; top: 2px; right: 5px; z-index: 1000;">
+                &times;
+              </button>
+              <ul class="dropdown-menu""></ul>
+                        <li class="dropdown-item"><a href="0.html">Overview</a></li>
+                        <li class="dropdown-item"><a href="1.html">Getting Started</a></li>
+                        <li class="dropdown-item"><a href="2.html">Game Mechanics</a></li>
+                        <li class="dropdown-item"><a href="3.html">Plants</a></li>
+                        <li class="dropdown-item"><a href="4.html">Food</a></li>
+                        <li class="dropdown-item"><a href="5.html">Tools</a></li>
+                        <li class="dropdown-item"><a href="6.html">Ores</a></li>
+                        <li class="dropdown-item"><a href="7.html">Enemies</a></li>
+                        <li class="dropdown-item"><a href="8.html">Blacksmithing</a></li>
+                        <li class="dropdown-item"><a href="9.html">Terrain Generation</a></li>
+                        <li class="dropdown-item"><a href="10.html">Machinery</a></li>
+                        <li class="dropdown-item"><a href="11.html">GregTech</a></li>
+                        <li class="dropdown-item"><a href="12.html">Included Addons</a></li>
+                        <li class="dropdown-item"><a href="13.html">Contact</a></li>
+                    </ul>
+            </div>
+      </div>
+        <div class="nav-left-section">
+          <div class="back-to-home" id="back-to-home" style="display: flex; justify-content: center; align-items: center;">
+            <svg width="20px" height="64px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#33ff00"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M1 6V15H6V11C6 9.89543 6.89543 9 8 9C9.10457 9 10 9.89543 10 11V15H15V6L8 0L1 6Z" fill="#33ff00"></path> </g></svg>
+        </div>
+      </div>
+      </div>
+      <di style="display: flex; align-content: right; gap: 10px;">
+      <div class="nav-right-section">
+        <div class="search-container1" id="search-container1">
+          <input
+            type="text"
+            class="search-input"
+            id="search-input"
+            placeholder="Search..."
+            aria-label="Search through site content"
+          />
+          <button
+            class="search-close-btn"
+            id=""
+            title="Close search bar"
+            aria-label="Close search bar"
+          >
+            <svg
+              class="close-icon-svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 6L6 18M6 6l12 12"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+            <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M21 21L16.65 16.65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+      </div>
+      </div>
+      </div>
+        <div class="search-container2" id="search-container2">
+          <input
+            type="text"
+            class="search-input"
+            id="search-input"
+            placeholder="Search..."
+            aria-label="Search through site content"
+          />
+          <button
+            class="search-close-btn"
+            id="search-close-btn"
+            title="Close search bar"
+            aria-label="Close search bar"
+          >
+            <svg
+              class="close-icon-svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 6L6 18M6 6l12 12"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+            <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M21 21L16.65 16.65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="nav-controls">
+          <button
+            class="search-toggle"
+            id="search-toggle"
+            title="Toggle search bar"
+            aria-label="Toggle search bar"
+          >
+            <svg
+              class="menu-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+              <path
+                d="M21 21L16.65 16.65"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+          </button>
+      </nav>
+
+    <main class="container">
+        <div class="content-card">
+            <div class="accordion-header">
+                <h2>Getting Started</h2>
+            </div>
+            <div class="accordion-panel">
+                <p>Welcome to TerraFirmaGreg! This guide will help you get started with the modpack, covering installation, basic gameplay mechanics, and essential tips for new players.</p>
+                <h3>Installation</h3>
+                <p>To install TerraFirmaGreg, follow these steps:</p>
+                <ol>
+                    <li>Ensure you have Minecraft Java Edition installed.</li>
+                    <li>Download and install the required version of Minecraft Forge.</li>
+                    <li>Download the TerraFirmaGreg modpack from the official website or a trusted source.</li>
+                    <li>Place the downloaded modpack file into your Minecraft 'mods' folder.</li>
+                    <li>Launch Minecraft using the Forge profile.</li>
+                </ol>
+                <h3>Basic Gameplay Mechanics</h3>
+                <p>TerraFirmaGreg introduces several new gameplay mechanics that enhance the survival experience:</p>
+                <ul>
+                    <li><strong>Realistic World Generation:</strong> The world is generated with realistic biomes, terrain features, and resource distribution.</li>
+                    <li><strong>Survival Elements:</strong> Players must manage hunger, thirst, and temperature to survive in the harsh environment.</li>
+                    <li><strong>Crafting and Building:</strong> New crafting recipes and building materials are available to create tools, structures, and machinery.</li>
+                </ul>
+                <h3>Essential Tips for New Players</h3>
+                <ul>
+                    <li>Start by gathering basic resources like sticks, stones, and food.</li>
+                    <li>Explore your surroundings to find valuable resources and safe locations for shelter.</li>
+                    <li>Experiment with crafting recipes to discover new items and tools.</li>
+                    <li>Stay vigilant against hostile mobs and environmental hazards.</li>
+                </ul>
+                <p>With these basics covered, you're ready to embark on your adventure in TerraFirmaGreg! Explore, build, and survive in this challenging modpack.</p>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="accordion-header">
+                <h2>Some Mechanics</h2>
+            </div>
+            <div class="accordion-panel">
+                <p>TerraFirmaGreg introduces several new gameplay mechanics that enhance the survival experience:</p>
+                <ul>
+                    <li><strong>Realistic World Generation:</strong> The world is generated with realistic biomes, terrain features, and resource distribution.</li>
+                    <li><strong>Survival Elements:</strong> Players must manage hunger, thirst, and temperature to survive in the harsh environment.</li>
+                    <li><strong>Crafting and Building:</strong> New crafting recipes and building materials are available to create tools, structures, and machinery.</li>
+                </ul>
+                <hr>
+                <h3>Survival Mechanics</h3>
+                <p>Players must manage several survival mechanics, including:</p>
+                <ul>
+                    <li><strong>Health:</strong> Avoid damage from mobs and environmental hazards.</li>
+                    <li><strong>Hunger:</strong> Keep an eye on your hunger bar and eat food to maintain energy levels.</li>
+                    <li><strong>Thirst:</strong> Find and drink water to stay hydrated.</li>
+                    <li><strong>Temperature:</strong> Dress appropriately for the environment to avoid hypothermia or heatstroke.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="accordion-header">
+                <h2>Controls</h2>
+            </div>
+            <div class="accordion-panel">
+
+                <p>All the games controls can be customized via <u>Settings&gt;Controls&gt;Keybinds</u></p>
+                <hr>
+                <h3>Moevement Controls</h3>
+                <ul>
+                    <li><strong>W/A/S/D:</strong> Move forward/left/backward/right.</li>
+                    <li><strong>Spacebar:</strong> Jump.</li>
+                    <li><strong>Shift:</strong> Sneak.</li>
+                    <li><strong>Ctrl:</strong> Sprint.</li>
+                </ul>
+                <hr>
+                <h3>Interaction Controls</h3>
+                <ul>
+                    <li><strong>Left Click:</strong> Interact with objects.</li>
+                    <li><strong>Right Click:</strong> Use tools.</li>
+                </ul>
+                <hr>
+                <h3>Inventory and Menu Controls</h3>
+                <ul>
+                    <li><strong>E:</strong> Open inventory.</li>
+                    <li><strong>Esc:</strong> Open game menu.</li>
+                </ul>
+                <h3>Additional Controls</h3>
+                <ul>
+                    <li><strong>Q:</strong> Drop held item.</li>
+                    <li><strong>Shift+Right Click:</strong> Transfer items between hotbar, inventory, and storage containers.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="accordion-header">
+                <h2>Configuration</h2>
+            </div>
+            <div class="accordion-panel">
+                <p>There are a wide variety of configuration options available in the game:</p>
+
+                <ul>
+                    <li><strong>Graphics Settings:</strong> Adjust rendering quality, resolution, and visual effects.</li>
+                    <li><strong>Audio Settings:</strong> Control volume levels for music, sound effects, and voice chat.</li>
+                    <li><strong>Gameplay Settings:</strong> Modify difficulty levels, world generation parameters, and survival mechanics.</li>
+                </ul>
+                <hr>
+                <h3>Accessing Configuration Options</h3>
+                <p>To access the configuration options, follow these steps:</p>
+                <ol>
+                    <li>Open the game menu by pressing the 'Esc' key.</li>
+                    <li>Select 'Options' from the menu.</li>
+                    <li>Navigate through the different tabs to find specific settings.</li>
+                </ol>
+                <hr>
+                <h3>Configuration File</h3>
+                <p>Configuration options can also be modified directly in the configuration file.</p>
+                <p><u>NOTE: </u> The configuration file is located at <u>Documents&gt;TerraFirmaGreg&gt;config.json</u></p>
+                <p>Make sure to back up the configuration file before making any changes.</p>
+                <hr>
+                <h3>The configuration file names</h3>
+                <p>There are multiple configuration files available in the game:</p>
+                <ul>
+                    <li><strong>TFCOptions.cfg:</strong> This file contains general game settings.</li>
+                    <li>
+                      <strong>TFCCrafting.cfg:</strong> This file contains crafting settings and controls recipes.
+                    </li>
+                    <li><strong>TFCOre.cfg:</strong> This file contains ore generation settings.</li>
+                </ul>
+                <hr>
+                <h3>All Configuration Options</h3>
+                <div class="table-container">
+                <table class="wikitable">
+<tbody><tr>
+<th>Option
+</th>
+<th>
+Default<br />
+Value
+</th>
+<th>Description
+</th></tr>
+<tr>
+<td class="table-sub-header">cave-ins</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Options which affect cave-ins.
+</td></tr>
+<tr>
+<td><span class="table-indent">enableCaveIns</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Set this to false to disable cave ins.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">enableCaveInsDestroyOre</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Set this to false to make cave-ins drop the ore item instead of destroy it.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">initialCollapseRatio</span></td>
+<td align="center">10</td>
+<td><div class="table-indent">This number is a 1 in X chance that when you mine a block, a collapse will occur. [range: 1 ~ 1000]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">minimumRockLoad</span></td>
+<td align="center">1</td>
+<td><div class="table-indent">This is the minimum number of solid blocks that must be over a section in order for it to collapse. [range: 0 ~ 256]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">propogateCollapseChance</span></td>
+<td align="center">55</td>
+<td><div class="table-indent">This number is the likelihood for each block to propagate the collapse farther. [range: 1 ~ 100]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">colors</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">
+</td></tr>
+<tr>
+<td class="table-sub-header">color nutrient a</td>
+<td class="color-preview-red"></td>
+<td class="table-sub-header">Color used by <a href="/Hoe" title="Hoe">hoes</a> when displaying the levels for nutrient A.
+</td></tr>
+<tr>
+<td><span class="table-indent">Alpha</span></td>
+<td align="center">200</td>
+<td><div class="table-indent">Opacity, where 0 is completely transparent and 255 is completely opaque.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Blue</span></td>
+<td align="center">36</td>
+<td><div class="table-indent">Blue component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Green</span></td>
+<td align="center">28</td>
+<td><div class="table-indent">Green component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Red</span></td>
+<td align="center">237</td>
+<td><div class="table-indent">Red component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">color nutrient b</td>
+<td class="color-preview-orange"></td>
+<td class="table-sub-header">Color used by <a href="/Hoe" title="Hoe">hoes</a> when displaying the levels for nutrient B.
+</td></tr>
+<tr>
+<td><span class="table-indent">Alpha</span></td>
+<td align="center">200</td>
+<td><div class="table-indent">Opacity, where 0 is completely transparent and 255 is completely opaque.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Blue</span></td>
+<td align="center">34</td>
+<td><div class="table-indent">Blue component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Green</span></td>
+<td align="center">101</td>
+<td><div class="table-indent">Green component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Red</span></td>
+<td align="center">242</td>
+<td><div class="table-indent">Red component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">color nutrient c</td>
+<td class="color-preview-yellow-orange"></td>
+<td class="table-sub-header">Color used by <a href="/Hoe" title="Hoe">hoes</a> when displaying the levels for nutrient C.
+</td></tr>
+<tr>
+<td><span class="table-indent">Alpha</span></td>
+<td align="center">200</td>
+<td><div class="table-indent">Opacity, where 0 is completely transparent and 255 is completely opaque.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Blue</span></td>
+<td align="center">49</td>
+<td><div class="table-indent">Blue component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Green</span></td>
+<td align="center">148</td>
+<td><div class="table-indent">Green component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Red</span></td>
+<td align="center">247</td>
+<td><div class="table-indent">Red component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">color fertilizer</td>
+<td class="color-preview-yellow"></td>
+<td class="table-sub-header">Color used by <a href="/Hoe" title="Hoe">hoes</a> when displaying the levels for fertilizer.
+</td></tr>
+<tr>
+<td><span class="table-indent">Alpha</span></td>
+<td align="center">200</td>
+<td><div class="table-indent">Opacity, where 0 is completely transparent and 255 is completely opaque.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Blue</span></td>
+<td align="center">0</td>
+<td><div class="table-indent">Blue component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Green</span></td>
+<td align="center">255</td>
+<td><div class="table-indent">Green component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Red</span></td>
+<td align="center">255</td>
+<td><div class="table-indent">Red component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">color anvil rule 0</td>
+<td class="color-preview-red"></td>
+<td class="table-sub-header">Border colour of the leftmost rule in the anvil GUI.
+</td></tr>
+<tr>
+<td><span class="table-indent">Blue</span></td>
+<td align="center">36</td>
+<td><div class="table-indent">Blue component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Green</span></td>
+<td align="center">28</td>
+<td><div class="table-indent">Green component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Red</span></td>
+<td align="center">237</td>
+<td><div class="table-indent">Red component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">color anvil rule 1</td>
+<td class="color-preview-orange"></td>
+<td class="table-sub-header">Border colour of the middle rule in the anvil GUI.
+</td></tr>
+<tr>
+<td><span class="table-indent">Blue</span></td>
+<td align="center">34</td>
+<td><div class="table-indent">Blue component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Green</span></td>
+<td align="center">101</td>
+<td><div class="table-indent">Green component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Red</span></td>
+<td align="center">242</td>
+<td><div class="table-indent">Red component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">color anvil rule 2</td>
+<td class="color-preview-yellow-orange"></td>
+<td class="table-sub-header">Border colour of the rightmost rule in the anvil GUI.
+</td></tr>
+<tr>
+<td><span class="table-indent">Blue</span></td>
+<td align="center">49</td>
+<td><div class="table-indent">Blue component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Green</span></td>
+<td align="center">148</td>
+<td><div class="table-indent">Green component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Red</span></td>
+<td align="center">247</td>
+<td><div class="table-indent">Red component of color. [range: 0 ~ 255]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">crops</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Options which affect crop growth.
+</td></tr>
+<tr>
+<td><span class="table-indent">cropGrowthModifier</span></td>
+<td align="center">1.0</td>
+<td><div class="table-indent">This is a global multiplier for the rate at which crops will grow. Increase to make crops grow faster. [range: 0.01 ~ 100.0]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">enableCropsDie</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Set to true to enable crops on farmland dying from old age.</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">food decay</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Options which affect food decay.
+</td></tr>
+<tr>
+<td><span class="table-indent">decayProtectionDays</span></td>
+<td align="center">24</td>
+<td><div class="table-indent">If a food item has not been ticked for &gt;= this number of days than when it is ticked for the first time, only a small amount of decay will occur. [range: 1 ~ 12000]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">foodDecayMultiplier</span></td>
+<td align="center">1.0</td>
+<td><div class="table-indent">This is a global multiplier for food decay. Unlike FoodDecayRate which only modifies the base decay and not the environmental effect upon decay, this multiplier will multiply against the entire amount. Set to 0 to turn decay off. [range: 0.0 ~ 100.0]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">foodDecayRate</span></td>
+<td align="center">1.0170378966055869</td>
+<td><div class="table-indent">This number causes base decay to equal 50% gain per day. If you wish to change, I recommend you look up a y-root calculator 1.0170378966055869517978300569768^24 = 1.5 [range: 1.0 ~ 2.0]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">useDecayProtection</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Set this to false if you want food to auto decay when a chunk is loaded instead of limiting decay when a chunk has been unloaded for a long period.</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">general</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Miscellaneous options.
+</td></tr>
+<tr>
+<td><span class="table-indent">enableBetterGrass</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">If true, then the side of a grass block which has another grass block adjacent and one block lower than it will show as completely grass.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">enableDebugMode</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Set this to true if you want to turn on debug mode which is useful for bug hunting.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">enableFiniteWater</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Set this to true to enable finite water. Two adjacent source water blocks will not create a third.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">enableNEIHiding</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Set to false to show hidden items in NEI. Note that most of these items were hidden to prevent players from cheating them in and crashing their game.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">enablePowderKegs</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Set this to false to disable powder keg explosions.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">enableSaplingDrops</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Set this to false to disable saplings dropping from harvested leaf blocks.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">enableSolidDetailed</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Should sides of detailed blocks be considered solid?</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">maxRemovedSolidDetailed</span></td>
+<td align="center">12</td>
+<td><div class="table-indent">Maximum count of removed sub-blocks on one side for the detailed block side to still be solid. [range: 0 ~ 64]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">onionsAreGross</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Set this to true if you don't like onions.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">quiverHUDPosition</span></td>
+<td align="center">topleft</td>
+<td><div class="table-indent">Determines the position of the quiver HUD. Valid position strings are: bottomleft, left, topleft, bottomright, right, topright</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">materials</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Options affecting materials
+</td></tr>
+<tr>
+<td><span class="table-indent">normalOreUnits</span></td>
+<td align="center">25</td>
+<td><div class="table-indent">The metal units provided by a single piece of normal ore. [range: 1 ~ 250]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">poorOreUnits</span></td>
+<td align="center">15</td>
+<td><div class="table-indent">The metal units provided by a single piece of poor ore. [range: 1 ~ 150]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">richOreUnits</span></td>
+<td align="center">35</td>
+<td><div class="table-indent">The metal units provided by a single piece of rich ore [range: 1 ~ 350]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">smallOreUnits</span></td>
+<td align="center">10</td>
+<td><div class="table-indent">The metal units provided by a single piece of small ore or nugget. [range: 1 ~ 100]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">overworked chunks</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Options affecting the overworking of chunks.
+</td></tr>
+<tr>
+<td><span class="table-indent">enableOverworkingChunks</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Set this to false to disable the overworking of chunks when using a gold pan or sluice.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">goldPanLimit</span></td>
+<td align="center">50</td>
+<td><div class="table-indent">The overworked cap for filling a gold pan in a specific chunk. Both filling a gold pan or using a sluice in the chunk count towards this value. [range: 1 ~ 500]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">sluiceLimit</span></td>
+<td align="center">300</td>
+<td><div class="table-indent">The overworked cap for a sluice scanning one soil unit in a specific chunk. Both filling a gold pan or using a sluice in the chunk count towards this value [range: 1 ~ 3000]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">player</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Options affecting Steve.
+</td></tr>
+<tr>
+<td><span class="table-indent">HealthGainCap</span></td>
+<td align="center">3000</td>
+<td><div class="table-indent">The maximum achievable health pool total. [range: 1000 ~ 50000]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">HealthGainRate</span></td>
+<td align="center">20</td>
+<td><div class="table-indent">The rate of Health Gain per experience level. Set to 0 to turn off. [range: 0 ~ 100]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">server</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Options affecting servers.
+</td></tr>
+<tr>
+<td><span class="table-indent">simSpeedNoPlayers</span></td>
+<td align="center">100</td>
+<td><div class="table-indent">For every X number of ticks provided here, when there are no players online the server will only progress by 1 tick. Time advances 100 times slower than normal. Setting this to 0 will turn this feature off. [range: 0 ~ 2147483647]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">spawn protection</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Options affecting spawn protection.
+</td></tr>
+<tr>
+<td><span class="table-indent">maxProtectionMonths</span></td>
+<td align="center">10</td>
+<td><div class="table-indent">The maximum number of months of spawn protection that can accumulate. [range: 0 ~ 120]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">protectionBuffer</span></td>
+<td align="center">24</td>
+<td><div class="table-indent">The minimum number of hours of protection that must be accumulated in a chunk in order to bypass the buffer and prevent hostile mob spawning. [range: 0 ~ 2304]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">protectionGain</span></td>
+<td align="center">8</td>
+<td><div class="table-indent">The number of hours of protection gained in the 5x5 chunk area for spending 1 hour in that chunk. [range: 0 ~ 24]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">time</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Options related to time.
+</td></tr>
+<tr>
+<td><span class="table-indent">animalTimeMultiplier</span></td>
+<td align="center">1.0</td>
+<td><div class="table-indent">This is a global multiplier for the gestation period of animals, as well as how long it takes for them to reach adulthood. Decrease for faster times. [range: 0.01 ~ 100.0]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">bloomeryBurnTime</span></td>
+<td align="center">14.4</td>
+<td><div class="table-indent">This is the number of hours that the bloomery should burn before being completed. [range: 1.0 ~ 2304.0]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">charcoalPitBurnTime</span></td>
+<td align="center">18.0</td>
+<td><div class="table-indent">This is the number of hours that the charcoal pit should burn before being completed. [range: 1.0 ~ 2304.0]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">oilLampFuelMult</span></td>
+<td align="center">8</td>
+<td><div class="table-indent">This determines how much fuel is used over time from oil lamps. Setting this higher will make fuel last longer. A mult of 1 = 250 hours, 4 = 1000 hours, 8 = 2000 hours. [range: 1 ~ 50]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">pitKilnBurnTime</span></td>
+<td align="center">8.0</td>
+<td><div class="table-indent">This is the number of hours that the pit kiln should burn before being completed. [range: 1.0 ~ 2304.0]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">saplingTimerMultiplier</span></td>
+<td align="center">1.0</td>
+<td><div class="table-indent">This is a global multiplier for the number of days required before a sapling can grow into a tree. Decrease for faster sapling growth. [range: 0.01 ~ 100.0]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">tempDecreaseMultiplier</span></td>
+<td align="center">1.0</td>
+<td><div class="table-indent">This is a global multiplier for the rate at which items cool down. Increase to make items cool down faster. [range: 0.01 ~ 100.0]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">tempIncreaseMultiplier</span></td>
+<td align="center">1.0</td>
+<td><div class="table-indent">This is a global multiplier for the rate at which items heat up. Increase to make items heat up faster. [range: 0.01 ~ 100.0]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">torchBurnTime</span></td>
+<td align="center">48</td>
+<td><div class="table-indent">This is how many in-game hours torches will last before burning out. Set to 0 for infinitely burning torches. [range: 0 ~ 2304]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">yearLength</span></td>
+<td align="center">96</td>
+<td><div class="table-indent">This is how many days are in a year. Keep this to multiples of 12. [range: 96 ~ 12000]</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">world generation</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Options affecting world generation
+</td></tr>
+<tr>
+<td><span class="table-indent">lavaFissureRarity</span></td>
+<td align="center">25</td>
+<td><div class="table-indent">Controls the chance of a lava fissure generating, smaller value is higher chance, more fissures. Set to 0 to disable lava fissures. [range: 0 ~ 1000]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">ravineRarity</span></td>
+<td align="center">100</td>
+<td><div class="table-indent">Controls the chance of a ravine generating, smaller value is higher chance, more ravines. Set to 0 to disable ravines. [range: 0 ~ 1000]</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">waterFissureRarity</span></td>
+<td align="center">90</td>
+<td><div class="table-indent">Controls the chance of a water fissure generating, smaller value is higher chance, more fissures. Set to 0 to disable water fissures. [range: 0 ~ 1000]</div>
+</td>
+</tr>
+                </tbody></table>
+                </div>
+<h2><span class="mw-headline" id="TFCCrafting.cfg">TFCCrafting.cfg</span></h2>
+<p>This file contains various settings which can be used to configure crafting recipes. <i>Note: Many of the TFC items can be used as a replacement for vanilla items in crafting recipes due to the addition of ore dictionary support. Examples of items include: cobblestone, raw stone, plank blocks, gold and iron ingots, diamonds, etc.</i>
+</p>
+                <div class="table-container">
+                <table class="wikitable">
+
+<tbody>
+<tr>
+<th>Option
+</th>
+<th>Default<br />Value
+</th>
+<th>Description
+</th></tr>
+<tr>
+<td class="table-sub-header">conversion</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">Conversions for food are irreversible.
+</td></tr>
+<tr>
+<td><span class="table-indent">appleConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of red apples to vanilla. Cannot be reversed.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">arrowConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC arrows to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">bowConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC bows to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">coalConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC coal to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">diamondConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC diamonds to vanilla and vice versa. A "Normal" diamond is equal to one vanilla diamond. "Flawless" is two and "Exquisite" three. "Chipped" and "Flawed" diamonds cannot be converted.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">emeraldConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC emeralds to vanilla and vice versa. A "Normal" emerald is equal to one vanilla emerald. "Flawless" is two and "Exquisite" three. "Chipped" and "Flawed" emeralds cannot be converted.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">fishConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC fish to vanilla. Cannot be reversed.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">fishingRodConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC fishing rod to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">flintSteelConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC flint &amp; steel to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">leatherArmorConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC leather armor to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">leatherConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC leather to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">stoneAxeConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC stone axes to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">stoneHoeConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC stone hoes to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">stoneShovelConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC stone shovels to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">woodButtonConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC wooden buttons to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">workbenchConversion</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows conversion of TFC workbenches to vanilla and vice versa.</div>
+</td></tr>
+<tr>
+<td class="table-sub-header">crafting options</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">
+</td></tr>
+<tr>
+<td><span class="table-indent">enableBowlsAlwaysBreak</span></td>
+<td align="center">false</td>
+<td><div class="table-indent"></div>
+</td></tr>
+<tr>
+<td class="table-sub-header">enable vanilla recipes</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">
+</td></tr>
+<tr>
+<td><span class="table-indent">anvilRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of vanilla anvils.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">arrowsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of vanilla arrows.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">bedRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of beds using plank blocks.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">bonemealRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of bonemeal through the crafting grid.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">bowlRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of vanilla wooden bowls.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">brewingRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of brewing stands.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">bucketRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of vanilla iron buckets.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">cauldronRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of vanilla cauldrons.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">chestRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of vanilla chests.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">clockRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of clocks.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">compassRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of compasses.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">dandelionYellowRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of dandelion yellow by putting a flower in the crafting grid.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">diamondArmorRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of diamond armor.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">diamondBlockRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of diamond blocks.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">diamondToolsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of diamond tools.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">dispenserRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of dispensers.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">dropperRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of droppers.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">enchantTableRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of enchanting tables.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">fenceGateRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of vanilla fence gates.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">fenceRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of vanilla fences.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">furnaceRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of furnaces.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">goldAppleRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of golden apples.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">goldArmorRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of gold armor.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">goldBlockRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of gold blocks.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">goldNuggetRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of gold nuggets.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">goldPlateRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of gold weighted pressure plates.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">goldToolsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of gold tools.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">hopperRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of hoppers.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">ironArmorRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of iron armor.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">ironBarsRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of iron bars.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">ironBlockRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of iron blocks.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">ironDoorRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of iron doors.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">ironPlateRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of iron weighted pressure plates.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">ironToolsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of iron tools.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">jukeboxRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of jukeboxes.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">leatherArmorRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of leather armor.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">leverRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of levers using a stick and cobblestone block.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">minecartChestRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of minecart chests.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">minecartRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of minecarts using iron ingots.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">pistonRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of pistons.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">plankBlockRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of plank blocks from logs.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">poweredRailsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of powered rails using the vanilla recipe.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">railsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of rails using the vanilla recipe.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">repeaterRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of repeaters.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">roseRedRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of rose red by putting a flower in the crafting grid.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">signRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of signs using the vanilla recipe.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">stickRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of sticks from plank blocks.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">stoneSlabsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of vanilla stone slabs.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">stoneStairsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of vanilla stone stairs.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">stoneToolsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of vanilla stone tools.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">torchRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of torches using a stick and coal.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">trapDoorRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of trap doors using the vanilla recipe.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">tripwireRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of trip wire hooks.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">woodDoorRecipe</span></td>
+<td align="center">true</td>
+<td><div class="table-indent">Allows crafting of vanilla wood doors.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">woodSlabsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of vanilla wood slabs.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">woodStairsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of vanilla wood stairs.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">woodToolsRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of wood tools.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">woolRecipe</span></td>
+<td align="center">false</td>
+<td><div class="table-indent">Allows crafting of wool from spider string.</div>
+</td></tr></tbody></table></div>
+<h2><span class="mw-headline" id="TFCOre.cfg">TFCOre.cfg</span></h2>
+<p>This file is used to determine the world generation of ores. Other mod ores can be added to this file to have them generate with TFC's terrain. <i><b>Note:</b> This config file can only be used to add ores from mods that use standard blocks, and not tile entities for their ores. Mods that use tile entities for their ore blocks, such as GregTech, cannot have their ores generated using TFC. Standard block metadata does not go higher than 15, so if the oreMeta is a larger number than that, the ore is a tile entity, and will not work.</i>
+</p>
+                <div class="table-container">
+                <table class="wikitable">
+
+<tbody><tr>
+<th>Option
+</th>
+<th>Default<br />Value
+</th>
+<th>Description
+</th></tr>
+<tr>
+<td class="table-sub-header">bismuthinite</td>
+<td class="table-sub-header"></td>
+<td class="table-sub-header">
+</td></tr>
+<tr>
+<td><span class="table-indent">Horizontal Density</span></td>
+<td align="center">60</td>
+<td><div class="table-indent">How dense the ore vein is horizontally, out of 100.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Maximum Height</span></td>
+<td align="center">128</td>
+<td><div class="table-indent">The maximum y-level the vein can spawn at.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Minimum Height</span></td>
+<td align="center">5</td>
+<td><div class="table-indent">The minimum y-level the vein can spawn at.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">Vertical Density</span></td>
+<td align="center">80</td>
+<td><div class="table-indent">How dense the ore vein is vertically, out of 100.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">baseRocks</span></td>
+<td align="center">igneous extrusive<br />sedimentary</td>
+<td><div class="table-indent">The stone type the ore can spawn in. Can be a category or a specific rock. Entries should be all lowercase, with each new entry on a new line.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">oreMeta</span></td>
+<td align="center">7</td>
+<td><div class="table-indent">The metadata (damage value) of the ore. Must be between 0 and 15.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">oreName</span></td>
+<td align="center">terrafirmacraft:Ore1</td>
+<td><div class="table-indent">The block name of the ore.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">rarity</span></td>
+<td align="center">100</td>
+<td><div class="table-indent">Veins will spawn in 1 out of X chunks.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">size</span></td>
+<td align="center">medium</td>
+<td><div class="table-indent">The size of the vein. Choices are large, medium or small.</div>
+</td></tr>
+<tr>
+<td><span class="table-indent">type</span></td>
+<td align="center">veins</td>
+<td><div class="table-indent">The shape of the ore spawn. A type of default will spawn the ore in clusters.</div>
+</td></tr></tbody></table></div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card" id="no-results-card" style="display: none;"><p class="no-results">No matching content found.</p></div>
+    </main>
+
+    <button class="back-to-top" id="backToTopBtn">↑</button>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const searchToggle = document.getElementById('search-toggle');
+        const searchContainer2 = document.getElementById('search-container2');
+        const Homebtn = document.getElementById("back-to-home");
+
+      // --- Add event listener to the home button ---
+      Homebtn.addEventListener("click", () => {
+        window.location.href = "../../index.html";
+      });
+
+        // --- Slide-out Menu and Overlay ---
+        const navbar = document.querySelector(".navbar");
+
+        function setDropdownPosition() {
+            const navbarHeight = navbar.offsetHeight;
+            dropdownMenu.style.top = `${navbarHeight}px`;
+        }
+
+        setDropdownPosition(); // Set on initial load
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        document.body.appendChild(overlay);
+
+        menuToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            dropdownMenu.classList.add('show');
+            setDropdownPosition(); // Also set on open
+        });
+
+        function closeMenu() {
+            dropdownMenu.classList.remove("show");
+        }
+
+        // Add listener for the new close button
+        const menuCloseBtn = document.getElementById('menu-close-btn');
+        menuCloseBtn.addEventListener('click', closeMenu);
+
+        searchToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            searchContainer2.classList.toggle('show');
+        });
+
+        const accordions = document.querySelectorAll('.accordion-header');
+        accordions.forEach(accordion => {
+            accordion.addEventListener("click", function () {
+                const panel = this.nextElementSibling; // The .accordion-panel
+
+                this.classList.toggle('active');
+                
+                if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                    panel.classList.remove("open");
+                } else {
+                    const duration = Math.min(Math.max(panel.scrollHeight, 300), 800);
+                    panel.style.transitionDuration = duration + "ms";
+                    panel.classList.add("open");
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                }
+            });
+        });
+
+        const searchInputs = document.querySelectorAll('.search-input');
+        const searchCloseBtn = document.getElementById('search-close-btn');
+        const contentCards = document.querySelectorAll('.content-card:not(#no-results-card)');
+        const noResultsCard = document.getElementById('no-results-card');
+
+        function performSearch() {
+            const query = this.value.toLowerCase().trim();
+            // Sync inputs
+            searchInputs.forEach(input => {
+                if (input !== this) input.value = this.value;
+            });
+
+            let resultsFound = false;
+            if (query === "") {
+                contentCards.forEach((card) => (card.style.display = "block"));
+                noResultsCard.style.display = "none";
+                return;
+            }
+            contentCards.forEach((card) => {
+                const header = card.querySelector(".accordion-header");
+                const headerText = header ? header.innerText.toLowerCase() : "";
+                const isMatch = headerText.includes(query);
+                card.style.display = isMatch ? "block" : "none";
+                if (isMatch) resultsFound = true;
+            });
+            noResultsCard.style.display = resultsFound ? "none" : "block";
+        }
+
+        searchInputs.forEach(input => input.addEventListener('keyup', performSearch));
+        if (searchCloseBtn) {
+            searchCloseBtn.addEventListener('click', () => {
+                searchContainer2.classList.remove('show');
+            });
+        }
+
+        const backToTopBtn = document.getElementById('backToTopBtn');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

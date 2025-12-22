@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Capture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for a better aesthetic and to ensure the canvas is hidden */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        /* Hide the canvas element used for capturing the image */
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+    <div class="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-xl space-y-6 max-w-lg w-full">
+        <h1 class="text-3xl font-bold text-gray-800">Webcam Capture</h1>
+        <p class="text-gray-600 text-center">
+            Click the "Start Webcam" button to begin, then "Capture Image" to save a picture.
+        </p>
+
+        <!-- Video element to display the webcam feed -->
+        <video id="webcam-video" class="w-full h-auto rounded-lg shadow-inner border border-gray-300" autoplay playsinline></video>
+
+        <!-- Container for status messages and buttons -->
+        <div id="status-message" class="text-sm font-medium text-center h-5 text-gray-500"></div>
+
+        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full">
+            <!-- Button to start the webcam stream -->
+            <button id="start-webcam-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">
+                Start Webcam
+            </button>
+            
+            <!-- Button to capture the image and save it -->
+            <button id="capture-image-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200" disabled>
+                Capture Image
+            </button>
+        </div>
+
+        <!-- Hidden canvas element to draw the video frame on -->
+        <canvas id="canvas-capture"></canvas>
+        
+        <!-- Hidden link to download the image -->
+        <a id="download-link" class="hidden"></a>
+    </div>
+
+    <script>
+        // Get references to the HTML elements
+        const webcamVideo = document.getElementById('webcam-video');
+        const canvasCapture = document.getElementById('canvas-capture');
+        const startWebcamBtn = document.getElementById('start-webcam-btn');
+        const captureImageBtn = document.getElementById('capture-image-btn');
+        const downloadLink = document.getElementById('download-link');
+        const statusMessage = document.getElementById('status-message');
+
+        // Function to update the status message
+        function showStatus(message, type = 'info') {
+            statusMessage.textContent = message;
+            if (type === 'error') {
+                statusMessage.classList.add('text-red-600');
+                statusMessage.classList.remove('text-gray-500');
+            } else {
+                statusMessage.classList.add('text-gray-500');
+                statusMessage.classList.remove('text-red-600');
+            }
+        }
+
+        // Event listener for the "Start Webcam" button
+        startWebcamBtn.addEventListener('click', () => {
+            showStatus('Requesting webcam access...');
+            
+            // Request access to the user's camera
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    // Attach the video stream to the video element
+                    webcamVideo.srcObject = stream;
+                    // Enable the capture button once the video is playing
+                    webcamVideo.onplaying = () => {
+                        captureImageBtn.disabled = false;
+                        startWebcamBtn.disabled = true;
+                        showStatus('Webcam stream started.');
+                    };
+                })
+                .catch(err => {
+                    // Handle errors if access is denied or no webcam is found
+                    console.error("Error accessing the webcam: ", err);
+                    showStatus('Could not access webcam. Please check permissions.', 'error');
+                });
+        });
+
+        // Event listener for the "Capture Image" button
+        captureImageBtn.addEventListener('click', () => {
+            if (!webcamVideo.srcObject) {
+                showStatus('Webcam is not active.', 'error');
+                return;
+            }
+
+            showStatus('Capturing image...');
+            
+            // Set the canvas dimensions to match the video's current dimensions
+            canvasCapture.width = webcamVideo.videoWidth;
+            canvasCapture.height = webcamVideo.videoHeight;
+
+            // Get the 2D rendering context of the canvas
+            const context = canvasCapture.getContext('2d');
+            
+            // Draw the current video frame onto the canvas
+            context.drawImage(webcamVideo, 0, 0, canvasCapture.width, canvasCapture.height);
+
+            // Get the image data as a PNG data URL
+            const imageDataUrl = canvasCapture.toDataURL('image/png');
+
+            // Set the download link's attributes and trigger a click
+            downloadLink.href = imageDataUrl;
+            downloadLink.download = 'webcam-capture.png';
+            downloadLink.click();
+
+            showStatus('Image captured and download started!');
+        });
+    </script>
+</body>
+</html>

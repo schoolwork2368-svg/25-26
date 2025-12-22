@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placing Divs Side-by-Side</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="padding: 8%;">
+
+    <h1>How to Make Divs Appear Next to Each Other</h1>
+
+    <h2>1. Using Flexbox (Recommended)</h2>
+    <p>Apply <code>display: flex;</code> to the parent container. The children (flex items) will automatically align in a row.</p>
+    <div class="page-container flex-container">
+        <div class="box flex-box">Box 1</div>
+        <div class="box flex-box">Box 2</div>
+        <div class="box flex-box">Box 3</div>
+    </div>
+
+    <h2>2. Using CSS Grid</h2>
+    <p>Apply <code>display: grid;</code> to the parent and define columns with <code>grid-template-columns</code>.</p>
+    <div class="page-container grid-container">
+        <div class="box grid-box">Box 1</div>
+        <div class="box grid-box">Box 2</div>
+        <div class="box grid-box">Box 3</div>
+    </div>
+
+    <h2>3. Using <code>display: inline-block</code></h2>
+    <p>Apply <code>display: inline-block;</code> to the child elements themselves. This method is older and can have side effects like unwanted spacing from whitespace in the HTML.</p>
+    <div class="page-container inline-block-container">
+        <div class="box inline-block-box">Box 1</div>
+        <div class="box inline-block-box">Box 2</div>
+        <div class="box inline-block-box">Box 3</div>
+    </div>
+
+</body>
+</html>

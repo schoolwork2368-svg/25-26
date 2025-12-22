@@ -1,0 +1,62 @@
+body {
+	margin: 0;
+	font-family: sans-serif;
+	overflow: hidden; /* Hide scrollbars */
+}
+#blocker {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+#instructions-explore, #instructions-select {
+	width: 50%;
+	color: #ffffff;
+	text-align: center;
+}
+#instructions-explore {
+	cursor: pointer;
+}
+.time-value-interactive {
+	cursor: pointer;
+	text-decoration: underline;
+}
+.time-unit-interactive {
+	cursor: pointer;
+	text-decoration: underline;
+}
+#time-value-input {
+	width: 60px;
+	background-color: transparent;
+	border: 1px solid #555;
+	color: white;
+	font-family: monospace;
+	font-size: 16px;
+	padding: 0;
+	text-align: right;
+}
+.hidden {
+	display: none;
+}
+#speed-value-input {
+	width: 80px; /* A bit wider for large numbers */
+	background-color: transparent;
+	border: 1px solid #555;
+	color: white;
+	font-family: monospace;
+	font-size: 16px;
+	padding: 0;
+	text-align: right;
+}
+.planet-label {
+	position: absolute;
+	top: 0;
+	left: 0;
+	color: white;
+	font-family: monospace;
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	pointer-events: none; /* So they don't block mouse clicks */
+}

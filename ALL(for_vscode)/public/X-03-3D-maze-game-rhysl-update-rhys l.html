@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>3D Physics Maze (Ball Edition)</title>
+
+    <!-- Three.js (3D Rendering) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Cannon.js (Physics Engine) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <!-- Orbit Controls for 3D navigation (allows camera dragging) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        /* Ensuring the canvas takes full viewport space */
+        body { margin: 0; overflow: hidden; background-color: #1a1a2e; font-family: 'Inter', sans-serif; }
+        canvas { display: block; }
+    </style>
+
+</head>
+<body>
+
+    <div id="info" class="absolute top-4 left-4 text-white p-3 rounded-xl bg-gray-900 bg-opacity-80 z-10 font-mono text-sm shadow-2xl border-t-4 border-amber-500">
+        <span class="text-xl font-bold text-amber-500">3D Physics Maze (Ball Run)</span>
+        <br>
+        1. Drag mouse/touch to orbit camera.<br>
+        2. <span class="text-yellow-400 font-bold">Use WASD keys to roll the ball!</span>
+        <br>
+        3. <span class="text-green-400 font-bold">Spacebar to jump!</span>
+    </div>
+
+    <script>
+        // --- Global Variables ---
+        // Player variables are named 'box' for continuity, but the shape is now a Sphere (Ball)
+        let scene, camera, renderer, controls;
+        let world, boxBody, boxMesh; 
+        const timeStep = 1 / 45; // Physics time step
+        const moveForce = 30; // Magnitude of the impulse applied by WASD
+        const walls = []; // Array to store wall meshes and bodies
+        const SPHERE_RADIUS = 0.5; // Player object size
+
+        // Maze Generation Parameters
+        const MAZE_GRID_SIZE = 7; // e.g., 7x7 grid of cells
+        const CELL_SIZE = 4;      // Size of each cell in world units
+        const WALL_HEIGHT = 5;
+        const WALL_THICKNESS = 0.5;
+        const HALF_HEIGHT = WALL_HEIGHT / 2;
+        
+        // Wall segment length constant
+        const INNER_WALL_LENGTH = CELL_SIZE + WALL_THICKNESS;
+        
+        // Calculate actual arena size based on grid and cell size
+        const ARENA_PLAYABLE_SIZE = MAZE_GRID_SIZE * CELL_SIZE + WALL_THICKNESS;
+        const ARENA_HALF_PLAYABLE = ARENA_PLAYABLE_SIZE / 2;
+        
+        // Outer wall calculation: Total size including the boundary wall's thickness
+        const OUTER_WALL_HALF_SIZE = ARENA_HALF_PLAYABLE + WALL_THICKNESS / 2;
+        const OUTER_WALL_TOTAL_SIZE = OUTER_WALL_HALF_SIZE * 2;
+
+
+        /**
+         * Initializes the Three.js scene, camera, and renderer.
+         */
+        function initThree() {
+            // Scene Setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a2e); // Dark space background
+
+            // Camera Setup
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, ARENA_PLAYABLE_SIZE * 0.8, ARENA_PLAYABLE_SIZE * 0.8); // Start position above the scene
+            camera.lookAt(0, 0, 0);
+
+            // Renderer Setup
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.body.appendChild(renderer.domElement);
+
+            // Controls (Orbiting)
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; 
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 2;
+            controls.maxDistance = OUTER_WALL_TOTAL_SIZE * 2;
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 3); 
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
+            directionalLight.position.set(OUTER_WALL_TOTAL_SIZE * 0.5, OUTER_WALL_TOTAL_SIZE * 0.8, OUTER_WALL_TOTAL_SIZE * 0.3);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            directionalLight.shadow.camera.near = 0.5;
+            directionalLight.shadow.camera.far = OUTER_WALL_TOTAL_SIZE * 3;
+            directionalLight.shadow.camera.left = -OUTER_WALL_TOTAL_SIZE;
+            directionalLight.shadow.camera.right = OUTER_WALL_TOTAL_SIZE;
+            directionalLight.shadow.camera.top = OUTER_WALL_TOTAL_SIZE;
+            directionalLight.shadow.camera.bottom = -OUTER_WALL_TOTAL_SIZE;
+            scene.add(directionalLight);
+        }
+
+        /**
+         * Initializes the Cannon.js physics world and rigid bodies.
+         */
+        function initCannon() {
+            world = new CANNON.World();
+            world.gravity.set(0, -9.82, 0); 
+            world.broadphase = new CANNON.NaiveBroadphase();
+            world.solver.iterations = 10;
+
+            // 1. Create the Ground (Plane)
+            const groundShape = new CANNON.Plane();
+            const groundBody = new CANNON.Body({ mass: 0 }); 
+            groundBody.addShape(groundShape);
+            groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2); 
+            world.addBody(groundBody);
+
+            // 2. Create the Sphere (Player)
+            const boxMass = 5;
+            // Use CANNON.Sphere for the ball player
+            const boxShape = new CANNON.Sphere(SPHERE_RADIUS); 
+            boxBody = new CANNON.Body({ mass: boxMass });
+            boxBody.addShape(boxShape);
+            
+            // Player starts right inside the West entrance (cell 0, 0)
+            const startZ = (0 * CELL_SIZE) - ARENA_HALF_PLAYABLE + CELL_SIZE / 2;
+            // Position X is 1 unit (2*radius) inside the entrance wall
+            const startX = -ARENA_HALF_PLAYABLE + (SPHERE_RADIUS * 2); 
+            // Start at a height (y=5) to drop onto the ground plane
+            boxBody.position.set(startX, 5, startZ); 
+            world.addBody(boxBody);
+        }
+
+        /**
+         * Helper function to create a single wall body and mesh.
+         * Wall geometry is always defined as Long on X, Thin on Z.
+         */
+        function createWall(x, y, z, sx, sy, sz, rotationY) {
+            // Cannon Body (static) - uses half extents
+            const wallShape = new CANNON.Box(new CANNON.Vec3(sx / 2, sy / 2, sz / 2));
+            const wallBody = new CANNON.Body({ mass: 0 }); 
+            wallBody.addShape(wallShape);
+            wallBody.position.set(x, y, z);
+            
+            // Set rotation
+            if (rotationY !== 0) {
+                wallBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), rotationY);
+            }
+            world.addBody(wallBody);
+            
+            // Three Mesh
+            const wallGeometry = new THREE.BoxGeometry(sx, sy, sz);
+            const wallMaterial = new THREE.MeshStandardMaterial({
+                color: 0x4a4e69, // Dark Blue/Grey color for walls
+                roughness: 0.5,
+                metalness: 0.1
+            });
+            const wallMesh = new THREE.Mesh(wallGeometry, wallMaterial);
+            wallMesh.position.copy(wallBody.position);
+            wallMesh.quaternion.copy(wallBody.quaternion); // Sync rotation
+            wallMesh.receiveShadow = true;
+            wallMesh.castShadow = true;
+            scene.add(wallMesh);
+
+            walls.push({ body: wallBody, mesh: wallMesh });
+        }
+        
+        /**
+         * Applies a 50% random flip to the intended rotation for inner walls.
+         */
+        const applyRandomRotation = (intendedRotation) => {
+            const shouldFlip = Math.random() < 0.5; // 50% chance to flip the orientation
+            let rotY = intendedRotation;
+
+            if (shouldFlip) {
+                // If intended was 0 (horizontal), flip to PI/2 (vertical), and vice versa.
+                rotY = intendedRotation === 0 ? Math.PI / 2 : 0;
+            }
+            return rotY;
+        };
+
+
+        /**
+         * Helper to get the Z coordinate of the center of a cell (i) in world space.
+         */
+        const getCellCenterZ = (i) => i * CELL_SIZE - ARENA_HALF_PLAYABLE + CELL_SIZE / 2;
+
+
+        /**
+         * Generates a random maze using a simplified Recursive Backtracker algorithm and adds outer walls with gaps.
+         */
+        function generateMaze() {
+            // Clear existing walls
+            for (const wall of walls) {
+                world.removeBody(wall.body);
+                scene.remove(wall.mesh);
+            }
+            walls.length = 0; 
+
+            const grid = [];
+            for (let i = 0; i < MAZE_GRID_SIZE; i++) {
+                grid[i] = [];
+                for (let j = 0; j < MAZE_GRID_SIZE; j++) {
+                    grid[i][j] = {
+                        visited: false,
+                        walls: { top: true, right: true, bottom: true, left: true }
+                    };
+                }
+            }
+
+            const stack = [];
+            let current = { x: 0, y: 0 };
+            grid[current.y][current.x].visited = true;
+            stack.push(current);
+
+            // --- Recursive Backtracker Algorithm ---
+            while (stack.length > 0) {
+                let neighbors = [];
+                // Check North (y-1)
+                if (current.y > 0 && !grid[current.y - 1][current.x].visited) neighbors.push({ x: current.x, y: current.y - 1, dir: 'top' });
+                // Check East (x+1)
+                if (current.x < MAZE_GRID_SIZE - 1 && !grid[current.y][current.x + 1].visited) neighbors.push({ x: current.x + 1, y: current.y, dir: 'right' });
+                // Check South (y+1)
+                if (current.y < MAZE_GRID_SIZE - 1 && !grid[current.y + 1][current.x].visited) neighbors.push({ x: current.x, y: current.y + 1, dir: 'bottom' });
+                // Check West (x-1)
+                if (current.x > 0 && !grid[current.y][current.x - 1].visited) neighbors.push({ x: current.x - 1, y: current.y, dir: 'left' });
+
+                if (neighbors.length > 0) {
+                    const next = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    
+                    if (next.dir === 'top') {
+                        grid[current.y][current.x].walls.top = false;
+                        grid[next.y][next.x].walls.bottom = false;
+                    } else if (next.dir === 'right') {
+                        grid[current.y][current.x].walls.right = false;
+                        grid[next.y][next.x].walls.left = false;
+                    } else if (next.dir === 'bottom') {
+                        grid[current.y][current.x].walls.bottom = false;
+                        grid[next.y][next.x].walls.top = false;
+                    } else if (next.dir === 'left') {
+                        grid[current.y][current.x].walls.left = false;
+                        grid[next.y][next.x].walls.right = false;
+                    }
+
+                    stack.push(current);
+                    current = { x: next.x, y: next.y };
+                    grid[current.y][current.x].visited = true;
+                } else {
+                    current = stack.pop();
+                }
+            }
+
+            // --- Wall Geometry Constants ---
+            const T = WALL_THICKNESS;
+            const L = INNER_WALL_LENGTH; // Length of inner wall segments (X dimension)
+            const H = WALL_HEIGHT;
+            const intendedRotH = 0;      // Horizontal walls (X-long)
+            const intendedRotV = Math.PI / 2; // Vertical walls (Z-long via 90deg rotation)
+
+            // --- 1. Inner Wall Placement (Only draw walls BETWEEN cells) ---
+            for (let i = 0; i < MAZE_GRID_SIZE; i++) {
+                for (let j = 0; j < MAZE_GRID_SIZE; j++) {
+                    const cell = grid[i][j];
+                    const cellWorldX = j * CELL_SIZE - ARENA_HALF_PLAYABLE + CELL_SIZE / 2;
+                    const cellWorldZ = i * CELL_SIZE - ARENA_HALF_PLAYABLE + CELL_SIZE / 2;
+
+                    // Right Wall (Vertical, inner segment)
+                    if (cell.walls.right && j < MAZE_GRID_SIZE - 1) { 
+                        const wallX = cellWorldX + CELL_SIZE / 2 + T / 2;
+                        const wallZ = cellWorldZ;
+                        const rotY = applyRandomRotation(intendedRotV);
+                        createWall(wallX, HALF_HEIGHT, wallZ, L, H, T, rotY);
+                    }
+
+                    // Bottom Wall (Horizontal, inner segment)
+                    if (cell.walls.bottom && i < MAZE_GRID_SIZE - 1) { 
+                        const wallX = cellWorldX;
+                        const wallZ = cellWorldZ + CELL_SIZE / 2 + T / 2;
+                        const rotY = applyRandomRotation(intendedRotH);
+                        createWall(wallX, HALF_HEIGHT, wallZ, L, H, T, rotY);
+                    }
+                }
+            }
+            
+            // --- 2. Outer Perimeter Wall Placement with Openings ---
+            
+            const OUTER_L = OUTER_WALL_TOTAL_SIZE + WALL_THICKNESS; // A bit longer to cover corners
+            const WALL_CENTER_COORD = OUTER_WALL_HALF_SIZE;
+            const GAP_SIZE = CELL_SIZE + WALL_THICKNESS * 2; // Opening size
+
+            // Entrance: West wall (Cell 0, 0)
+            const ENTRANCE_CELL_Y = 0; 
+            const entranceCenterZ = getCellCenterZ(ENTRANCE_CELL_Y);
+
+            // Exit: East wall (Cell N-1, N-1)
+            const EXIT_CELL_Y = MAZE_GRID_SIZE - 1; 
+            const exitCenterZ = getCellCenterZ(EXIT_CELL_Y);
+            
+            // The outer walls are always non-randomized for a stable boundary (RotY = 0 or PI/2)
+            const rotH = 0;
+            const rotV = Math.PI / 2;
+
+            // Helper to create two segments of a vertical wall around a gap
+            const createVerticalBoundaryWithGap = (x_pos, gap_center_z) => {
+                const GAP_START_Z = gap_center_z - GAP_SIZE / 2;
+                const GAP_END_Z = gap_center_z + GAP_SIZE / 2;
+
+                // Segment A (South of Gap, Z negative side)
+                let segA_Start_Z = -WALL_CENTER_COORD;
+                let segA_End_Z = GAP_START_Z;
+                if (segA_Start_Z < segA_End_Z) {
+                    let segA_Center_Z = (segA_Start_Z + segA_End_Z) / 2;
+                    let segA_Length = segA_End_Z - segA_Start_Z;
+                    // L is the length along X axis, which becomes Z when rotated.
+                    createWall(x_pos, HALF_HEIGHT, segA_Center_Z, segA_Length, H, T, rotV);
+                }
+
+                // Segment B (North of Gap, Z positive side)
+                let segB_Start_Z = GAP_END_Z;
+                let segB_End_Z = WALL_CENTER_COORD;
+                if (segB_Start_Z < segB_End_Z) {
+                    let segB_Center_Z = (segB_Start_Z + segB_End_Z) / 2;
+                    let segB_Length = segB_End_Z - segB_Start_Z;
+                    createWall(x_pos, HALF_HEIGHT, segB_Center_Z, segB_Length, H, T, rotV);
+                }
+            };
+
+            // North Wall (Z = -WALL_CENTER_COORD) - No gap
+            createWall(0, HALF_HEIGHT, -WALL_CENTER_COORD, OUTER_L, H, T, rotH);
+
+            // South Wall (Z = WALL_CENTER_COORD) - No gap
+            createWall(0, HALF_HEIGHT, WALL_CENTER_COORD, OUTER_L, H, T, rotH);
+
+            // West Wall (X = -WALL_CENTER_COORD) - Entrance Gap
+            createVerticalBoundaryWithGap(-WALL_CENTER_COORD, entranceCenterZ);
+
+            // East Wall (X = WALL_CENTER_COORD) - Exit Gap
+            createVerticalBoundaryWithGap(WALL_CENTER_COORD, exitCenterZ);
+        }
+
+
+        /**
+         * Creates the visual Three.js meshes.
+         */
+        function createMeshes() {
+            // 1. Maze Floor Mesh (Inside the walls)
+            const floorGeometry = new THREE.PlaneGeometry(OUTER_WALL_TOTAL_SIZE, OUTER_WALL_TOTAL_SIZE);
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: 0xcccccc, // Light gray floor
+                roughness: 0.9,
+                metalness: 0.0
+            });
+            const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+            floorMesh.rotation.x = -Math.PI / 2;
+            floorMesh.receiveShadow = true;
+            scene.add(floorMesh);
+
+            // 2. Outer Void (Large dark plane to hide the edges)
+            const voidGeometry = new THREE.PlaneGeometry(300, 300);
+            const voidMaterial = new THREE.MeshBasicMaterial({ color: 0x0a0a0a, side: THREE.DoubleSide });
+            const voidMesh = new THREE.Mesh(voidGeometry, voidMaterial);
+            voidMesh.rotation.x = -Math.PI / 2;
+            voidMesh.position.y = -0.01; // Just below the floor
+            scene.add(voidMesh);
+
+            // 3. Sphere Mesh (Player) - CHANGED from BoxGeometry
+            // 32 segments gives a smooth sphere appearance
+            const boxGeometry = new THREE.SphereGeometry(SPHERE_RADIUS, 32, 32); 
+            const boxMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffa500, // Vibrant Orange/Gold color
+                roughness: 0.4,
+                metalness: 0.8
+            });
+            boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+            boxMesh.castShadow = true;
+            boxMesh.receiveShadow = true;
+            boxMesh.position.y = 5; // Initial position
+            scene.add(boxMesh);
+        }
+        
+        /**
+         * Handles keyboard input to apply directional impulses to the box.
+         */
+        function handleKeyDown(event) {
+            if (!boxBody) return;
+
+            const impulse = new CANNON.Vec3(0, 0, 0);
+            const relativePosition = new CANNON.Vec3(0, 0, 0); 
+
+            // Prevent default browser behavior 
+            if (['w', 'a', 's', 'd', ' '].includes(event.key.toLowerCase())) {
+                event.preventDefault();
+            }
+
+            switch (event.key.toLowerCase()) {
+                case 'w':
+                    // Forward push (towards -Z axis)
+                    impulse.z = -moveForce;
+                    break;
+                case 's':
+                    // Backward push (towards +Z axis)
+                    impulse.z = moveForce;
+                    break;
+                case 'a':
+                    // Left push (towards -X axis)
+                    impulse.x = -moveForce;
+                    break;
+                case 'd':
+                    // Right push (towards +X axis)
+                    impulse.x = moveForce;
+                    break;
+                case ' ':
+                    // Spacebar for a small jump. Check if the sphere is close to the ground (Y < radius + small tolerance)
+                    if (boxBody.position.y < SPHERE_RADIUS + 0.1) {
+                        impulse.y = 50; 
+                    }
+                    break;
+                default:
+                    return; 
+            }
+
+            boxBody.applyImpulse(impulse, relativePosition);
+        }
+
+        /**
+         * Main animation loop. Updates physics and rendering.
+         */
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // 1. Update Physics
+            world.step(timeStep);
+
+            // 2. Sync Three.js mesh with Cannon.js body position and rotation
+            // The ball will now visibly roll due to the physics engine rotating the boxBody
+            boxMesh.position.copy(boxBody.position);
+            boxMesh.quaternion.copy(boxBody.quaternion);
+            
+            // Safety check: If the ball falls too far, reset it
+            if (boxBody.position.y < -10) {
+                const startZ = (0 * CELL_SIZE) - ARENA_HALF_PLAYABLE + CELL_SIZE / 2;
+                const startX = -ARENA_HALF_PLAYABLE + (SPHERE_RADIUS * 2); // Start 1 unit inside
+                boxBody.position.set(startX, 5, startZ); 
+                boxBody.velocity.set(0, 0, 0);
+                boxBody.angularVelocity.set(0, 0, 0); 
+            }
+
+            // 3. Update Controls and Render
+            controls.update(); 
+            renderer.render(scene, camera);
+        }
+
+        /**
+         * Handles window resizing to keep the canvas full screen and responsive.
+         */
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // --- Start Application ---
+        window.onload = function () {
+            // Initialize rendering and physics
+            initThree();
+            initCannon();
+            createMeshes();
+            // Generate the maze
+            generateMaze();
+            
+            // Add keyboard listener for WASD movement
+            window.addEventListener('keydown', handleKeyDown, false);
+
+            // Start the loop
+            animate(); 
+
+            // Handle resizing
+            window.addEventListener('resize', onWindowResize, false);
+        }
+    </script>
+</body>
+</html>

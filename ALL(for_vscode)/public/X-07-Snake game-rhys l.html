@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Snake Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="text-3xl font-bold mb-4">NEON SNAKE</h1>
+
+        <div class="game-info">
+            <p class="text-xl">Score: <span id="score">0</span></p>
+            <p class="text-xl">High Score: <span id="highScore">0</span></p>
+        </div>
+                
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+                
+        <div class="controls button-group">
+            <button id="pauseBtn">Pause</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+
+        <div class="touch-controls button-group">
+            <button id="up">▲</button>
+            <button id="left">◀</button>
+            <button id="right">▶</button>
+            <button id="down">▼</button>
+        </div>
+    </div>
+    <div id="messageContainer" class="hidden"></div>
+    <script>
+        // Get high score from local storage for a simple, non-persistent demo
+        let currentHighScore = localStorage.getItem('snakeHighScore') ? parseInt(localStorage.getItem('snakeHighScore')) : 0;
+        document.getElementById('highScore').textContent = currentHighScore;
+
+        // --- Game Setup ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const highScoreDisplay = document.getElementById('highScore');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const messageContainer = document.getElementById('messageContainer');
+
+        const TILE_SIZE = 20;
+        const GRID_SIZE = canvas.width / TILE_SIZE; // 20x20 grid
+
+        let snake = [];
+        let food = {};
+        let dx = TILE_SIZE; // velocity X
+        let dy = 0;        // velocity Y
+        let score = 0;
+        let gameLoopInterval;
+        let gameStarted = false;
+        let gamePaused = false;
+        let lastDirection = { dx: TILE_SIZE, dy: 0 }; // To prevent reverse movement
+
+        // Define colors
+        const SNAKE_COLOR = '#00ff7f'; // Neon Green
+        const WALL_COLOR = '#533483';  // Purple (unused in current impl, but kept for style)
+
+        /**
+         * Resets all game variables to their initial state.
+         */
+        function resetGame() {
+            snake = [
+                { x: 4 * TILE_SIZE, y: 0 },
+                { x: 3 * TILE_SIZE, y: 0 },
+                { x: 2 * TILE_SIZE, y: 0 },
+                { x: 1 * TILE_SIZE, y: 0 },
+                { x: 0 * TILE_SIZE, y: 0 },
+            ];
+            dx = TILE_SIZE;
+            dy = 0;
+            score = 0;
+            scoreDisplay.textContent = score;
+            gameStarted = false;
+            gamePaused = false;
+            lastDirection = { dx: TILE_SIZE, dy: 0 };
+            placeFood();
+            draw();
+            // Stop any running loop
+            clearInterval(gameLoopInterval);
+            // Requesting an animation frame to ensure a clean final draw state is not needed here 
+            // since requestAnimationFrame is used inside gameLoop.
+
+            pauseBtn.textContent = 'Pause';
+            pauseBtn.disabled = true;
+            hideMessage();
+            
+            // Show start message after full reset
+            showMessage("Ready to Play?", "Press **ENTER** or use the Arrow Keys to begin!", 'start');
+        }
+
+        /**
+         * Shows a custom message box over the game.
+         * @param {string} title - The title of the message.
+         * @param {string} body - The body text of the message.
+         * @param {string} state - The game state ('start', 'pause', 'gameover').
+         */
+        function showMessage(title, body, state) {
+            messageContainer.innerHTML = `
+                <div class="message-box">
+                    <h2>${title}</h2>
+                    <p class="text-xl">${body}</p>
+                    ${state === 'gameover' ? `<p class="text-2xl mt-4">Final Score: ${score}</p>` : ''}
+                </div>
+            `;
+            messageContainer.style.display = 'block';
+        }
+
+        /**
+         * Hides the custom message box.
+         */
+        function hideMessage() {
+            messageContainer.style.display = 'none';
+        }
+
+        /**
+         * Generates a random coordinate for the food that is not on the snake.
+         * @returns {{x: number, y: number}} The coordinates for the food.
+         */
+        function placeFood() {
+            let newFood;
+            do {
+                // Get random grid coordinates
+                const x = Math.floor(Math.random() * GRID_SIZE) * TILE_SIZE;
+                const y = Math.floor(Math.random() * GRID_SIZE) * TILE_SIZE;
+                newFood = { x, y };
+            } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y)); // Check if food is on the snake
+
+            food = newFood;
+        }
+
+        /**
+    <div id="messageContainer"></div>
+         */
+        function gameLoop() {
+            if (gamePaused || !gameStarted) return;
+
+            // Use requestAnimationFrame but control the speed with a timestamp check
+            const speed = 100; // milliseconds
+            let lastRenderTime = 0;
+            
+            function animate(currentTime) {
+                if (!gameStarted || gamePaused) return;
+
+                if (currentTime - lastRenderTime >= speed) {
+                    lastRenderTime = currentTime;
+
+                    // Apply the new direction to the actual velocity
+                    dx = lastDirection.dx;
+                    dy = lastDirection.dy;
+
+                    update();
+                    draw();
+                }
+
+                requestAnimationFrame(animate);
+            }
+            
+            // Initial call to start the animation loop
+            requestAnimationFrame(animate);
+        }
+
+        /**
+         * Updates the game state: moves snake, checks for collisions, and checks for food consumption.
+         */
+        function update() {
+            // 1. Create the new head
+            const newHead = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+            // 2. Check for collisions (Wall or Self)
+            if (
+                newHead.x < 0 ||
+                newHead.x >= canvas.width ||
+                newHead.y < 0 ||
+                newHead.y >= canvas.height ||
+                snake.slice(1).some(segment => segment.x === newHead.x && segment.y === newHead.y)
+            ) {
+                gameOver();
+                return;
+            }
+
+            // 3. Add new head to the beginning of the snake
+            snake.unshift(newHead);
+
+            // 4. Check for food consumption
+            if (newHead.x === food.x && newHead.y === food.y) {
+                score++;
+                scoreDisplay.textContent = score;
+                placeFood(); // Generate new food
+            } else {
+                // 5. Remove the tail (only remove if not eating)
+                snake.pop();
+            }
+        }
+
+        /**
+         * Draws the game elements on the canvas.
+         */
+        function draw() {
+            // Clear the canvas
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the grid lines (for aesthetic)
+            ctx.strokeStyle = '#0a0a0a';
+            for (let i = 0; i < GRID_SIZE; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * TILE_SIZE, 0);
+                ctx.lineTo(i * TILE_SIZE, canvas.height);
+                ctx.moveTo(0, i * TILE_SIZE);
+                ctx.lineTo(canvas.width, i * TILE_SIZE);
+                ctx.stroke();
+            }
+
+            // --- Draw the food as an Apple Emoji ---
+            // Set up context for drawing the emoji
+            ctx.font = `${TILE_SIZE}px sans-serif`; // Use sans-serif for reliable emoji display
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Draw the apple emoji centered in the food tile
+            ctx.fillText('🍎', food.x + TILE_SIZE / 2, food.y + TILE_SIZE / 2);
+
+            // Draw the snake
+            snake.forEach((segment, index) => {
+                // Head is slightly brighter
+                ctx.fillStyle = index === 0 ? '#ccffee' : SNAKE_COLOR;
+                ctx.fillRect(segment.x, segment.y, TILE_SIZE - 1, TILE_SIZE - 1);
+                ctx.strokeStyle = '#00a05a';
+                ctx.strokeRect(segment.x, segment.y, TILE_SIZE - 1, TILE_SIZE - 1);
+            });
+        }
+
+        /**
+         * Handles the game over condition.
+         */
+        function gameOver() {
+            gameStarted = false;
+            pauseBtn.disabled = true;
+
+            // Update High Score
+            if (score > currentHighScore) {
+                currentHighScore = score;
+                localStorage.setItem('snakeHighScore', currentHighScore);
+                highScoreDisplay.textContent = currentHighScore;
+            }
+
+            // *** UPDATED MESSAGE for restart control ***
+            showMessage("Game Over!", "You crashed into a wall or yourself. Press **ENTER** or use the **Arrow Keys** to restart.", 'gameover');
+        }
+
+        /**
+         * Attempts to set the snake's next direction based on input.
+         * @param {number} newDx - The new x velocity.
+         * @param {number} newDy - The new y velocity.
+         */
+        function setDirection(newDx, newDy) {
+            // Prevent snake from immediately reversing (e.g., from Right to Left)
+            // Check if the new direction is the opposite of the current direction
+            if (newDx * lastDirection.dx === -TILE_SIZE * TILE_SIZE || newDy * lastDirection.dy === -TILE_SIZE * TILE_SIZE) {
+                return;
+            }
+
+            // If the game hasn't started yet, set direction and then start
+            if (!gameStarted && !gamePaused) {
+                // Ensure a valid direction is set before starting
+                lastDirection.dx = newDx;
+                lastDirection.dy = newDy;
+                startGame();
+            } else if (gameStarted && !gamePaused) {
+                // If game is running, just queue the direction change for the next frame
+                lastDirection.dx = newDx;
+                lastDirection.dy = newDy;
+            }
+        }
+
+        // --- Event Listeners and Controls ---
+
+        /**
+         * Starts the game loop or resumes from pause.
+         */
+        function startGame() {
+            if (gameStarted && !gamePaused) return; // Already running
+
+            // Handles resume from pause
+            if (gamePaused) {
+                gamePaused = false;
+                pauseBtn.textContent = 'Pause';
+                hideMessage();
+                // When resuming, restart the animation loop
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
+            // Initial start from a fresh/reset state
+            gameStarted = true;
+            gamePaused = false;
+            pauseBtn.disabled = false;
+            hideMessage();
+            
+            // Start the main loop using requestAnimationFrame
+            requestAnimationFrame(gameLoop); 
+        }
+
+        /**
+         * Pauses or unpauses the game.
+         */
+        function togglePause() {
+            if (!gameStarted) return;
+                        
+            gamePaused = !gamePaused;
+            if (gamePaused) {
+                pauseBtn.textContent = 'Resume';
+                showMessage("Paused", "Press Resume or Spacebar to continue.", 'pause');
+            } else {
+                pauseBtn.textContent = 'Pause';
+                hideMessage();
+                // Resume the animation loop
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Keyboard handler
+        document.addEventListener('keydown', (e) => {
+            if (e.defaultPrevented) return;
+
+            const keyPressed = e.key;
+
+            // 1. Check if the game is in a "stoppable" state (initial or game over)
+            if (!gameStarted) {
+                const isRestartKey = ['ArrowUp', 'w', 'W', 'ArrowDown', 's', 'S', 'ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D', 'Enter'].includes(keyPressed);
+                
+                // 2. If a movement key or Enter is pressed while stopped, reset the state completely
+                if (isRestartKey) {
+                    e.preventDefault(); // Prevent default page scrolling when using arrow keys/enter
+                    // Important: Resetting the game prepares the state for the new game.
+                    resetGame(); 
+                    // The flow continues to the switch statement, where setDirection or startGame will initiate the loop.
+                }
+            }
+
+            switch (keyPressed) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    setDirection(0, -TILE_SIZE);
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    setDirection(0, TILE_SIZE);
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    setDirection(-TILE_SIZE, 0);
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    setDirection(TILE_SIZE, 0);
+                    break;
+                case ' ': // Spacebar for pause/resume
+                    e.preventDefault();
+                    togglePause();
+                    break;
+                case 'Enter': // Enter to start the game
+                    // This handles the explicit 'Enter' press to start/restart
+                    if (!gameStarted) {
+                        e.preventDefault();
+                        startGame();
+                    }
+                    break;
+                default:
+                    return;
+            }
+        });
+
+        // Event listeners for the remaining buttons
+        pauseBtn.addEventListener('click', togglePause);
+        resetBtn.addEventListener('click', resetGame);
+                
+        // Touch Controls (for mobile responsiveness)
+        document.getElementById('up').addEventListener('click', () => setDirection(0, -TILE_SIZE));
+        document.getElementById('down').addEventListener('click', () => setDirection(0, TILE_SIZE));
+        document.getElementById('left').addEventListener('click', () => setDirection(-TILE_SIZE, 0));
+        document.getElementById('right').addEventListener('click', () => setDirection(TILE_SIZE, 0));
+
+        // Swipe detection on the canvas for more intuitive mobile play
+        let touchstartX = 0;
+        let touchendX = 0;
+        let touchstartY = 0;
+        let touchendY = 0;
+
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            touchstartX = e.changedTouches[0].screenX;
+            startY = e.changedTouches[0].screenY;
+        }, false);
+
+        canvas.addEventListener('touchmove', e => {
+            e.preventDefault(); // Prevent scrolling while dragging
+        }, false);
+
+        canvas.addEventListener('touchend', e => {
+            e.preventDefault();
+            touchendX = e.changedTouches[0].screenX;
+            touchendY = e.changedTouches[0].screenY;
+            handleGesture();
+        }, false);
+
+        function handleGesture() {
+            const deltaX = touchendX - touchstartX;
+            const deltaY = touchendY - touchstartY;
+
+            // Ensure a minimum swipe distance to avoid accidental input
+            const minSwipeDistance = 30;
+
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+                // Horizontal swipe
+                if (deltaX < 0) {
+                    setDirection(-TILE_SIZE, 0); // Left swipe
+                } else {
+                    setDirection(TILE_SIZE, 0); // Right swipe
+                }
+            } else if (Math.abs(deltaY) > minSwipeDistance) {
+                // Vertical swipe
+                if (deltaY < 0) {
+                    setDirection(0, -TILE_SIZE); // Up swipe
+                } else {
+                    setDirection(0, TILE_SIZE); // Down swipe
+                }
+            }
+        }
+
+        // Initialize the game when the window loads
+        window.onload = function() {
+            resetGame();
+        };
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>t2a14-in-out-rhys l.html</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+	:root {
+            --primary-glow: #6366f1; 
+            --secondary-glow: #a855f7; 
+            --text-color: #f3f4f6;
+            --bg-dark: #111827;
+            --bg-card: #1f2937;
+            --border-color: #374151;
+        }
+
+    body {
+            background-image: url('https://th.bing.com/th/id/R.7fea0eea1b594500aacfefc3cbaef946?rik=0N2Y2GZ2Epkc4Q&pid=ImgRaw&r=0');
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center center;
+    }
+
+
+	.content-to-scale {
+ 	        transform: scale(3);
+  	        transform-origin: top left;
+  	        transition: transform 0.3s ease-in-out;
+	}
+
+    p {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: x-large;
+    }
+
+    .table-container {
+            overflow-x: auto;
+            max-width: 100%;
+    }
+
+    .table-container table {
+            width: 100%; 
+            table-layout: auto; 
+            margin: 0; 
+    }
+
+    .whale-table, .whale-table th, .whale-table td {
+            border: 2px solid var(--whale-blue);
+    }
+
+    .cell-content {
+            white-space: normal;
+    }
+
+    body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+    }
+
+    box {
+        border: 2px solid var(--whale-blue);
+        width: 100%; 
+        table-layout: auto; 
+        margin: 0;
+        overflow-x: auto;
+        max-width: 100%;
+    }
+    </style>
+</head>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ocean-blue': '#1e3a8a',
+                    }
+                }
+            }
+        }
+    </script>
+<body class="p-4 sm:p-8">
+
+	<div class="mx-auto bg-teal-800/50 w-[90vw] rounded-xl p-8 sm:p-6 lg:p-6 transition-all" style="border-style: solid; border-width: 2px; border-color: #E2EAF4;">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-3 text-white">
+                <span style="color: #FFFFFF">
+                    t2a15-whales-rhys l.html
+                </span>
+            </h1>
+                    </header>
+
+<div class="bg-gray-700/25 rounded-xl p-8 sm:p-6 lg:p-6" style="border-style: solid; border-width: 2px; border-color: #E2EAF4;">
+        <img src="https://ocean.si.edu/sites/default/files/styles/facebook_twitter_card_image/public/2023-11/OceanViewsHH_VanessaMignon_Humpbacks_Edited.jpg.webp?itok=RJd-ZDKN" width="500" class="mx-auto transition-all w-[90vw]" style="border: solid #5cd9ff 2px; border-radius: 0.5rem;">
+            <h2 style="font-size: xx-large;">What are Whales</h2>
+                <p style="color:#ffffff">Whales are some of the many ocean dwellers in Earths oceans. There are different kinds of whales as well.</p>
+</div>
+<div class="bg-gray-700/25 rounded-xl p-8 sm:p-6 lg:p-6" style="border-style: solid; border-width: 2px; border-color: #E2EAF4;">
+    <p>Click image below to see table</p>    
+    <img src="https://cdn.britannica.com/37/75637-050-B425E8F1/Killer-whale.jpg" width="500" id="reveal-trigger" class="mx-auto transition-all w-[90vw] cursor-pointer" style="border: solid #5cd9ff 2px; border-radius: 0.5rem;">
+
+    <div id="table-wrapper" class="max-h-0 transition-all duration-700 ease-in-out overflow-hidden">
+
+        <div class="overflow-x-auto rounded-xl shadow-2xl">
+            <table class="whale-table w-full bg-white/90 text-sm sm:text-base border-collapse">
+                
+                <thead>
+                    <tr class="text-black bg-white/70">
+                        <th class="p-3 font-bold text-lg text-left" style="color: black; background-color: #e6f7ff;">Whale Species</th>
+                        <th class="p-3 font-bold text-lg text-left" style="color: black; background-color: #e6f7ff;">Environment</th>
+                        <th class="p-3 font-bold text-lg text-left" style="color: black; background-color: #e6f7ff;">Size (Length)</th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    
+                    <tr class="bg-white/50 hover:bg-blue-50/70 transition duration-150">
+                        <td class="p-4 font-semibold whitespace-nowrap text-lg cell-content" style="color: black;">Killer Whale</td>
+                        <td class="p-4 cell-content text-gray-700">
+                            Killer whales reside in all of the world oceans. The Pacific, Atlantic, Indian, Southern, and Arctic oceans all house killer whales.
+                        </td>
+                        <td class="p-4 cell-content text-gray-700">
+                            Males: 20 - 26 feet <br> Females: 18 - 22 feet
+                        </td>
+                    </tr>
+                    
+                    <tr class="bg-white/50 hover:bg-blue-50/70 transition duration-150">
+                        <td class="p-4 font-semibold whitespace-nowrap text-lg cell-content" style="color: black;">Blue Whales</td>
+                        <td class="p-4 cell-content text-gray-700">
+                            Blue whales are found in all oceans except the Arctic ocean. They prefer deeper waters where they can find krill easier.
+                        </td>
+                        <td class="p-4 cell-content text-gray-700">
+                            Males: 65 - 80 feet <br> Females: 70 - 90 feet
+                        </td>
+                    </tr>
+                    
+                    <tr class="bg-white/50 hover:bg-blue-50/70 transition duration-150">
+                        <td class="p-4 font-semibold whitespace-nowrap text-lg cell-content" style="color: black;">Sperm Whales</td>
+                        <td class="p-4 cell-content text-gray-700">
+                            Sperm whales can be found in all oceans. They look like blue whales but have a square body.
+                        </td>
+                        <td class="p-4 cell-content text-gray-700">
+                            Males: 50 - 60 feet <br> Females: 30 - 40 feet
+                        </td>
+                    </tr>
+                    
+                    <tr class="bg-white/50 hover:bg-blue-50/70 transition duration-150">
+                        <td class="p-4 font-semibold whitespace-nowrap text-lg cell-content" style="color: black;">Humpback Whales</td>
+                        <td class="p-4 cell-content text-gray-700">
+                            Humpback whales belong to all the oceans and migrate between the Arctic and Pacific/Atlantic.
+                        </td>
+                        <td class="p-4 cell-content text-gray-700">
+                            Males: 40 - 48 feet <br> Females: 45 - 50 feet
+                        </td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="bg-gray-700/25 rounded-xl p-8 sm:p-6 lg:p-6" style="border-style: solid; border-width: 2px; border-color: #E2EAF4;">
+    <p>Click image below to see table</p>  
+        <img src="https://www.antarctica.gov.au/site/assets/files/45670/ia40342.1200x630.jpg" id="reveal-trigger-3" width="500" class="mx-auto transition-all w-[90vw]  cursor-pointer" style="border: solid #5cd9ff 2px; border-radius: 0.5rem;">
+            <div id="table-wrapper-3" class="max-h-0 transition-all duration-700 ease-in-out overflow-hidden" style="border: 0px solid; border-radius: 1rem; background-color: #eef6fa; color: #000000">
+                <h2 style="font-size: xx-large;  text-align: center;">20+ different types of Whale Species</h2><br>
+                    <ol>
+                        <h3 style="font-size:x-large;">Baleen Whales(whales with plates in there upper jaws)</h3>
+                    <ul>
+                        <li>Blue whale</li>
+                        <li>Humpback whale</li>
+                        <li>Fin whale</li>
+                        <li>Sei Whale</li>
+                        <li>Bowhead Whale</li>
+                        <li>Bryde's Whale</li>
+                        <li>Minke whale</li>
+                        <li>Antarctic Minke whale</li>
+                    </ul>
+                        <h3 style="font-size:x-large;">Toothed Whales</h3>
+                    <ul>
+                        <li>Sperm whale</li>
+                        <li>Killer/Orca whale</li>
+                        <li>Beluga whale</li>
+                        <li>narwhal</li>
+                        <li>Cuvier's Beaked whale</li>
+                        <li>Andrews' Beaked whale</li>
+                        <li>Baiji</li>
+                        <li>Dolphin</li>
+                    </ul>
+                </ol>
+            </div>
+</div>
+<div class="bg-gray-700/25 rounded-xl p-8 sm:p-6 lg:p-6" style="border-style: solid; border-width: 2px; border-color: #E2EAF4;">
+    <p>Click image below to see table</p>  
+        <img src="https://alaskawildlife.org/wp-content/uploads/2022/10/BulugaWhale_InOcean-AWCC-Image-for-Promotional-Web-1080x675.jpg" id="reveal-trigger-2" width="500" class="mx-auto transition-all w-[90vw] cursor-pointer" style="border: solid #5cd9ff 2px; border-radius: 0.5rem;">
+            <div id="table-wrapper-2" class="max-h-0 transition-all duration-700 ease-in-out overflow-hidden" style="border: 0px solid; border-radius: 1rem; background-color: #eef6fa">   
+                <h1 style="font-size: xx-large; color: #111827; text-align: center;">Sources</h1>
+                    <p class="p-2 w-fullhale-table w-full bg-white/90 text-sm sm:text-base border-collapse overflow-hidden">
+<a href="https://alaskawildlife.org/wp-content/uploads/2022/10/BulugaWhale_InOcean-AWCC-Image-for-Promotional-Web-1080x675.jpg" style="color: #6366f1;">https://alaskawildlife.org/wp-content/uploads/2022/10/BulugaWhale_InOcean-AWCC-Image-for-Promotional-Web-1080x675.jpg</a><br><br>
+<a href="https://www.antarctica.gov.au/site/assets/files/45670/ia40342.1200x630.jpg" style="color: #6366f1;">https://www.antarctica.gov.au/site/assets/files/45670/ia40342.1200x630.jpg</a><br><br>
+<a href="https://cdn.britannica.com/37/75637-050-B425E8F1/Killer-whale.jpg" style="color: #6366f1;">https://cdn.britannica.com/37/75637-050-B425E8F1/Killer-whale.jpg</a><br><br>
+<a href="https://ocean.si.edu/sites/default/files/styles/facebook_twitter_card_image/public/2023-11/OceanViewsHH_VanessaMignon_Humpbacks_Edited.jpg.webp?itok=RJd-ZDKN" style="color: #6366f1;">https://ocean.si.edu/sites/default/files/styles/facebook_twitter_card_image/public/2023-11/OceanViewsHH_VanessaMignon_Humpbacks_Edited.jpg.webp?itok=RJd-ZDKN</a><br><br>
+<a href="https://illustratedteacup.com/whale-species-complete-types-of-whales-chart-guide/" style="color: #6366f1;">https://illustratedteacup.com/whale-species-complete-types-of-whales-chart-guide/</a>
+                    </p>
+        </div>
+</div>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const trigger = document.getElementById('reveal-trigger');
+            const wrapper = document.getElementById('table-wrapper');
+            const statusMessage = document.getElementById('status-message');
+
+            trigger.addEventListener('click', () => {
+                const isHidden = wrapper.classList.contains('max-h-0');
+
+                if (isHidden) {
+                    // Reveal the table
+                    wrapper.classList.remove('max-h-0');
+                    wrapper.classList.add('max-h-[2000px]'); // Use a large max-height for smooth transition
+                    
+                    // Update trigger text and style
+                    trigger.innerHTML = '<p class="text-4xl">🔽</p><p class="text-xl sm:text-2xl font-bold">Click to Hide Whale Data</p><p class="text-sm font-light italic">Collapse the table above</p>';
+                    trigger.classList.remove('rounded-t-xl'); // Remove rounded top when open
+                    trigger.classList.add('rounded-none', 'rounded-b-xl'); // Round the bottom when open
+
+                    // Show status message
+                    statusMessage.textContent = 'Detailed data table is now open.';
+                    statusMessage.classList.remove('opacity-0');
+                    statusMessage.classList.add('opacity-100');
+
+                } else {
+                    // Hide the table
+                    wrapper.classList.add('max-h-0');
+                    wrapper.classList.remove('max-h-[2000px]');
+                    
+                    // Update trigger text and style
+                    trigger.innerHTML = '<p class="text-4xl">🐋</p><p class="text-xl sm:text-2xl font-bold">Click to Reveal Detailed Whale Species Data</p><p class="text-sm font-light italic">Expand the table below</p>';
+                    trigger.classList.remove('rounded-none', 'rounded-b-xl');
+                    trigger.classList.add('rounded-t-xl'); // Restore rounded top when closed
+
+                    // Hide status message
+                    statusMessage.textContent = 'Data table collapsed.';
+                    statusMessage.classList.remove('opacity-100');
+                    statusMessage.classList.add('opacity-0');
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const trigger = document.getElementById('reveal-trigger-2');
+            const wrapper = document.getElementById('table-wrapper-2');
+            const statusMessage = document.getElementById('status-message');
+
+            trigger.addEventListener('click', () => {
+                const isHidden = wrapper.classList.contains('max-h-0');
+
+                if (isHidden) {
+                    // Reveal the table
+                    wrapper.classList.remove('max-h-0');
+                    wrapper.classList.add('max-h-[2000px]'); // Use a large max-height for smooth transition
+                    
+                    // Update trigger text and style
+                    trigger.innerHTML = '<p class="text-4xl">🔽</p><p class="text-xl sm:text-2xl font-bold">Click to Hide Whale Data</p><p class="text-sm font-light italic">Collapse the table above</p>';
+                    trigger.classList.remove('rounded-t-xl'); // Remove rounded top when open
+                    trigger.classList.add('rounded-none', 'rounded-b-xl'); // Round the bottom when open
+
+                    // Show status message
+                    statusMessage.textContent = 'Detailed data table is now open.';
+                    statusMessage.classList.remove('opacity-0');
+                    statusMessage.classList.add('opacity-100');
+
+                } else {
+                    // Hide the table
+                    wrapper.classList.add('max-h-0');
+                    wrapper.classList.remove('max-h-[2000px]');
+                    
+                    // Update trigger text and style
+                    trigger.innerHTML = '<p class="text-4xl">🐋</p><p class="text-xl sm:text-2xl font-bold">Click to Reveal Detailed Whale Species Data</p><p class="text-sm font-light italic">Expand the table below</p>';
+                    trigger.classList.remove('rounded-none', 'rounded-b-xl');
+                    trigger.classList.add('rounded-t-xl'); // Restore rounded top when closed
+
+                    // Hide status message
+                    statusMessage.textContent = 'Data table collapsed.';
+                    statusMessage.classList.remove('opacity-100');
+                    statusMessage.classList.add('opacity-0');
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const trigger = document.getElementById('reveal-trigger-3');
+            const wrapper = document.getElementById('table-wrapper-3');
+            const statusMessage = document.getElementById('status-message');
+
+            trigger.addEventListener('click', () => {
+                const isHidden = wrapper.classList.contains('max-h-0');
+
+                if (isHidden) {
+                    // Reveal the table
+                    wrapper.classList.remove('max-h-0');
+                    wrapper.classList.add('max-h-[2000px]'); // Use a large max-height for smooth transition
+                    
+                    // Update trigger text and style
+                    trigger.innerHTML = '<p class="text-4xl">🔽</p><p class="text-xl sm:text-2xl font-bold">Click to Hide Whale Data</p><p class="text-sm font-light italic">Collapse the table above</p>';
+                    trigger.classList.remove('rounded-t-xl'); // Remove rounded top when open
+                    trigger.classList.add('rounded-none', 'rounded-b-xl'); // Round the bottom when open
+
+                    // Show status message
+                    statusMessage.textContent = 'Detailed data table is now open.';
+                    statusMessage.classList.remove('opacity-0');
+                    statusMessage.classList.add('opacity-100');
+
+                } else {
+                    // Hide the table
+                    wrapper.classList.add('max-h-0');
+                    wrapper.classList.remove('max-h-[2000px]');
+                    
+                    // Update trigger text and style
+                    trigger.innerHTML = '<p class="text-4xl">🐋</p><p class="text-xl sm:text-2xl font-bold">Click to Reveal Detailed Whale Species Data</p><p class="text-sm font-light italic">Expand the table below</p>';
+                    trigger.classList.remove('rounded-none', 'rounded-b-xl');
+                    trigger.classList.add('rounded-t-xl'); // Restore rounded top when closed
+
+                    // Hide status message
+                    statusMessage.textContent = 'Data table collapsed.';
+                    statusMessage.classList.remove('opacity-100');
+                    statusMessage.classList.add('opacity-0');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+ 

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Web Dev Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        // Apply theme from localStorage before the page loads to prevent flashing
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') document.documentElement.classList.add('light-mode');
+    </script>
+    <style>        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box; /* Ensures padding is inside the width */
+        }
+        .contact-form button {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            background-color: var(--accent-color);
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .contact-form button:hover {
+            background-color: var(--accent-hover);
+        }
+        #form-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            display: none; /* Hidden by default */
+        }
+        #form-status.success {
+            background-color: #166534; /* Green */
+            color: #dcfce7;
+        }
+        #form-status.error {
+            background-color: #991b1b; /* Red */
+            color: #fee2e2;
+        }
+    </style>    
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">Web Dev Hub</a>
+        <div class="nav-right-section">
+            <div class="search-container" id="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="Search..." aria-label="Search through site content">
+                <button class="search-button" id="search-button" title="Search" aria-label="Search">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 21L16.65 16.65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+            <div class="nav-controls">
+                <button class="search-toggle" id="search-toggle" title="Toggle search bar" aria-label="Toggle search bar"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+                <div class="menu-container">
+                    <button class="menu-toggle" id="menu-toggle" title="Toggle navigation menu" aria-label="Toggle navigation menu"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                    <ul class="dropdown-menu" id="dropdown-menu">
+                        <li class="dropdown-item"><a href="index.html">Home</a></li>
+                        <li class="dropdown-item"><a href="servers.html">Frontend & Backend</a></li>
+                        <li class="dropdown-item"><a href="databases.html">Databases</a></li>
+                        <li class="dropdown-item"><a href="frameworks.html">Frameworks</a></li>
+                        <li class="dropdown-item"><a href="engines.html">Engines</a></li>
+                        <li class="dropdown-item"><a href="wireframes.html">Wireframes</a></li>
+                        <li class="dropdown-item"><a href="language.html">Coding languages</a></li>
+                        <li class="dropdown-item"><a href="settings.html">Settings</a></li>
+                        <li class="dropdown-item"><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="content-card">
+            <div class="accordion-header">
+                <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                <h2>Contact Me</h2></div>
+            <div class="accordion-panel">
+                <p>Have a question or want to get in touch? Fill out the form below and I'll get back to you as soon as possible.</p>
+                <!-- 
+                  IMPORTANT: Replace the action URL below with your actual Formspree endpoint URL.
+                -->
+                <form id="contact-form" class="contact-form" action="https://formspree.io/f/mzzlggbe" method="POST">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required>
+
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="6" required></textarea>
+
+                    <button type="submit">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <button class="back-to-top" id="backToTopBtn">↑</button>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const searchToggle = document.getElementById('search-toggle');
+        const searchContainer = document.getElementById('search-container');
+
+        menuToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!dropdownMenu.contains(event.target) && !menuToggle.contains(event.target)) {
+                if (dropdownMenu.classList.contains('show')) {
+                    dropdownMenu.classList.remove('show');
+                }
+            }
+            if (!searchContainer.contains(event.target) && !searchToggle.contains(event.target)) {
+                if (searchContainer.classList.contains('show')) {
+                    searchContainer.classList.remove('show');
+                }
+            }
+        });
+
+        searchToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            searchContainer.classList.toggle('show');
+        });
+
+        const accordions = document.querySelectorAll('.accordion-header');
+        accordions.forEach(accordion => {
+            accordion.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const panel = this.nextElementSibling;
+                if (panel.style.maxHeight && panel.style.maxHeight !== '0px') {
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                    requestAnimationFrame(() => {
+                        panel.style.maxHeight = "0";
+                        panel.style.padding = "0";
+                    });
+                } else {
+                    panel.style.padding = "1rem 0";
+                    panel.style.maxHeight = "none";
+                    const fullHeight = panel.scrollHeight;
+                    panel.style.maxHeight = "0";
+                    requestAnimationFrame(() => {
+                        panel.style.maxHeight = fullHeight + "px";
+                    });
+                    panel.addEventListener('transitionend', () => {
+                        if (panel.style.maxHeight !== '0px') panel.style.maxHeight = 'none';
+                    }, { once: true });
+                }
+            });
+        });
+
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+
+        // The contact page doesn't have searchable content cards, so we can disable search or just ensure it doesn't error.
+        function performSearch() {
+            // Redirect to home page with search query
+            const query = searchInput.value.trim();
+            if (query) {
+                window.location.href = `index.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        searchInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') performSearch(); });
+        searchButton.addEventListener('click', performSearch);
+
+        const backToTopBtn = document.getElementById('backToTopBtn');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

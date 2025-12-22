@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Dev Concepts</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">Web Dev Hub</a>
+
+        <div class="nav-right-section">
+            <div class="search-container" id="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="Search..." aria-label="Search through site content">
+                <button class="search-button" id="search-button" title="Search" aria-label="Search">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 21L16.65 16.65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="nav-controls">
+                <button class="search-toggle" id="search-toggle" title="Toggle search bar" aria-label="Toggle search bar">
+                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                        <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                <div class="menu-container">
+                    <button class="menu-toggle" id="menu-toggle" title="Toggle navigation menu" aria-label="Toggle navigation menu">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 6H20M4 12H20M4 18H20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <ul class="dropdown-menu" id="dropdown-menu">
+                        <li class="dropdown-item"><a href="index.html">Home</a></li>
+                        <li class="dropdown-item"><a href="servers.html">Frontend &amp; Backend</a></li>
+                        <li class="dropdown-item"><a href="databases.html">Databases</a></li>
+                        <li class="dropdown-item"><a href="frameworks.html">Frameworks</a></li>
+                        <li class="dropdown-item"><a href="engines.html">Engines</a></li>
+                        <li class="dropdown-item"><a href="wireframes.html">Wireframes</a></li>
+                        <li class="dropdown-item"><a href="language.html">Coding languages</a></li>
+                        <li class="dropdown-item"><a href="settings.html">Settings</a></li>
+                        <li class="dropdown-item"><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="content-card">
+            <div class="accordion-header"><h1>Frontend & Backend</h1></div>
+            <div class="accordion-panel">
+            <p>
+                Web development is broadly divided into two areas: the <strong>frontend</strong> (client-side) and the <strong>backend</strong> (server-side). They work together to deliver a complete web application.
+            </p>
+
+            <h2>Frontend (Client-Side)</h2>
+            <p>
+                The frontend is everything the user sees and interacts with in their browser. It's responsible for the user interface (UI) and user experience (UX).
+            </p>
+            <p>
+                Core technologies include:
+                <ul>
+                    <li><strong>HTML (HyperText Markup Language):</strong> The standard markup language for documents designed to be displayed in a web browser. It provides the structure of the page.</li>
+                    <li><strong>CSS (Cascading Style Sheets):</strong> A style sheet language used for describing the presentation of a document written in HTML. It controls the layout, colors, and fonts.</li>
+                    <li><strong>JavaScript:</strong> A programming language that enables interactive web pages. It is used for things like form validation, animations, and fetching data from the backend without reloading the page.</li>
+                </ul>
+            </p>
+
+            <h2>Backend (Server-Side)</h2>
+            <p>
+                The backend is the part of the application that the user doesn't see. It runs on a server and is responsible for storing and organizing data, and ensuring everything on the client-side works. It communicates with the frontend, sending and receiving information to be displayed.
+            </p>
+            <p>
+                Common backend tasks include database operations, user authentication, and business logic. Popular backend languages and environments include:
+                <ul>
+                    <li><strong>Node.js (with JavaScript)</strong></li>
+                    <li><strong>Python (with Django or Flask)</strong></li>
+                    <li><strong>PHP</strong></li>
+                    <li><strong>Ruby (with Ruby on Rails)</strong></li>
+                </ul>
+            </p>
+        </div>
+        </div>
+        <div class="content-card">
+            <div class="accordion-header"><h1>Web Servers</h1></div>
+            <div class="accordion-panel">
+                <p>
+                    A web server is software that serves web pages to users upon request. It handles incoming HTTP requests from clients (usually web browsers) and responds with the requested resources, such as HTML files, images, or other content.
+                </p>
+
+                <h2>Popular Web Servers</h2>
+                <p>
+                    Some of the most widely used web servers include:
+                    <ul>
+                        <li><strong>Apache HTTP Server:</strong> One of the oldest and most reliable web servers, known for its flexibility and wide range of features.</li>
+                        <li><strong>Nginx:</strong> A high-performance web server and reverse proxy server known for its speed and ability to handle a large number of concurrent connections.</li>
+                        <li><strong>Microsoft Internet Information Services (IIS):</strong> A web server developed by Microsoft, commonly used in Windows Server environments.</li>
+                        <li><strong>Caddy:</strong> A modern web server with automatic HTTPS configuration and easy setup.</li>
+                    </ul>
+                </p>
+
+                <h2>Functionality</h2>
+                <p>
+                    Web servers can also provide additional functionalities such as load balancing, caching, URL rewriting, and security features like SSL/TLS encryption.
+                </p>
+                <p>
+                    They play a crucial role in the overall architecture of web applications, ensuring that content is delivered efficiently and securely to users around the world.
+                </p>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="accordion-header"><h1>Common Backends Servers</h1></div>
+            <div class="accordion-panel">
+                <p>
+                    In addition to web servers, there are various backend servers that handle specific tasks in web development. Some common types include:
+                </p>
+
+                <h2>Application Servers</h2>
+                <p>
+                    Application servers host and run web applications, providing the necessary environment for executing server-side code. Examples include:
+                    <ul>
+                        <li><strong>Node.js:</strong> A JavaScript runtime built on Chrome's V8 engine, commonly used for building scalable network applications.</li>
+                        <li><strong>Tomcat:</strong> An open-source Java Servlet Container developed by the Apache Software Foundation.</li>
+                        <li><strong>WildFly:</strong> A flexible, lightweight application server for Java applications.</li>
+                    </ul>
+                </p>
+
+                <h2>Database Servers</h2>
+                <p>
+                    Database servers store and manage data for web applications. They respond to queries from application servers and provide data retrieval and storage functionalities. Examples include:
+                    <ul>
+                        <li><strong>MySQL:</strong> An open-source relational database management system.</li>
+                        <li><strong>PostgreSQL:</strong> An advanced open-source relational database known for its robustness and extensibility.</li>
+                        <li><strong>MongoDB:</strong> A popular NoSQL database that stores data in flexible, JSON-like documents.</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="accordion-header"><h1>APIs and Servers</h1></div>
+            <div class="accordion-panel">
+                <p>
+                    APIs (Application Programming Interfaces) are sets of rules and protocols that allow different software applications to communicate with each other. In web development, APIs often interact with backend servers to fetch or manipulate data.
+                </p>
+
+                <h2>How APIs Work with Servers</h2>
+                <p>
+                    When a client (like a web browser or mobile app) makes a request to an API, the request is sent to a backend server. The server processes the request, interacts with databases or other services if necessary, and then sends back a response to the client.
+                </p>
+
+                <h2>Types of APIs</h2>
+                <p>
+                    Common types of APIs used in web development include:
+                    <ul>
+                        <li><strong>RESTful APIs:</strong> Use standard HTTP methods (GET, POST, PUT, DELETE) and are stateless.</li>
+                        <li><strong>GraphQL APIs:</strong> Allow clients to request only the data they need, reducing over-fetching and under-fetching of data.</li>
+                        <li><strong>SOAP APIs:</strong> A protocol for exchanging structured information in web services using XML.</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+        <div class="content-card">
+            <div class="accordion-header"><h1>Common Banckend Servers</h1>
+            <div class="accordion-panel">
+                <p>
+                    Here are some common backend servers used in web development:
+                </p>
+
+                <ul>
+                    <li><strong>Node.js:</strong> A JavaScript runtime built on Chrome's V8 engine, widely used for building scalable network applications.</li>
+                    <li><strong>Express.js:</strong> A minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.</li>
+                    <li><strong>Django:</strong> A high-level Python web framework that encourages rapid development and clean, pragmatic design.</li>
+                    <li><strong>Flask:</strong> A lightweight WSGI web application framework in Python, known for its simplicity and flexibility.</li>
+                    <li><strong>Ruby on Rails:</strong> A server-side web application framework written in Ruby, following the model-view-controller (MVC) architecture.</li>
+                    <li><strong>Laravel:</strong> A PHP web application framework with expressive, elegant syntax, designed for ease of use and rapid development.</li>
+                    <li><strong>Spring Boot:</strong> A Java-based framework used to create stand-alone, production-grade Spring-based applications with minimal configuration.</li>
+                    <li><strong>Firebase:</strong> A platform developed by Google for creating mobile and web applications, providing backend services like real-time databases, authentication, and hosting.</li>
+                    <li><strong>ASP.NET Core:</strong> A cross-platform, high-performance framework for building modern, cloud-based, internet-connected applications using .NET.</li>
+                    <li><strong>Apache Tomcat:</strong> An open-source implementation of the Java Servlet, JavaServer Pages, and Java Expression Language technologies.</li>
+                    <li><strong>Supabase:</strong> An open-source Firebase alternative that provides a backend-as-a-service platform with a PostgreSQL database, authentication, and real-time capabilities.</li>
+                    <li><strong>GraphQL Servers:</strong> Servers that implement the GraphQL query language, allowing clients to request only the data they need. Examples include Apollo Server and Hasura.</li>
+                </ul>
+        <div class="content-card" id="no-results-card" style="display: none;"><p class="no-results">No matching content found.</p></div>
+    </main>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const searchToggle = document.getElementById('search-toggle');
+        const searchContainer = document.getElementById('search-container');
+
+        menuToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // Close the dropdown if the user clicks outside of it
+        document.addEventListener('click', (event) => {
+            // Close dropdown if clicking outside
+            if (!dropdownMenu.contains(event.target) && !menuToggle.contains(event.target)) {
+                if (dropdownMenu.classList.contains('show')) {
+                    dropdownMenu.classList.remove('show');
+                }
+            }
+            // Close search if clicking outside
+            if (!searchContainer.contains(event.target) && !searchToggle.contains(event.target)) {
+                if (searchContainer.classList.contains('show')) {
+                    searchContainer.classList.remove('show');
+                }
+            }
+        });
+
+        // Toggle search bar on small screens
+        searchToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            searchContainer.classList.toggle('show');
+        });
+
+        // Accordion Script
+        const accordions = document.querySelectorAll('.accordion-header');
+
+        accordions.forEach(accordion => {
+            accordion.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const panel = this.nextElementSibling;
+
+                if (panel.style.maxHeight && panel.style.maxHeight !== '0px') { // Panel is open, closing it
+                    // Set max-height to its current scrollHeight before transitioning to 0
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                    panel.style.padding = "1rem 0"; // Ensure padding is present for scrollHeight calculation
+                    requestAnimationFrame(() => {
+                        panel.style.maxHeight = "0";
+                        panel.style.padding = "0";
+                    });
+                } else {
+                    panel.style.padding = "1rem 0";
+                    panel.style.maxHeight = "none"; // Temporarily remove max-height to get full scrollHeight
+                    const fullHeight = panel.scrollHeight; // Get the full height
+                    panel.style.maxHeight = "0"; // Reset max-height to 0 for the transition to work
+                    requestAnimationFrame(() => {
+                        panel.style.maxHeight = fullHeight + "px"; // Set to full height to animate open
+                    });
+                }
+            });
+        });
+
+        // Search Functionality
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const contentCards = document.querySelectorAll('.content-card:not(#no-results-card)');
+        const noResultsCard = document.getElementById('no-results-card');
+
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            let resultsFound = false;
+
+            if (query === '') {
+                contentCards.forEach(card => card.style.display = 'block');
+                noResultsCard.style.display = 'none';
+                return;
+            }
+
+            contentCards.forEach(card => {
+                const header = card.querySelector('.accordion-header');
+                const headerText = header ? header.innerText.toLowerCase() : '';
+                const isMatch = headerText.includes(query);
+
+                card.style.display = isMatch ? 'block' : 'none';
+
+                if (isMatch) {
+                    resultsFound = true;
+                }
+            });
+
+            // Show or hide the 'no results' message
+            noResultsCard.style.display = resultsFound ? 'none' : 'block';
+        }
+
+        // Listen for typing in the search bar
+        searchInput.addEventListener('keyup', performSearch);
+
+        // Also allow search on button click
+        searchButton.addEventListener('click', performSearch);
+
+        // Prevent form submission if the search is inside a form
+        searchButton.addEventListener('click', (e) => e.preventDefault());
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>t1a011-onClick-rhysl.html</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-glow: #6366f1; 
+            --secondary-glow: #a855f7; 
+            --text-color: #f3f4f6;
+            --bg-dark: #111827;
+            --bg-card: #1f2937;
+            --border-color: #374151;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+        }
+
+        
+        pre {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.8rem;
+            overflow-x: auto;
+            color: var(--text-color);
+            font-size: 14px;
+            line-height: 1.5;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        pre:hover {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5); /* Blue glow on hover */
+            border-color: var(--primary-glow);
+        }
+
+        
+        code {
+            background-color: #374151;
+            color: #ffea00; /* Neon yellow for inline code text */
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.3rem;
+            font-weight: 600;
+        }
+
+	@keyframes rainbow-border {
+    		from  { border-color: #FF0389; }   /* 1 */
+		to    { border-color: #FF7626; }   /* 3 */
+				  }
+
+        .card-diverse-glow {
+    		border-width: 5px;
+    		border-style: solid;
+    		padding: calc(1.5rem - 4px);
+   	 	animation: rainbow-border 8s infinite alternate;
+    		box-shadow: 0 0 60px rgba(160, 200, 241, 1.0); 
+			   }
+
+        .model-card {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+	    mx-auto;
+        }
+
+	.model-card2 {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+	    mx-auto;
+        }
+        .model-card:hover {
+            transform: translateY(-4px);
+            border-color: #6366f1;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 1.0);
+        }
+
+	.i:hover {
+	   transform: translateY(-8px);
+           border-color: #6366f1;
+	   transition: all 0.3s;
+	   box-shadow: 0 0 20px rgba(255, 255, 255, 1.0);
+	  	 }
+
+	.i {}
+
+
+	.inputbutton01 {
+	    background-color: #1f2937;
+            border: 1px solid #8F8B8B;
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+		       }
+
+	.inputbutton01:hover {
+	    transform: translateY(-4px);
+            border-color: #FFFFFF;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 1.0);
+		             } 
+
+	.myDiv01 {
+	    background-color: #1f2937;
+            border: 1px solid #8F8B8B;
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+		 }
+
+	.myDiv01:hover {
+	    transform: translateY(-4px);
+            border-color: #FFFFFF;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 1.0);
+		 }
+
+	.myDiv02{
+	    background-color: #1f2937;
+            border: 1px solid #8F8B8B;
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+		 }
+
+	.myDiv02:hover {
+	    transform: translateY(-4px);
+            border-color: #FFFFFF;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 1.0);
+		 }
+
+        #interceptBox {
+            cursor: context-menu;
+            min-height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        #customMenu {
+            position: fixed;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s ease-out;
+            transform: translate(-50%, -50%);
+        }	
+
+	.reset-button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 25px;
+            background-color: #828E9E; /* Red for reset */
+	    border: 1px solid #E8E8E8;
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }	  
+	 
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+    
+    <div class="mx-auto bg-gray-900/50 w-[90vw] min-h-screen rounded-xl p-8 sm:p-12 lg:p-12 transition-all duration-500 card-diverse-glow" style="border-style:outset; border-width: 20px; border-color: #09FF67;">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-3 text-white">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-[#FF0389] to-[#FF7626]">
+                    t1a011-onClick-rhysl.html
+                </span>
+            </h1>
+                    </header>
+
+
+<input type=button value="alert" onclick="{alert('hi')}" class="inputbutton01">
+
+
+<div class="myDiv01" id="myDiv010">
+
+<button onClick="{
+	const myDiv = document.getElementById('myDiv010')
+	myDiv.innerHTML = 'Hello'
+}">To Div</button><br>
+
+</div>
+
+<div class="myDiv02">
+
+This is <b onMouseOver="{
+    document.body.style.backgroundColor = 'blue';
+}">Bold and change background </b> this isn't.<br>
+
+</div>
+
+<div class="myDiv02">
+
+<button onClick="{
+    document.body.style.color = 'red';
+}"> Change Text to Red </button> 
+
+</div>
+
+<div class="myDiv02" id="myDiv020">
+
+<button onClick="{
+    const targetDiv = document.getElementById('myDiv020');
+    targetDiv.style.color = 'black';
+    targetDiv.style.backgroundColor = 'lightblue';
+}"> Change myDiv01 Colors </button>
+
+</div>
+
+<div class="myDiv02">
+
+<input type="text" id="myInput" onkeydown="handleKeyDown(event)" placeholder="Idk" style="color: black">
+<p>Total Key Presses: <span id="keyCount">0</span></p>
+<p>Last Key Pressed: <span id="lastKey">None</span></p>
+
+</div>
+
+<div class="myDiv02 ">
+
+<button onclick="resetCounters()" class="reset-button">
+            Reset Counters
+        </button>
+
+</div>
+
+<div class="myDiv02 mx-auto">
+
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8">
+
+<div id="interceptBox" 
+             oncontextmenu="showCustomMenu(event)"
+             class="bg-blue-50 border-4 border-dashed border-blue-200 rounded-lg p-6 w-[36vw] hover:shadow-md">
+             <p class="text-blue-700 font-semibold text-lg">
+                Right-Click
+             </p>
+
+</div>
+
+<div class="model-card2 ">
+Slightly bugged(move mouse off message to stop fickering)
+</div>
+
+</div>
+
+</div>
+
+<div class="myDiv02" id="myDiv040">
+
+<img
+    
+    class="w-full h-auto rounded-lg shadow-lg border-2 border-gray-200"
+    src="https://pics.craiyon.com/2023-09-12/6970c269f97247fd9363c001c61070c2.webp"
+    alt="A simple placeholder graphic."
+    style="display: block; transition: transform 4.0s ease-in-out;"
+    onmouseover="this.style.transform = 'translateY(-500px)'" 
+    onmouseout="this.style.transform = 'translateY(0px)'">
+
+</div>
+
+<div class="myDiv02">
+
+<button
+            id="toggleButton"
+            class="reset-button w-full py-3 px-6 text-white font-semibold rounded-lg shadow-xl transition duration-300 transform hover:scale-[1.03] active:scale-[0.97]"
+            onclick="
+                const image = document.getElementById('myDiv060');
+
+                if (image.style.display === 'none') {
+                    image.style.display = 'block';
+                    this.textContent = 'Hide Image';
+                } else {
+                    image.style.display = 'none';
+                    this.textContent = 'Show Image';
+                }
+            "
+        >
+            Hide Image
+        </button>
+
+
+
+</div>
+
+<div class="myDiv02" id="myDiv060">
+
+<img
+    id="beginnerImage1"
+    class="w-full h-auto rounded-lg shadow-lg border-2 border-gray-200"
+    src="https://pics.craiyon.com/2023-09-12/6970c269f97247fd9363c001c61070c2.webp"
+    alt="A simple placeholder graphic."
+    style="display: block;"
+    onmouseover="this.style.opacity='0'"
+    onmouseout="this.style.opacity='1'"
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<div id="customMenu" class="bg-indigo-600 text-white p-3 rounded-xl shadow-lg font-bold text-sm">
+        
+"🚫 The context menu is blocked on this site"
+
+</div>
+
+
+</div>
+<script>
+        let pressCount = 0;
+
+        function handleKeyDown(event) {
+            pressCount++;
+            document.getElementById('keyCount').textContent = pressCount;
+
+            const keyName = event.key;
+
+            document.getElementById('lastKey').textContent = keyName;
+
+            if (keyName === 'Enter') {
+                event.preventDefault();
+                document.getElementById('lastKey').textContent = "ENTER (Blocked)";
+            }
+        }
+    </script>
+<script>
+        let hideTimer;
+        const customMenu = document.getElementById('customMenu');
+
+        function showCustomMenu(event) {
+            event.preventDefault();
+
+            if (hideTimer) {
+                clearTimeout(hideTimer);
+            }
+
+            customMenu.style.left = `${event.clientX}px`;
+            customMenu.style.top = `${event.clientY}px`;
+
+            customMenu.style.opacity = 1;
+            customMenu.style.pointerEvents = 'auto';
+
+            hideTimer = setTimeout(() => {
+                customMenu.style.opacity = 0;
+                customMenu.style.pointerEvents = 'none';
+            }, 1500); 
+        }
+
+	function resetCounters() {
+            pressCount = 0;
+            document.getElementById('keyCount').textContent = pressCount;
+            document.getElementById('lastKey').textContent = "None";
+        }
+
+
+	function sendHeight() {
+    // This is the line where we set the height to a fixed value.
+    const contentHeight = 600; // <<< CHANGE THIS NUMBER
+
+    console.log('IFRAME: Measured Height:', contentHeight); 
+    
+    window.parent.postMessage(
+        {
+            height: contentHeight,
+            source: 't2a13-iframe'
+        },
+        '*'
+    );
+}
+
+setInterval(sendHeight, 250);
+sendHeight();
+    </script>
+
+</body>
+</html>
+<head>
+<html>
+
+
+
+
+

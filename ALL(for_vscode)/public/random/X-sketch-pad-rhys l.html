@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Sketchpad Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            overscroll-behavior: none; /* Prevents page-level scroll/refresh on pan/zoom */
+        }
+        #drawingCanvas {
+            touch-action: none;
+            background-color: #ffffff;
+            border: 2px solid #000;
+            cursor: crosshair;
+        }
+        #canvasWrapper {
+            transition: transform 0.1s ease-out;
+            transform-origin: center center;
+        }
+        .tool-button {
+            @apply p-2 rounded-lg bg-gray-100 hover:bg-indigo-100 shadow-sm transition-all duration-150;
+        }
+        .tool-button.active {
+            @apply bg-indigo-500 text-white shadow-md;
+        }
+        .tool-button:disabled {
+            @apply opacity-50 cursor-not-allowed;
+        }
+        /* Hide native color picker text */
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col h-screen font-inter overflow-hidden">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Header Toolbar -->
+    <header class="bg-white shadow-md p-2 flex flex-wrap items-center justify-center gap-2 z-10">
+        <h1 class="text-xl font-bold text-indigo-600 mr-4 hidden md:block">Sketchpad Pro</h1>
+        
+        <!-- Tool Selection -->
+        <div class="flex items-center p-1 bg-gray-100 rounded-lg shadow-inner gap-1">
+            <button id="tool-pen" class="tool-button active" title="Pen (P)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+            </button>
+            <button id="tool-eraser" class="tool-button" title="Eraser (E)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21H7Z"></path><path d="M18 9 9.5 17.5"></path></svg>
+            </button>
+            <button id="tool-line" class="tool-button" title="Line (L)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="19" x2="19" y2="5"></line></svg>
+            </button>
+            <button id="tool-rect" class="tool-button" title="Rectangle (R)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+            </button>
+            <button id="tool-circle" class="tool-button" title="Circle (C)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg>
+            </button>
+        </div>
+
+        <!-- Color Picker -->
+        <div class="flex items-center space-x-2 p-2 bg-gray-100 rounded-lg shadow-inner">
+            <label for="colorPicker" class="text-gray-700 font-medium text-sm" title="Color">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.828-.13 2.684-.373M7 13c-2.65 2.65-4.11 5.92-4 9 .12-4.42 3.47-7.77 7-9b-.306-.306"></path><path d="M13 7c2.65-2.65 5.92-4.11 9-4 .42 4.42-3.47 7.77-7 9a.306.306 0 0 0-.306-.306"></path><path d="m14 7 3-3"></path><path d="M12 22c5.5 0 10-4.5 10-10 0-.926-.13-1.828-.373-2.684"></path><path d="m21 14-3 3"></path></svg>
+            </label>
+            <input type="color" id="colorPicker" value="#1f2937" class="h-8 w-8 p-0 border-none rounded-md cursor-pointer">
+        </div>
+
+        <!-- Tool Settings -->
+        <div class="flex items-center space-x-2 p-2 bg-gray-100 rounded-lg shadow-inner">
+            <label for="lineWidth" class="text-gray-700 font-medium text-sm" title="Line Width">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line></svg>
+            </label>
+            <input type="range" id="lineWidth" min="1" max="100" value="5" class="w-24 cursor-pointer">
+            <span id="lineWidthValue" class="text-sm font-semibold text-gray-800 w-6">5</span>
+        </div>
+        <div class="flex items-center space-x-2 p-2 bg-gray-100 rounded-lg shadow-inner">
+            <label for="opacity" class="text-gray-700 font-medium text-sm" title="Opacity">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"></path><path d="M12 12a9 9 0 0 0 0 9"></path></svg>
+            </label>
+            <input type="range" id="opacity" min="0.05" max="1.0" value="1.0" step="0.05" class="w-24 cursor-pointer">
+        </div>
+        
+        <!-- History -->
+        <div class="flex items-center p-1 bg-gray-100 rounded-lg shadow-inner gap-1">
+            <button id="undoButton" class="tool-button" title="Undo (Ctrl+Z)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg>
+            </button>
+            <button id="redoButton" class="tool-button" title="Redo (Ctrl+Y)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 0 9 9 9 9 0 0 0 6-2.3L21 13"></path></svg>
+            </button>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-2">
+            <button id="clearButton" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-3 rounded-lg shadow-md transition duration-150 ease-in-out" title="Clear Canvas">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+            </button>
+            <button id="saveButton" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-3 rounded-lg shadow-md transition duration-150 ease-in-out" title="Save as PNG">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Canvas Area -->
+    <main id="mainContainer" class="flex-grow p-4" style="cursor: default;">
+        <div id="canvasWrapper" class="w-full h-full shadow-inner bg-gray-200">
+            <canvas id="drawingCanvas"></canvas>
+        </div>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasWrapper = document.getElementById('canvasWrapper');
+        const mainContainer = document.getElementById('mainContainer');
+        
+        // --- Tool & Settings Elements ---
+        const colorPicker = document.getElementById('colorPicker');
+        const lineWidthInput = document.getElementById('lineWidth');
+        const lineWidthValue = document.getElementById('lineWidthValue');
+        const opacityInput = document.getElementById('opacity');
+        const clearButton = document.getElementById('clearButton');
+        const saveButton = document.getElementById('saveButton');
+        
+        // --- Tool Buttons ---
+        const toolButtons = {
+            pen: document.getElementById('tool-pen'),
+            eraser: document.getElementById('tool-eraser'),
+            line: document.getElementById('tool-line'),
+            rect: document.getElementById('tool-rect'),
+            circle: document.getElementById('tool-circle'),
+        };
+        
+        // --- History (Undo/Redo) ---
+        const undoButton = document.getElementById('undoButton');
+        const redoButton = document.getElementById('redoButton');
+        let history = [];
+        let historyIndex = -1;
+        const HISTORY_LIMIT = 20;
+
+        // --- Drawing State ---
+        let currentTool = 'pen';
+        let isDrawing = false;
+        let startX = 0;
+        let startY = 0;
+        let lastX = 0;
+        let lastY = 0;
+        let snapshot; // For shape previews
+
+        // --- Navigation State ---
+        let currentScale = 1.0;
+        let panOffset = { x: 0, y: 0 };
+        let isPanning = false;
+        let lastPanPoint = { x: 0, y: 0 };
+        const scaleStep = 0.1;
+        const minScale = 0.2;
+        const maxScale = 5.0;
+
+        // --- Canvas Setup ---
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            // Save state before resize
+            const oldData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            
+            // Restore state after resize
+            ctx.putImageData(oldData, 0, 0);
+            applyContextSettings();
+            updateTransform(); // Re-apply pan/zoom
+        }
+
+        function applyContextSettings() {
+            ctx.strokeStyle = colorPicker.value;
+            ctx.fillStyle = colorPicker.value;
+            ctx.lineWidth = lineWidthInput.value;
+            ctx.globalAlpha = opacityInput.value;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            if (currentTool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+            } else {
+                ctx.globalCompositeOperation = 'source-over';
+            }
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        saveHistory(); // Save initial blank state
+        updateHistoryButtons();
+
+        // --- Event Listeners ---
+
+        // Tool Selection
+        Object.entries(toolButtons).forEach(([toolName, button]) => {
+            button.addEventListener('click', () => selectTool(toolName));
+        });
+
+        // Settings
+        colorPicker.addEventListener('input', applyContextSettings);
+        lineWidthInput.addEventListener('input', (e) => {
+            lineWidthValue.textContent = e.target.value;
+            applyContextSettings();
+        });
+        opacityInput.addEventListener('input', applyContextSettings);
+
+        // Actions
+        clearButton.addEventListener('click', clearCanvas);
+        saveButton.addEventListener('click', saveImage);
+        undoButton.addEventListener('click', undo);
+        redoButton.addEventListener('click', redo);
+
+        // Canvas Drawing Events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        
+        // Touch Events
+        canvas.addEventListener('touchstart', (e) => startDrawing(e.touches[0]));
+        canvas.addEventListener('touchmove', (e) => draw(e.touches[0]));
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchcancel', stopDrawing);
+
+        // Navigation (Zoom & Pan)
+        mainContainer.addEventListener('wheel', handleZoom, { passive: false });
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        // Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'z') {
+                    e.preventDefault();
+                    undo();
+                } else if (e.key === 'y' || (e.key === 'z' && e.shiftKey)) {
+                    e.preventDefault();
+                    redo();
+                }
+            } else if (!isDrawing) {
+                switch(e.key) {
+                    case 'p': selectTool('pen'); break;
+                    case 'e': selectTool('eraser'); break;
+                    case 'l': selectTool('line'); break;
+                    case 'r': selectTool('rect'); break;
+                    case 'c': selectTool('circle'); break;
+                }
+            }
+        });
+
+        // --- Core Functions ---
+
+        function selectTool(toolName) {
+            currentTool = toolName;
+            Object.values(toolButtons).forEach(btn => btn.classList.remove('active'));
+            toolButtons[toolName].classList.add('active');
+            applyContextSettings(); // Apply composite op
+            
+            if (toolName === 'pen' || toolName === 'eraser') {
+                canvas.style.cursor = 'crosshair';
+            } else {
+                canvas.style.cursor = 'default';
+            }
+        }
+
+        function getCanvasCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            
+            // Adjust for CSS scaling
+            const scaledX = (e.clientX - rect.left) / currentScale;
+            const scaledY = (e.clientY - rect.top) / currentScale;
+            
+            // Adjust for panning
+            const x = scaledX - (panOffset.x / currentScale);
+            const y = scaledY - (panOffset.y / currentScale);
+
+            return { x, y };
+        }
+
+        function startDrawing(e) {
+            if (isPanning) return;
+            
+            isDrawing = true;
+            const { x, y } = getCanvasCoords(e);
+            startX = x;
+            startY = y;
+            lastX = x;
+            lastY = y;
+            
+            applyContextSettings();
+            
+            if (currentTool === 'pen' || currentTool === 'eraser') {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x, y); // For dot on click
+                ctx.stroke();
+            }
+            
+            if (currentTool === 'line' || currentTool === 'rect' || currentTool === 'circle') {
+                // Save canvas state for previewing
+                snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            if (isPanning) return;
+            
+            const { x, y } = getCanvasCoords(e);
+
+            // Restore preview snapshot
+            if (snapshot) {
+                ctx.putImageData(snapshot, 0, 0);
+            }
+            
+            ctx.beginPath();
+            
+            switch(currentTool) {
+                case 'pen':
+                case 'eraser':
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    [lastX, lastY] = [x, y];
+                    break;
+                case 'line':
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    break;
+                case 'rect':
+                    ctx.rect(startX, startY, x - startX, y - startY);
+                    ctx.stroke();
+                    // To add fill: ctx.fill();
+                    break;
+                case 'circle':
+                    const radius = Math.sqrt(Math.pow(x - startX, 2) + Math.pow(y - startY, 2));
+                    ctx.arc(startX, startY, radius, 0, 2 * Math.PI);
+                    ctx.stroke();
+                    // To add fill: ctx.fill();
+                    break;
+            }
+        }
+
+        function stopDrawing() {
+            if (!isDrawing) return;
+            isDrawing = false;
+            snapshot = null; // Clear snapshot
+            ctx.closePath();
+            
+            // Save state to history only after a meaningful action
+            if (startX !== lastX || startY !== lastY) {
+                saveHistory();
+            }
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            saveHistory();
+        }
+
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = 'sketchpad-drawing.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // --- History (Undo/Redo) Functions ---
+        
+        function saveHistory() {
+            // Clear redo stack
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+            
+            // Limit history size
+            if (history.length >= HISTORY_LIMIT) {
+                history.shift();
+            }
+
+            history.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+            historyIndex = history.length - 1;
+            
+            updateHistoryButtons();
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                const data = history[historyIndex];
+                ctx.putImageData(data, 0, 0);
+                updateHistoryButtons();
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                const data = history[historyIndex];
+                ctx.putImageData(data, 0, 0);
+                updateHistoryButtons();
+            }
+        }
+        
+        function updateHistoryButtons() {
+            undoButton.disabled = (historyIndex <= 0);
+            redoButton.disabled = (historyIndex >= history.length - 1);
+        }
+
+        // --- Navigation (Zoom/Pan) Functions ---
+
+        function handleZoom(e) {
+            if (!e.ctrlKey) return; // Only zoom with Ctrl
+            e.preventDefault();
+            
+            const rect = canvasWrapper.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left; // Mouse X relative to wrapper
+            const mouseY = e.clientY - rect.top; // Mouse Y relative to wrapper
+
+            const direction = e.deltaY > 0 ? -1 : 1;
+            const newScale = Math.max(minScale, Math.min(maxScale, currentScale + direction * scaleStep));
+            
+            if (newScale === currentScale) return;
+
+            // Calculate new pan offset to zoom "into" the mouse position
+            const worldX = (mouseX - panOffset.x) / currentScale;
+            const worldY = (mouseY - panOffset.y) / currentScale;
+            
+            panOffset.x = mouseX - worldX * newScale;
+            panOffset.y = mouseY - worldY * newScale;
+            
+            currentScale = newScale;
+            updateTransform();
+        }
+        
+        function handleKeyDown(e) {
+            if (e.key === ' ' && !isPanning && !isDrawing) {
+                e.preventDefault();
+                isPanning = true;
+                mainContainer.style.cursor = 'grab';
+            }
+        }
+        
+        function handleKeyUp(e) {
+            if (e.key === ' ') {
+                isPanning = false;
+                mainContainer.style.cursor = 'default';
+            }
+        }
+
+        // Add Pan listeners to the main container, not the canvas
+        mainContainer.addEventListener('mousedown', (e) => {
+            if (isPanning) {
+                mainContainer.style.cursor = 'grabbing';
+                lastPanPoint = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        mainContainer.addEventListener('mousemove', (e) => {
+            if (isPanning && mainContainer.style.cursor === 'grabbing') {
+                const dx = e.clientX - lastPanPoint.x;
+                const dy = e.clientY - lastPanPoint.y;
+                
+                panOffset.x += dx;
+                panOffset.y += dy;
+                
+                lastPanPoint = { x: e.clientX, y: e.clientY };
+                updateTransform();
+            }
+        });
+
+        mainContainer.addEventListener('mouseup', () => {
+            if (isPanning) {
+                mainContainer.style.cursor = 'grab';
+            }
+        });
+
+        function updateTransform() {
+            // Apply pan/zoom to the *wrapper*, not the context
+            // This keeps drawing coordinates (0,0) simple
+            canvasWrapper.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(${currentScale})`;
+        }
+        
+        // Initial setup
+        resizeCanvas();
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isolated Pre Tag Styling</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styling for demonstration */
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            background-color: #f7f7f7;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .mono {
+            font-family: monospace;
+        }
+
+                .p1-style pre {
+            background-color: #101624; 
+            border: 1px solid #fff300; 
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: #1e3a8a;
+            font-size: 14px;
+        }
+
+                .p2-separator {
+            border-top: 2px solid #cbd5e1;
+            padding-top: 20px;
+            margin-top: 30px;
+        }
+
+		p {
+	    color: #FFFFFF
+	}
+
+
+		h1 {
+	    color: #FFFFFF
+	}
+
+		h2 {
+	    color: #FFFFFF
+	}
+
+		li {
+	    color: #FFFFFF
+	}
+
+		
+    </style>
+</head>
+<body class="p-6 bg-gray-900">
+    <h2 align="center" class="text-3xl font-extrabold mb-8 text-indigo-700">t1a08-prompt-rhysl</h2>
+
+    <div class="container rounded-xl shadow-lg p-6 mb-8 bg-gray-700 p1-style">
+        <h1 class="text-3xl font-bold mb-4">Prompt 1: Make a HTML webpage that teaches me how to use &lt;pre&gt;</h1>
+        <p class="mb-4">
+            This entire section is inside the **<code>.p1-style</code>** container, so its **<code>&lt;pre&gt;</code>** tags receive the blue background and border styles.
+        </p>
+
+        <h2 class="text-xl font-semibold mt-6 mb-3">Example 1: Preserving Code Structure</h2>
+
+        <p class="mb-2">If we try to display code using a regular &lt;p&gt; tag, all the extra spaces and line breaks are collapsed into single spaces:</p>
+
+        <p class="bg-red-100 text-red-800 p-3 rounded-md mono">
+            function greet(name) {
+                console.log("Hello, " + name + "!");
+            }
+        </p>
+
+        <p class="mt-4 mb-2">Using the &lt;pre&gt; tag, the exact formatting is maintained (including the indentation):</p>
+
+        <pre>
+function greet(name) {
+    console.log("Hello, " + name + "!");
+}
+        </pre>
+
+        <h2 class="text-xl font-semibold mt-6 mb-3">Example 2: ASCII Art or Tabular Data</h2>
+
+        <p class="mb-2">The &lt;pre&gt; tag is also useful for displaying fixed-width art or simple tables:</p>
+        <pre>
+ (^_^) 
+ / | \
+  / \
+
+Name:       Role:
+---         ---
+Alice       Manager
+Bob         Developer
+        </pre>
+
+        <h2 class="text-xl font-semibold mt-6 mb-3">Key Takeaways</h2>
+        <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>It renders text using a **monospace font**, ensuring consistent character spacing.</li>
+            <li>It respects **all whitespace** (spaces, tabs, and newlines).</li>
+            <li>It's commonly used to wrap code snippets, command-line output, or ASCII art.</li>
+            <li>You should use it alongside the **&lt;code&gt;** tag (e.g. ↓) <pre>&lt;pre&gt;&lt;code&gt;...&lt;/code&gt;&lt;/pre&gt;</pre> for better semantic meaning when displaying programming code.</li>
+        </ul>
+    </div>
+
+    <!-- START OF PROMPT 2 CONTENT -->
+    <div class="container rounded-xl shadow-lg p-6 mb-8 bg-gray-700 p1-style">
+        <h1 class="text-3xl font-bold mb-4">Prompt 2: Take this webpage and make it better</h1>
+       
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastering the HTML &lt;pre&gt; Tag</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        	 pre {
+            /* Dark, professional background for code */
+            background-color: #1f2937; /* gray-800 equivalent */
+            border: 1px solid #374151; /* gray-700 equivalent */
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto; /* Allows horizontal scrolling for long lines */
+            color: #f3f4f6; /* light gray text */
+            font-size: 14px;
+            font-family: 'Fira Code', monospace; /* Use a specific code font */
+            line-height: 1.5;
+        }
+
+       		 pre {
+            background-color: #f3f4f6; /* Very light background */
+            color: #1f2937; /* Dark text */
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            border: 1px dashed #d1d5db;
+        }
+
+    </style>
+</head>
+
+<body class="p-4 sm:p-8 bg-gray-900 min-h-screen">
+    
+    <div class="max-w-4xl mx-auto">
+        <h2 class="text-3xl sm:text-4xl font-extrabold mb-10 text-indigo-400 text-center">
+            Mastering the HTML &lt;pre&gt; Tag 
+        </h2>
+
+        <!-- PROMPT 1: STYLED CODE CONTAINER -->
+        
+            <h1 class="text-2xl font-bold mb-4 text-white">1. Semantic and Styled Code Display</h1>
+            
+            <p class="mb-4 text-gray-300">
+                The content in this box uses **<code class="text-yellow-300">&lt;pre&gt;</code>** tags with custom dark-mode styling for a professional look. We're also using the **<code class="text-yellow-300">&lt;code&gt;</code>** tag inside it for better accessibility and semantics.
+            </p>
+
+            <h2 class="text-xl font-semibold mt-6 mb-3 text-white">Example A: Preserving JavaScript Structure</h2>
+
+            <p class="mb-2 text-gray-300">Compare collapsed text in a regular paragraph versus structured code in <code class="text-yellow-300">&lt;pre&gt;</code>.</p>
+
+            <p class="bg-red-900 text-red-200 p-3 rounded-md font-mono text-sm">
+                function greet(name) { console.log("Hello, " + name + "!"); }
+            </p>
+
+            <p class="mt-4 mb-2 text-white">Using <code class="text-yellow-300">&lt;pre&gt;&lt;code&gt;</code> to preserve indentation and line breaks:</p>
+            
+            <pre>
+<code>
+// A JavaScript function that retains its original formatting
+function calculateArea(length, width) {
+    if (length > 0 && width > 0) {
+        return length * width;
+    } else {
+        // Handle invalid input
+        return 0;
+    }
+}
+</code>
+            </pre>
+
+            <h2 class="text-xl font-semibold mt-6 mb-3 text-white">Example B: Fixed-Width Data (ASCII Art)</h2>
+
+            <p class="mb-2 text-gray-300">The fixed-width font is perfect for ASCII art or aligned data:</p>
+            <pre>
+<code>
+   (^_^)      +----+-------+
+   / | \      | ID | Task  |
+    / \       +----+-------+
+              | 1  | Design|
+              | 2  | Build |
+              +----+-------+
+</code>
+            </pre>
+
+	<div class="max-w-4xl mx-auto">
+            <h2 class="text-xl font-semibold mt-6 mb-4 text-white">Key Takeaways for &lt;pre&gt;</h2>
+            <ul class="list-disc list-inside space-y-2 ml-4 text-gray-300">
+                <li><strong class="text-indigo-300">Whitespace is preserved:</strong> Spaces, tabs, and newlines are respected, unlike regular HTML elements.</li>
+                <li><strong class="text-indigo-300">Monospace Font:</strong> It renders text using a fixed-width, **monospace font** by default.</li>
+                <li><strong class="text-indigo-300">Semantics:</strong> Always nest code inside **<code class="text-yellow-300">&lt;code&gt;</code>** when using **<code class="text-yellow-300">&lt;pre&gt;</code>** to display programming code.</li>
+            </ul>
+        </div><br>
+
+        <!-- PROMPT 2: UNSTYLED DEFAULT CONTAINER -->
+        
+            <h1 class="text-2xl font-bold mb-4 text-white">2. Comparing to the Default Browser Style</h1>
+            
+            <p class="mb-4 text-gray-300">
+                This section shows what the <code class="text-yellow-300">&lt;pre&gt;</code> tag looks like with minimal custom styling. Browsers give it a plain white or gray background, and sometimes a border.
+            </p>
+            
+            <pre>
+<code>
+// Default styling is usually a plain, light box.
+// It still preserves all formatting, but lacks the flair
+// of the dark theme used in section 1 above.
+// 
+// Notice the different background color and border here!
+// 
+const message = "The browser chooses the default style.";
+</code>
+            </pre>
+            <p class="mt-4 text-gray-300">
+                **Tip:** While the default is functional, custom styling (like in Section 1) is usually needed to make code blocks fit a website's overall theme!
+            </p>
+        </div>
+
+    </div>
+  </div><br>
+
+  <div class="container bg-gray-700 rounded-xl shadow-lg p-6 p1-style">
+        	<h1 class="text-3xl font-bold mb-4">Prompt 3: Make a HTML webpage about &lt;code&gt; tags</h1>
+	   
+	<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The <code> HTML Element Guide</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the body and fonts */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* GitHub Dark background */
+        }
+        /* Custom font family for code blocks (ensures monospacing) */
+        .code-font {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#2563eb',
+                        'code-bg': '#161b22', /* Slightly lighter dark for code blocks */
+                        'code-inline-bg': 'rgba(110, 118, 129, 0.4)', /* Greyish translucent for inline */
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="text-gray-200 p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto bg-gray-800 p-6 sm:p-10 rounded-xl shadow-2xl">
+
+        <!-- Header -->
+        <header class="mb-8 border-b border-gray-700 pb-4">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-primary-blue mb-2">
+                Understanding the <code>&lt;code&gt;</code> Tag
+            </h1>
+            <p class="text-lg text-gray-400">
+                The standard way to display computer code fragments in HTML.
+            </p>
+        </header>
+
+        <!-- Section: Purpose -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-bold text-white mb-4">
+                What is <code>&lt;code&gt;</code>?
+            </h2>
+            <p class="mb-4 leading-relaxed text-gray-300">
+                The HTML <code>&lt;code&gt;</code> element is used to display short pieces of computer code. It is an inline element, which means it only takes up as much width as it needs and does not start on a new line. Crucially, its purpose is semantic: it informs browsers, screen readers, and search engines that the content enclosed is a snippet of code, distinct from regular text.
+            </p>
+            <p class="mb-4 leading-relaxed text-gray-300">
+                By default, most browsers render the content of the <code>&lt;code&gt;</code> element in a monospace font (like Courier or Consolas), making it look distinct from the surrounding text.
+            </p>
+        </section>
+
+        <!-- Section: Inline Usage -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-bold text-white mb-4">
+                1. Inline Code Snippets
+            </h2>
+            <p class="mb-4 leading-relaxed text-gray-300">
+                Use <code>&lt;code&gt;</code> for short, inline references to variables, functions, or filenames within a paragraph.
+            </p>
+
+            <div class="p-4 rounded-lg bg-code-bg border border-gray-700">
+                <p class="text-gray-300 leading-relaxed">
+                    The function 
+                    <code class="code-font bg-code-inline-bg text-red-300 px-1.5 py-0.5 rounded-md text-sm">calculateBMI(weight, height)</code> 
+                    requires two arguments and returns a floating-point number. Make sure the 
+                    <code class="code-font bg-code-inline-bg text-red-300 px-1.5 py-0.5 rounded-md text-sm">try...catch</code>
+                    block is implemented correctly.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section: Block Usage (with <pre>) -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-bold text-white mb-4">
+                2. Code Blocks (Multi-line)
+            </h2>
+            <p class="mb-4 leading-relaxed text-gray-300">
+                For displaying multiple lines of code, the <code>&lt;code&gt;</code> element is typically nested inside a 
+                <code class="code-font bg-code-inline-bg text-red-300 px-1.5 py-0.5 rounded-md text-sm">&lt;pre&gt;</code> 
+                element. The <code>&lt;pre&gt;</code> element is essential because it preserves whitespace and line breaks, ensuring the code formatting is maintained exactly as written.
+            </p>
+
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold mb-2 text-gray-300">Example HTML Structure:</h3>
+                <pre class="code-font p-4 rounded-lg overflow-x-auto p3-style">
+&lt;pre&gt;
+  &lt;code&gt;
+    // JavaScript code block
+    function greet(name) {
+      console.log('Hello, ' + name + '!');
+    }
+
+    greet('World');
+  &lt;/code&gt;
+&lt;/pre&gt;</pre>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold mb-2 text-gray-300">The Rendered Block Code:</h3>
+                <!-- The actual rendered code block -->
+                <pre class="code-font p-4 rounded-lg bg-code-bg border border-gray-700 overflow-x-auto text-green-400">
+<code class="code-font">
+// JavaScript code block
+function greet(name) {
+  const message = `Hello, ${name}!`;
+  return message;
+}
+
+const greeting = greet('Gemini');
+console.log(greeting);
+</code></pre>
+            </div>
+        </section>
+
+        <!-- Section: Key Takeaways -->
+        <section>
+            <h2 class="text-3xl font-bold text-white mb-4">
+                Key Takeaways
+            </h2>
+            <ul class="space-y-3 text-gray-300 list-disc list-inside">
+                <li>
+                    <strong>Semantic Importance:</strong> <code>&lt;code&gt;</code> tags convey meaning about the content, not just presentation.
+                </li>
+                <li>
+                    <strong>Styling:</strong> The default style is monospace, but you should use CSS (or Tailwind) to enhance readability with appropriate colors, padding, and background.
+                </li>
+                <li>
+                    <strong>Pairing:</strong> Always pair <code>&lt;code&gt;</code> with <code>&lt;pre&gt;</code> for multi-line code blocks to preserve formatting.
+                </li>
+                <li>
+                    <strong>Related Tags:</strong> Other semantic phrase tags often used with technical content include <code>&lt;kbd&gt;</code> (user input), <code>&lt;var&gt;</code> (variables), and <code>&lt;samp&gt;</code> (program output).
+                </li>
+            </ul>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-12 pt-4 border-t border-gray-700 text-center text-gray-500 text-sm">
+            <p>HTML Guide powered by Gemini. Semantic markup matters!</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
+
+
+  </div>
+</body>
+</html><br>
+
+		<div class="container bg-gray-700 rounded-xl shadow-lg p-6 p1-style">
+        	      <h1 class="text-3xl font-bold mb-4">Prompt 4: Make everything consistent and make it better</h1>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastering HTML Code Tags: &lt;pre&gt; and &lt;code&gt;</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter (Main font) and Fira Code (Code font) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        // Custom Tailwind configuration for consistent colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-accent': '#6366f1', /* Indigo-500 for headings */
+                        'code-block-bg': '#1f2937', /* Dark gray-800 for pre blocks */
+                        'code-inline-bg': 'rgba(110, 118, 129, 0.4)', /* Translucent for inline code */
+                        'code-text-color': '#fcd34d', /* Amber for inline code text */
+                        'block-text-color': '#a5f3fc', /* Cyan for pre block text */
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Styles: Setting a clean, readable dark theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Dark background */
+            color: #f3f4f6; /* Light gray text for readability */
+        }
+
+        /* Styling for Multi-line Code Blocks (<pre>) */
+        pre {
+            background-color: var(--code-block-bg, #1f2937);
+            border: 1px solid #374151;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto; /* Essential for responsiveness on code blocks */
+            color: var(--block-text-color, #a5f3fc);
+            font-size: 14px;
+            font-family: 'Fira Code', monospace;
+            line-height: 1.5;
+            transition: all 0.2s ease-in-out;
+        }
+
+        pre:hover {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3); /* Subtle hover glow */
+            border-color: #6366f1;
+        }
+
+        /* Styling for Inline Code (<code>) */
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--code-inline-bg, rgba(110, 118, 129, 0.4));
+            color: var(--code-text-color, #fcd34d); 
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.3rem;
+            font-weight: 600;
+        }
+
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto">
+
+        <!-- Main Header -->
+        <h2 align="center" class="text-4xl sm:text-5xl font-extrabold mb-12 text-primary-accent border-b border-gray-700 pb-4">
+            Mastering HTML Code Display: &lt;pre&gt; and &lt;code&gt;
+        </h2>
+
+        <!-- SECTION 1: THE <pre> TAG (PREFORMATTED TEXT) -->
+        <div class="bg-gray-800 p-6 sm:p-10 rounded-xl shadow-2xl mb-12">
+            <h1 class="text-3xl font-bold mb-4 text-white">1. The &lt;pre&gt; Tag: Whitespace Warrior</h1>
+            <p class="mb-6 text-gray-300">
+                The **<code>&lt;pre&gt;</code>** tag stands for "Preformatted Text." Its primary function is to render text exactly as it appears in the HTML source code, critically preserving all **whitespace** (spaces, tabs, and newlines).
+            </p>
+
+            <h2 class="text-2xl font-semibold mt-6 mb-3 text-primary-accent">Usage Example: Preserving Structure</h2>
+
+            <p class="mb-2 text-gray-300">If we use a regular paragraph tag, all formatting is collapsed:</p>
+
+            <p class="bg-red-900 text-red-200 p-3 rounded-md font-mono text-sm overflow-x-auto">
+                function greet(name) {
+                    console.log("Hello, " + name + "!");
+                }
+            </p>
+
+            <p class="mt-4 mb-2 text-white">Using **<code>&lt;pre&gt;</code>**, the indentation and line breaks are maintained:</p>
+
+            <pre>
+// Using &lt;pre&gt; for structural integrity
+function greet(name) {
+    console.log("Hello, " + name + "!");
+}
+            </pre>
+
+            <h2 class="text-2xl font-semibold mt-6 mb-3 text-primary-accent">Usage Example: ASCII Art or Tabular Data</h2>
+            <p class="mb-2 text-gray-300">Because it uses a fixed-width, **monospace font**, it's perfect for aligned data:</p>
+            <pre>
+  (^_^)       +----------+---------+
+  / | \       | Location | Manager |
+   / \        +----------+---------+
+              | West     | Alice   |
+              | East     | Bob     |
+              +----------+---------+
+            </pre>
+        </div>
+
+        <!-- SECTION 2: THE <code> TAG (SEMANTIC CODE) -->
+        <div class="bg-gray-800 p-6 sm:p-10 rounded-xl shadow-2xl mb-12">
+            <h1 class="text-3xl font-bold mb-4 text-white">2. The &lt;code&gt; Tag: Inline Semantics</h1>
+            <p class="mb-6 text-gray-300">
+                The **<code>&lt;code&gt;</code>** element is an **inline** tag used to define a short fragment of computer code. Its main purpose is **semantic**: it tells browsers and accessibility tools that the content is code. It does *not* preserve whitespace.
+            </p>
+
+            <h2 class="text-2xl font-semibold mt-6 mb-4 text-primary-accent">Inline Usage</h2>
+            <p class="mb-4 leading-relaxed text-gray-300">
+                Use it for quick references within a sentence. The constant <code class="text-code-text-color">const PI = 3.14;</code> must be declared before calling the function <code class="text-code-text-color">calculateCircumference()</code>.
+            </p>
+
+            <div class="p-4 rounded-lg bg-gray-900 border border-gray-700">
+                <p class="text-gray-300 leading-relaxed">
+                    Remember to handle errors using a <code class="text-red-300 px-1.5 py-0.5 rounded-md text-sm bg-code-inline-bg">try...catch</code> block in your JavaScript application.
+                </p>
+            </div>
+        </div>
+
+        <!-- SECTION 3: BEST PRACTICE (COMBINED USE) -->
+        <div class="bg-gray-800 p-6 sm:p-10 rounded-xl shadow-2xl mb-12">
+            <h1 class="text-3xl font-bold mb-4 text-white">3. Best Practice: &lt;pre&gt; + &lt;code&gt;</h1>
+            
+            <p class="mb-6 leading-relaxed text-gray-300">
+                For **multi-line code blocks**, always nest the **<code>&lt;code&gt;</code>** element inside the **<code>&lt;pre&gt;</code>** element. This gives you both the **semantic meaning** (from <code>&lt;code&gt;</code>) and the **formatting preservation** (from <code>&lt;pre&gt;</code>).
+            </p>
+
+            <h3 class="text-xl font-semibold mb-3 text-white">The Rendered Block Code:</h3>
+            
+            <pre>
+&lt;!-- The HTML structure for a code block --&gt;
+&lt;pre&gt;
+&lt;code&gt;
+    // Your beautifully indented code goes here.
+    function setupDatabase(connection) {
+        if (!connection) {
+            console.error("Connection failed.");
+            return;
+        }
+        connection.connect();
+    }
+&lt;/code&gt;
+&lt;/pre&gt;
+            </pre>
+
+            <h2 class="text-2xl font-semibold mt-8 mb-4 text-primary-accent">Key Takeaways</h2>
+            <ul class="list-disc list-inside space-y-3 ml-4 text-gray-300">
+                <li>
+                    <strong class="text-primary-accent">Code Blocks:</strong> Use <code class="text-code-text-color">&lt;pre&gt;&lt;code&gt;...&lt;/code&gt;&lt;/pre&gt;</code> for multi-line code.
+                </li>
+                <li>
+                    <strong class="text-primary-accent">Inline Code:</strong> Use only <code class="text-code-text-color">&lt;code&gt;</code> for single words or short phrases within a sentence.
+                </li>
+                <li>
+                    <strong class="text-primary-accent">Styling:</strong> Always apply CSS (or Tailwind) to enhance readability by customizing the background, text color, and font to a dedicated monospace font like 'Fira Code'.
+                </li>
+                <li>
+                    <strong class="text-primary-accent">Related Tags:</strong> Other useful semantic tags include <code class="text-code-text-color">&lt;kbd&gt;</code> (keyboard input) and <code class="text-code-text-color">&lt;samp&gt;</code> (program output).
+                </li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 pt-6 border-t border-gray-700 text-center text-gray-500 text-sm">
+            <p>HTML Semantic Guide | Code is beautiful!</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
+
+
+		</div>	   
+</body>
+</html>

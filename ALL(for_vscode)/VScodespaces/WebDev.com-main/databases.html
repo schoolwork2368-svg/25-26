@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Databases - Web Dev Concepts</title>
+    <link rel="stylesheet" href="webstyles001.css">
+    <script>
+        // Apply theme from localStorage before the page loads to prevent flashing
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') document.documentElement.classList.add('light-mode');
+    </script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">Web Dev Hub</a>
+        <div class="nav-right-section">
+            <div class="search-container" id="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="Search..." aria-label="Search through site content">
+                <button class="search-button" id="search-button" title="Search" aria-label="Search">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 21L16.65 16.65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="nav-controls">
+                <button class="search-toggle" id="search-toggle" title="Toggle search bar" aria-label="Toggle search bar">
+                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                        <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                <div class="menu-container">
+                    <button class="menu-toggle" id="menu-toggle" title="Toggle navigation menu" aria-label="Toggle navigation menu">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M4 6H20M4 12H20M4 18H20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <ul class="dropdown-menu" id="dropdown-menu">
+                        <li class="dropdown-item"><a href="index.html">Home</a></li>
+                        <li class="dropdown-item"><a href="servers.html">Frontend & Backend</a></li>
+                        <li class="dropdown-item"><a href="databases.html">Databases</a></li>
+                        <li class="dropdown-item"><a href="frameworks.html">Frameworks</a></li>
+                        <li class="dropdown-item"><a href="engines.html">Engines</a></li>
+                        <li class="dropdown-item"><a href="wireframes.html">Wireframes</a></li>
+                        <li class="dropdown-item"><a href="language.html">Coding languages</a></li>
+                        <li class="dropdown-item"><a href="settings.html">Settings</a></li>
+                        <li class="dropdown-item"><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="content-card">
+            <div class="accordion-header">
+                <svg class="header-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                </svg>
+                <h2>Databases</h2></div>
+            <div class="accordion-panel">
+                <p>
+                    A database is an organized collection of data, generally stored and accessed electronically from a computer system. In web development, databases are used on the backend to store and manage application data, such as user profiles, blog posts, product information, and more.
+                </p>
+
+                <h2>SQL (Relational) Databases</h2>
+                <p>
+                    SQL (Structured Query Language) databases are relational databases. They organize data into tables with rows and columns, and they enforce a predefined schema. This structure makes them reliable and great for applications that require high data integrity.
+                </p>
+                <p>
+                    Examples include: <code>PostgreSQL</code>, <code>MySQL</code>, <code>Microsoft SQL Server</code>, and <code>SQLite</code>.
+                </p>
+
+                <h2>NoSQL (Non-relational) Databases</h2>
+                <p>
+                    NoSQL databases do not use the traditional table-based relational model. They come in various types, including document, key-value, wide-column, and graph. They are known for their flexibility, scalability, and ability to handle large volumes of unstructured data.
+                </p>
+                <p>
+                    Examples include:
+                    <ul>
+                        <li><strong>Document:</strong> <code>MongoDB</code>, <code>CouchDB</code></li>
+                        <li><strong>Key-Value:</strong> <code>Redis</code>, <code>DynamoDB</code></li>
+                        <li><strong>Graph:</strong> <code>Neo4j</code></li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+        <div class="content-card" id="no-results-card" style="display: none;"><p class="no-results">No matching content found.</p></div>
+    </main>
+
+    <nav class="footerbar">
+       <div class="footer-content">
+           <p>&copy; 2024 Web Dev Hub. All rights reserved.</p>
+           <div class="footer-links">
+               <a href="privacy.html">Privacy Policy</a>
+               <a href="terms.html">Terms of Service</a>
+               <a href="sitemap.html">Sitemap</a>
+           </div>
+       </div>
+     </nav>
+
+    <button class="back-to-top" id="backToTopBtn">↑</button>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const searchToggle = document.getElementById('search-toggle');
+        const searchContainer = document.getElementById('search-container');
+
+        menuToggle.addEventListener('click', (event) => {
+            // Stop the click from bubbling up to the document
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // Close the dropdown if the user clicks outside of it
+        document.addEventListener('click', (event) => {
+            // Close dropdown if clicking outside
+            if (!dropdownMenu.contains(event.target) && !menuToggle.contains(event.target)) {
+                if (dropdownMenu.classList.contains('show')) {
+                    dropdownMenu.classList.remove('show');
+                }
+            }
+            // Close search if clicking outside
+            if (!searchContainer.contains(event.target) && !searchToggle.contains(event.target)) {
+                if (searchContainer.classList.contains('show')) {
+                    searchContainer.classList.remove('show');
+                }
+            }
+        });
+
+        // Toggle search bar on small screens
+        searchToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            searchContainer.classList.toggle('show');
+        });
+
+        // Accordion Script
+        const accordions = document.querySelectorAll('.accordion-header');
+
+        accordions.forEach(accordion => {
+            accordion.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const panel = this.nextElementSibling;
+
+                if (panel.style.maxHeight && panel.style.maxHeight !== '0px') { // Panel is open, closing it
+                    // Set max-height to its current scrollHeight before transitioning to 0
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                    panel.style.padding = "1rem 0"; // Ensure padding is present for scrollHeight calculation
+                    requestAnimationFrame(() => {
+                        panel.style.maxHeight = "0";
+                        panel.style.padding = "0";
+                    });
+                } else {
+                    panel.style.padding = "1rem 0";
+                    panel.style.maxHeight = "none"; // Temporarily remove max-height to get full scrollHeight
+                    const fullHeight = panel.scrollHeight; // Get the full height
+                    panel.style.maxHeight = "0"; // Reset max-height to 0 for the transition to work
+                    requestAnimationFrame(() => {
+                        panel.style.maxHeight = fullHeight + "px"; // Set to full height to animate open
+                    });
+                    panel.addEventListener('transitionend', () => {
+                        if (panel.style.maxHeight !== '0px') panel.style.maxHeight = 'none';
+                    }, { once: true });
+                }
+            });
+        });
+
+        // Search Functionality
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const contentCards = document.querySelectorAll('.content-card:not(#no-results-card)');
+        const noResultsCard = document.getElementById('no-results-card');
+
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            let resultsFound = false;
+
+            if (query === '') {
+                contentCards.forEach(card => card.style.display = 'block');
+                noResultsCard.style.display = 'none';
+                return;
+            }
+
+            contentCards.forEach(card => {
+                const header = card.querySelector('.accordion-header');
+                const headerText = header ? header.innerText.toLowerCase() : '';
+                const isMatch = headerText.includes(query);
+
+                card.style.display = isMatch ? 'block' : 'none';
+
+                if (isMatch) {
+                    resultsFound = true;
+                }
+            });
+
+            // Show or hide the 'no results' message
+            noResultsCard.style.display = resultsFound ? 'none' : 'block';
+        }
+
+        // Listen for typing in the search bar
+        searchInput.addEventListener('keyup', performSearch);
+
+        // Also allow search on button click
+        searchButton.addEventListener('click', performSearch);
+
+        // Prevent form submission if the search is inside a form
+        searchButton.addEventListener('click', (e) => e.preventDefault());
+
+        const backToTopBtn = document.getElementById('backToTopBtn');
+        if(backToTopBtn) {
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.add('show');
+                } else {
+                    backToTopBtn.classList.remove('show');
+                }
+            });
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+    </script>
+
+</body>
+</html>

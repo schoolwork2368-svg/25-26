@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>t1a010-AI-edgeimpulse-rhysl</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-glow: #6366f1; 
+            --secondary-glow: #a855f7; 
+            --text-color: #f3f4f6;
+            --bg-dark: #111827;
+            --bg-card: #1f2937;
+            --border-color: #374151;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+        }
+
+        
+        pre {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.8rem;
+            overflow-x: auto;
+            color: var(--text-color);
+            font-size: 14px;
+            line-height: 1.5;
+            transition: all 0.2s ease-in-out;
+        }
+        
+        pre:hover {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5); /* Blue glow on hover */
+            border-color: var(--primary-glow);
+        }
+
+        
+        code {
+            background-color: #374151;
+            color: #ffea00; /* Neon yellow for inline code text */
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.3rem;
+            font-weight: 600;
+        }
+
+	@keyframes rainbow-border {
+    		from  { border-color: #12FFFF; }   /* 1 */
+		via   { border-color: #12FFFF; }   /* 2 */
+		to    { border-color: #FF038D; }   /* 3 */
+				  }
+
+        .card-diverse-glow {
+    		border-width: 5px;
+    		border-style: solid;
+    		padding: calc(1.5rem - 4px);
+   	 	animation: rainbow-border 8s infinite alternate;
+    		box-shadow: 0 0 60px rgba(160, 200, 241, 1.0); 
+			   }
+
+        .model-card {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+	    mx-auto;
+        }
+        .model-card:hover {
+            transform: translateY(-4px);
+            border-color: #6366f1;
+            box-shadow: 0 0 10px rgba(160, 200, 241, 1.0);
+        }
+
+	.i:hover {
+	   transform: translateY(-8px);
+           border-color: #6366f1;
+	   transition: all 0.3s;
+	   box-shadow: 0 0 20px rgba(160, 200, 241, 1.0);
+	  	 }
+
+	.i {}
+	  	 
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+    
+    <div class="mx-auto bg-gray-900/50 w-[90vw] min-h-screen rounded-xl p-8 sm:p-12 lg:p-12 transition-all duration-500 card-diverse-glow" style="border-style:groove; border-width: 20px; border-color: #09FF67;">
+
+        
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-3 text-white">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-[#03FBFF] via-[#CE09FF] to-[#FF0389]">
+                    t1a010-AI-edgeimpulse-rhysl
+                </span>
+            </h1>
+                    </header>
+
+        
+        <section class="mb-12">
+            
+            <p class="text-base text-gray-400 p-3 rounded-lg border border-indigo-700 bg-indigo-900/20">
+                <strong class="text-white">Your Assignment:</strong> You are tasked with creating and deploying new models, starting with a <code class="">wake word detection model</code>, using your mobile device or computer webcam as the data source.
+            </p>
+        </section>
+
+        
+        <section>
+            <h2 class="text-2xl sm:text-3xl font-bold mb-6 border-b border-gray-700 pb-2 text-indigo-400">Future Model Goals</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                
+                <div class="model-card">
+                    <h3 class="text-xl font-semibold mb-2 text-purple-400 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a1 1 0 011-1h2a1 1 0 011 1v3a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3z" />
+                        </svg>
+                        1. Wake Word (Audio)
+                    </h3>
+                    <p class="text-gray-300 text-sm">
+                        Develop an acoustic model to classify specific spoken commands (e.g., "Hey Edge") for ultra-low-power voice interface applications.
+                    </p>
+                    <div class="mt-3 text-xs font-medium text-yellow-500">STATUS: TO DO</div>
+                </div>
+
+                
+                <div class="model-card">
+                    <h3 class="text-xl font-semibold mb-2 text-purple-400 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        2. Motion (Inertial Data)
+                    </h3>
+                    <p class="text-gray-300 text-sm">
+                        Classify movement patterns (e.g., walking, running, standing) using accelerometer data (X, Y, Z axes) for context-aware devices.
+                    </p>
+                    <div class="mt-3 text-xs font-medium text-yellow-500">STATUS: TO DO</div>
+                </div>
+
+                
+                <div class="model-card">
+                    <h3 class="text-xl font-semibold mb-2 text-purple-400 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.001 12.001 0 002.944 12c.047 2.016.326 3.974.793 5.864m17.525-13.88c-.047-2.016-.326-3.974-.793-5.864m-4.016-5.618A11.955 11.955 0 0112 21.056c-2.016-.047-3.974-.326-5.864-.793" />
+                        </svg>
+                        3. Visual Object Detection (FOMO)
+                    </h3>
+                    <p class="text-gray-300 text-sm">
+                        Implement Faster Objects More Objects (FOMO) for real-time object localization on low-power microcontrollers.
+                    </p>
+                    <div class="mt-3 text-xs font-medium text-yellow-500">STATUS: TO DO</div>
+                </div>
+
+                
+                <div class="model-card">
+                    <h3 class="text-xl font-semibold mb-2 text-purple-400 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 7-7m-8 2h8a2 2 0 012 2v5a2 2 0 01-2 2H9a2 2 0 01-2-2v-5a2 2 0 012-2z" />
+                        </svg>
+                        4. Visual Regression
+                    </h3>
+                    <p class="text-gray-300 text-sm">
+                        Use vision data to predict a continuous value (e.g., estimating distance, size, or quality) rather than a fixed category.
+                    </p>
+                    <div class="mt-3 text-xs font-medium text-yellow-500">STATUS: TO DO</div>
+                </div>
+
+                
+                <div class="model-card">
+                    <h3 class="text-xl font-semibold mb-2 text-purple-400 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        5. Visual Anomaly Detection
+                    </h3>
+                    <p class="text-gray-300 text-sm">
+                        Train a model to recognize 'normal' visual data and flag anything that falls outside of that pattern (e.g., detecting product defects).
+                    </p>
+                    <div class="mt-3 text-xs font-medium text-yellow-500">STATUS: TO DO</div>
+                </div>
+
+                
+                <div class="model-card bg-green-900/20 border-green-700">
+                    <h3 class="text-xl font-semibold mb-2 text-green-400 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Visual Classification
+                    </h3>
+                    <p class="text-gray-300 text-sm">
+                        <span class="font-semibold">Initial Goal:</span> Successfully completed the initial image classification model. Ready to move on to more complex impulse types.
+                    </p>
+                    <div class="mt-3 text-xs font-medium text-green-400">STATUS: COMPLETED</div>
+                </div>
+            </div><br><br><br>
+
+	<p class=" border-b border-gray-600">  </p>
+		
+        </section><br>
+
+	<section>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<div class="model-card">
+<h2 class="text-2xl sm:text-3xl font-bold mb-6 border-b border-gray-700 pb-2 text-indigo-400">Data Entry</h2>
+<img src="https://i.imgur.com/Dtdjw9c.png" width=500px style="border: 5px solid #FF0389; border-radius: 0.75rem;" class="i">
+<img src="https://i.imgur.com/62shhCp.png" width=500px style="border: 5px solid #FF0389; border-radius: 0.75rem;" class="i">
+
+</div>
+<div class="model-card">
+<h2 class="text-2xl sm:text-3xl font-bold mb-6 border-b border-gray-700 pb-2 text-indigo-400">Data Totals</h2>
+<img src="https://i.imgur.com/7trMkGE.png" width=500px style="border: 5px solid #FF0389; border-radius: 0.75rem;" class="i">
+<img src="https://i.imgur.com/sP1yF6w.png" width=500px style="border: 5px solid #FF0389; border-radius: 0.75rem;" class="i">
+
+</div>
+<div class="model-card">
+<h2 class="text-2xl sm:text-3xl font-bold mb-6 border-b border-gray-700 pb-2 text-indigo-400">Data Explorer</h2>
+<img src="https://i.imgur.com/nfnVhBE.png" width=500px style="border: 5px solid #FF0389; border-radius: 0.75rem;" class="i">
+
+</div>
+<div class="model-card">
+<h2 class="text-2xl sm:text-3xl font-bold mb-6 border-b border-gray-700 pb-2 text-indigo-400">Confusion Matrix</h2>
+<img src="https://i.imgur.com/61xNHDG.png" width=500px style="border: 5px solid #FF0389; border-radius: 0.75rem;" class="i">
+
+</div>
+<div class="model-card">
+<h2 class="text-2xl sm:text-3xl font-bold mb-6 border-b border-gray-700 pb-2 text-indigo-400">Unknown Correct</h2>
+<img src="https://i.imgur.com/OAKHE3W.png" width=500px style="border: 5px solid #FF0389; border-radius: 0.75rem;" class="i">
+
+</div>
+<div class="model-card">
+<h2 class="text-2xl sm:text-3xl font-bold mb-6 border-b border-gray-700 pb-2 text-indigo-400">Pencil Correct</h2>
+<img src="https://i.imgur.com/cKLFOVb.png" width=500px style="border: 5px solid #FF0389; border-radius: 0.75rem;" class="i">
+
+</div>
+</div>
+	</section>
+
+	<section>
+	    <div class="model-card">
+	    </div>
+	</section>
+        
+        <footer class="mt-12 pt-6 border-t border-gray-800 text-center text-gray-500 text-sm">
+            TinyML Project Log &copy; 2024
+        </footer>
+    </div>
+<script>
+     //alert('This is Project t1a010-edgeimpulse')
+</script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+

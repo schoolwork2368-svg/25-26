@@ -1,0 +1,43 @@
+/* --- Dropdown Menu Animation --- */
+.dropdown-menu {
+  visibility: hidden; /* Hide it from screen readers and interactions when closed */
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 0.6s ease-in-out,
+    opacity 0.6s ease-in-out,
+    padding-bottom 0.6s ease-in-out,
+    visibility 0.6s;
+  padding-bottom: 0;
+  pointer-events: none; /* Prevent clicks when hidden */
+}
+
+.dropdown-menu.show {
+  visibility: visible;
+  pointer-events: auto;
+  opacity: 1;
+  /* A fallback for browsers that don't support calc() in transitions */
+  max-height: 500px;
+  /* Calculate max height based on viewport, minus navbar height */
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  padding-bottom: 40px;
+  box-sizing: border-box;
+}
+
+/* --- Accordion Animation --- */
+.accordion-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease-out,
+    padding 0.3s ease-out;
+  padding: 0 1rem; /* Match horizontal padding of header */
+}
+
+.accordion-header.active + .accordion-panel {
+  padding: 1rem;
+}
+
+/* --- End ---*/

@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Randomizer Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a bit more flair */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.5s ease;
+        }
+        .card {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .btn-primary {
+            transition: transform 0.1s ease, background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 flex items-center justify-center min-h-screen p-4">
+
+    <div id="main-container" class="w-full max-w-4xl space-y-8">
+        <!-- Header -->
+        <header class="text-center py-6">
+            <h1 class="text-5xl font-extrabold text-white tracking-tight sm:text-6xl">
+                The <span class="text-indigo-400">Random</span> Hub
+            </h1>
+            <p class="mt-2 text-lg text-gray-300">A tiny corner of the internet dedicated to the unpredictable.</p>
+        </header>
+
+        <!-- Random Fact Card -->
+        <div class="card p-6 rounded-xl shadow-2xl space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">🤯 Random Fact Generator</h2>
+            <p id="fact-output" class="text-xl italic text-gray-600 min-h-[60px] flex items-center">
+                Click the button below to discover a completely random fact!
+            </p>
+            <button id="generate-fact" class="btn-primary w-full py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white">
+                Get New Random Fact
+            </button>
+        </div>
+
+        <!-- Random Color Card -->
+        <div class="card p-6 rounded-xl shadow-2xl space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">🎨 Random Color Picker</h2>
+            <div id="color-box" class="h-32 rounded-lg border-4 border-gray-300 flex items-center justify-center transition-colors duration-500" style="background-color: #AAAAAA;">
+                <p id="color-hex" class="text-2xl font-mono font-bold text-white p-2 rounded-md bg-black bg-opacity-30">#AAAAAA</p>
+            </div>
+            <button id="generate-color" class="btn-primary w-full py-3 px-4 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-white">
+                Generate New Random Color
+            </button>
+        </div>
+        
+        <!-- Random Quote Card (NEW) -->
+        <div class="card p-6 rounded-xl shadow-2xl space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">💬 Random Quote Generator</h2>
+            <blockquote id="quote-output" class="text-xl italic text-gray-600 min-h-[60px] flex flex-col justify-center border-l-4 border-yellow-500 pl-4">
+                <p id="quote-text">Click the button to receive a wise or witty quotation.</p>
+                <footer id="quote-author" class="text-sm mt-2 text-gray-500">— Author Name</footer>
+            </blockquote>
+            <button id="generate-quote" class="btn-primary w-full py-3 px-4 bg-yellow-600 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-white">
+                Get New Random Quote
+            </button>
+        </div>
+        
+    </div>
+
+    <script>
+        // Data for random facts (now 210 facts total!)
+        const facts = [
+            "A group of flamingos is called a 'flamboyance'.",
+            "The shortest war in history was between Britain and Zanzibar on August 27, 1896. Zanzibar surrendered after 38 to 45 minutes.",
+            "Octopuses have three hearts: two pump blood through the gills and one pumps it to the rest of the body.",
+            "Honey never spoils. Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still edible.",
+            "It is impossible for most people to lick their own elbow.",
+            "The total weight of all the ants on Earth is estimated to be about the same as the total weight of all the humans on Earth.",
+            "Wombat poop is cube-shaped.",
+            "There are more trees on Earth than stars in the Milky Way galaxy.",
+            "A 'jiffy' is an actual unit of time: 1/100th of a second.",
+            "The longest word in the English language without a vowel is 'rhythms'.",
+            "A single elephant tooth can weigh over nine pounds.",
+            "The heart of a shrimp is located in its head.",
+            "The average person walks the equivalent of five times around the Earth in a lifetime.",
+            "Turtles can breathe through their butts.",
+            "A cow gives nearly 200,000 glasses of milk in her lifetime.",
+            "Sharks are the only known fish to have eyelids.",
+            "Dolphins sleep with one eye open.",
+            "The loudest animal on Earth is the blue whale, whose call reaches 188 decibels.",
+            "Koalas are not bears; they are marsupials.",
+            "A giraffe's neck is too short to reach the ground.",
+            "Male seahorses carry and give birth to their young.",
+            "The fingerprints of a koala are so similar to humans that they could contaminate a crime scene.",
+            "Rats multiply so quickly that in 18 months, two rats could have over a million descendants.",
+            "The only letter that doesn't appear in any U.S. state name is 'Q'.",
+            "Butterflies taste with their feet.",
+            "Slugs have four noses.",
+            "Starfish have no brains.",
+            "A crocodile cannot stick its tongue out.",
+            "Some seals can hold their breath for up to two hours.",
+            "The strongest muscle in the body is the masseter (jaw muscle).",
+            "Nearly all the oxygen we breathe comes from the ocean.",
+            "Polar bears have black skin under their white fur.",
+            "Crows are capable of using tools and solving complex problems.",
+            "The Earth's circumference is about 24,901 miles (40,075 km).",
+            "The moon is moving away from Earth at a rate of 3.8 cm per year.",
+            "Sound travels 4.3 times faster in water than in air.",
+            "The first ever recorded use of the word 'OMG' was in a letter to Winston Churchill in 1917.",
+            "If you could drive to the sun, it would take 150 years.",
+            "There is enough DNA in the average person's body to stretch from the Sun to Pluto and back 17 times.",
+            "The dot over the letters 'i' and 'j' is called a tittle.",
+            "Venus is the only planet that rotates clockwise.",
+            "A cloud of gas and dust is called a nebula.",
+            "The average cloud weighs over a million pounds.",
+            "The speed of light is 299,792 kilometers per second.",
+            "The first commercial mobile phone call was made in 1973.",
+            "The word 'set' has more definitions than any other word in the English language.",
+            "Light takes about 8 minutes and 20 seconds to travel from the Sun to Earth.",
+            "The highest temperature ever recorded on Earth was $134^{\\circ}\\text{F}$ ($56.7^{\\circ}\\text{C}$) in Death Valley, California.",
+            "In ancient Egypt, people slept on pillows made of stone.",
+            "Before the invention of the rubber eraser, people used wads of bread to rub out pencil marks.",
+            "The first written constitution of an independent nation was the U.S. Constitution, drafted in 1787.",
+            "The Leaning Tower of Pisa was never straight.",
+            "The Great Wall of China is not visible from space without aid.",
+            "Cleopatra lived closer in time to the invention of the iPhone than to the building of the pyramids.",
+            "The inventor of the Pringles can is buried in one.",
+            "The shortest serving British prime minister was George Canning, who served for 119 days in 1827.",
+            "Napoleon Bonaparte was once attacked by a horde of rabbits.",
+            "The library at Alexandria, one of the greatest libraries of the ancient world, was founded around 283 BC.",
+            "The Olympic flag's rings symbolize the union of the five continents.",
+            "The world's oldest piece of chewing gum is 9,000 years old.",
+            "The most successful pirate in history was a Chinese woman named Ching Shih.",
+            "The first incandescent light bulb was invented by Thomas Edison in 1879.",
+            "The human nose can remember 50,000 different scents.",
+            "Your brain uses about 20% of the oxygen and calories you consume.",
+            "The small intestine is about 20 feet (6 meters) long.",
+            "A typical person produces about 25,000 quarts of saliva in a lifetime—enough to fill two swimming pools.",
+            "The only part of the body that has no blood supply is the cornea of the eye; it takes oxygen directly from the air.",
+            "The total surface area of the human lungs is about 70 square meters.",
+            "Humans shed about 600,000 particles of skin every hour.",
+            "The stomach acid (hydrochloric acid) is strong enough to dissolve zinc, but the stomach protects itself with a thick mucus layer.",
+            "The average human head weighs about 8 pounds (3.6 kg).",
+            "If you laid out all the blood vessels in your body, they would stretch over 60,000 miles.",
+            "The femur (thigh bone) is the longest and strongest bone in the human body.",
+            "By the time you are 70, you will have slept for around 20 years.",
+            "Wounds in zero gravity don't bleed in the same way; the blood tends to pool.",
+            "The smell of fresh-cut grass is actually a plant distress signal.",
+            "There is a town in Norway called 'Hell'.",
+            "It rains diamonds on Saturn and Jupiter.",
+            "The plastic tips on the ends of shoelaces are called aglets.",
+            "The scientific name for the common cold is rhinopharyngitis.",
+            "The electric chair was invented by a dentist.",
+            "There are more counterfeit Monopoly sets than any other game.",
+            "Pound for pound, spider silk is stronger than steel.",
+            "The average lifespan of a taste bud is 10 to 14 days.",
+            "Ketchup was once sold as medicine.",
+            "Vending machines kill more people each year than sharks.",
+            "There are more stars than grains of sand on all the world's beaches.",
+            "The Hawaiian alphabet has only 12 letters.",
+            "A cat has 32 muscles in each ear.",
+            "The national animal of Scotland is the unicorn.",
+            "Cashew 'nuts' grow out of a fruit called a cashew apple.",
+            "A fear of long words is called hippopotomonstrosesquippedaliophobia.",
+            "The word 'goodbye' is a contraction of 'God be with ye'.",
+            "The inventor of the Frisbee was cremated and turned into a Frisbee after his death.",
+            "The first animated movie was 'Fantasmagorie' in 1908.",
+            "The longest recorded flight of a chicken is 13 seconds.",
+            "Tokyo is the most populous city in the world, followed by Delhi.",
+            "A bolt of lightning is five times hotter than the surface of the sun.",
+            "The country with the most lakes is Canada.",
+            "The color blue is the most popular color worldwide.",
+            "The deepest part of the ocean is the Challenger Deep in the Mariana Trench.",
+            "The world's quietest room is located at Microsoft's headquarters in Washington state.",
+            "A chameleon's tongue is twice the length of its body.",
+            "If you yelled for 8 years, 7 months and 6 days, you would have produced enough sound energy to heat one cup of coffee.",
+            "The first alarm clock could only ring at 4 a.m.",
+            "The two highest-grossing films of all time (unadjusted) are *Avatar* and *Avengers: Endgame*.",
+            "The word 'adieu' is the only word in the French language that contains all five vowels.",
+            "In space, astronauts cannot cry properly because there is no gravity to make the tears fall.",
+            "A group of rhinos is called a 'crash'.",
+            "The Eiffel Tower can be 15 cm taller during the summer due to thermal expansion.",
+            "It takes about 17 muscles to smile and 43 to frown.",
+            "The average person spends six months of their life waiting for red lights to change.",
+            "The longest place name in the world is 85 letters long.",
+            "Bananas are technically berries, but strawberries are not.",
+            "The only food that doesn't rot is honey.",
+            "The world's smallest republic is Nauru.",
+            "Caffeine can improve memory and reaction time.",
+            "A day on Venus is longer than a year on Venus.",
+            "The national sport of Japan is sumo wrestling.",
+            "The first email was sent in 1971.",
+            "The surface area of Russia is larger than the surface area of Pluto.",
+            "The fear of holes is called Trypophobia.",
+            "On average, a person blinks 15-20 times per minute.",
+            "The oldest known piece of written music is about 4,000 years old.",
+            "The first heart transplant was performed in 1967.",
+            "The largest hot desert in the world is the Sahara.",
+            "Pigs are incapable of looking up at the sky.",
+            "The most common name in the world is Muhammad.",
+            "The first item sold on eBay was a broken laser pointer.",
+            "There are 10 times more bacteria in your body than human cells.",
+            "The only continent without an active volcano is Australia.",
+            "A quarter of your bones are in your feet.",
+            "Chewing gum while peeling onions will keep you from crying.",
+            "The average person falls asleep in seven minutes.",
+            "A female gorilla weighs around 200 pounds.",
+            "The longest river in the world is the Nile.",
+            "No word in the English language rhymes with 'orange'.",
+            "The inventor of the television was Philo Farnsworth.",
+            "About $1.6 million worth of currency is printed every hour in the US.",
+            "The most expensive metal in the world is Californium.",
+            "The highest mountain in the Solar System is Olympus Mons on Mars.",
+            "In Switzerland, it is illegal to own just one guinea pig.",
+            "A narwhal's horn is actually an elongated tooth.",
+            "The opposite sides of a standard die always add up to seven.",
+            "The name 'Amazon' came from a battle that Francisco de Orellana had with female warriors.",
+            "The largest stadium in the world by capacity is the Rungrado 1st of May Stadium in Pyongyang, North Korea.",
+            "The first successful photograph was taken in 1826.",
+            "There is a statue of a cat in the world's smallest park in Portland, Oregon.",
+            "The average pencil can draw a line 35 miles long.",
+            "There are over 100 chemical elements in the periodic table.",
+            "The term 'robot' comes from the Czech word 'robota', meaning 'forced labor'.",
+            "The first modern paper mill was established in the U.S. in 1730.",
+            "The most common illness is the common cold.",
+            "The largest passenger ship ever built was the *Symphony of the Seas*.",
+            "The fear of the number 13 is called triskaidekaphobia.",
+            "Human beings are the only animals that blush.",
+            "The first president of the United States to live in the White House was John Adams.",
+            "The world's deepest lake is Lake Baikal in Siberia.",
+            "You are taller in the morning than in the evening.",
+            "A group of jellyfish is called a 'smack'.",
+            "The currency of South Korea is the won.",
+            "The oldest continuously inhabited city is Damascus, Syria.",
+            "The average person spends two weeks of their life kissing.",
+            "A male penguin is called a cock, a female is a hen, and a baby is a chick.",
+            "The first movie with sound was *The Jazz Singer* in 1927.",
+            "The capital of Australia is Canberra, not Sydney.",
+            "The coldest temperature ever recorded on Earth was $-128.6^{\\circ}\\text{F}$ ($-89.2^{\\circ}\\text{C}$) in Antarctica.",
+            "A cat can make over 100 vocal sounds, while a dog can only make about 10.",
+            "The two biggest consumer products are automobiles and electronics.",
+            "The word 'fortnight' means a period of two weeks.",
+            "The largest island in the world is Greenland.",
+            "The deepest man-made hole is the Kola Superdeep Borehole in Russia.",
+            "The only time the U.S. flag was not a rectangle was during the War of 1812.",
+            "The first Ferris Wheel was built for the 1893 World's Columbian Exposition in Chicago.",
+            "The national drink of Iceland is Brennivín, a schnapps.",
+            "The longest border in the world is between Canada and the United States.",
+            "A polar bear's liver contains toxic amounts of Vitamin A.",
+            "The word 'strengths' is the longest word in the English language with only one vowel.",
+            "The planet Mars has two moons, Phobos and Deimos.",
+            "The first successful space satellite was Sputnik 1, launched by the USSR in 1957.",
+            "The average person checks their phone 150 times a day.",
+            "The highest resolution photo ever taken is 320 gigapixels.",
+            "The first successful oil well was drilled in Pennsylvania in 1859.",
+            "The smallest bone in the human body is the stapes in the ear.",
+            "The chemical symbol for gold is $\\text{Au}$.",
+            "The human eye can distinguish about 10 million different colors.",
+            "The first modern Olympics were held in Athens, Greece, in 1896.",
+            "The world's largest rubber band ball weighed over 9,000 pounds.",
+            "A bolt of lightning can heat the air it passes through to $50,000$ degrees Fahrenheit.",
+            "The largest type of lizard is the Komodo Dragon.",
+            "The only domesticated animal that does not exist in the wild is the camel.",
+            "A 'quincunx' is an arrangement of five objects, with four at the corners and one in the center.",
+            "The first human to orbit the Earth was Yuri Gagarin in 1961.",
+            "The most distant object visible to the naked eye is the Andromeda Galaxy.",
+            "The first recorded instance of a 'high-five' was in baseball in 1977.",
+            "The country with the most volcanoes is Indonesia.",
+            "A flock of crows is called a 'murder'.",
+            "The collective noun for a group of owls is a 'parliament'.",
+            "The oldest city in the Americas is Caral, in Peru, dating back to 2600 BCE.",
+            "The largest known species of spider is the Goliath birdeater tarantula.",
+            "The average cloud height is about 6,500 feet (2,000 meters).",
+            "The first successful helicopter flight was in 1939.",
+            "The first food eaten in space by an American astronaut was applesauce.",
+            "The currency of Brazil is the real.",
+            "The scientific study of dreams is called oneirology.",
+            "The average person spends about 8 years of their life watching TV.",
+            "There are over 7,000 languages spoken in the world today.",
+            "The largest painting in the world is the 'Big Picture' in Queensland, Australia.",
+            "The first electric traffic signal was installed in Cleveland, Ohio, in 1914.",
+            "The official color of the state of Nebraska is not orange, despite the school mascot.",
+            "The first Super Bowl was played in 1967.",
+            "A group of hedgehogs is called an 'array'.",
+            "The national bird of the United States is the bald eagle.",
+            "The first known use of fingerprints for identification was in ancient China.",
+            "The largest known star is UY Scuti, a hypergiant.",
+            "The first successful surgery to remove an internal tumor was performed in 1809.",
+            "The most venomous spider in the world is the Brazilian wandering spider.",
+            "The first successful transatlantic flight was made by Charles Lindbergh in 1927.",
+            "The only animal that can't jump is the elephant.",
+            "The world's largest snowflake was 15 inches wide and 8 inches thick.",
+            "The world's largest ocean is the Pacific Ocean.",
+            "The scientific name for the gray wolf is *Canis lupus*.",
+            "The first recorded use of the word 'selfie' was in 2002.",
+            "The first woman to win a Nobel Prize was Marie Curie in 1903.",
+            "The country with the most active military service members is China.",
+            "The most produced food crop in the world is sugarcane.",
+            "The first permanent English settlement in the Americas was Jamestown, Virginia, in 1607.",
+            "The highest mountain peak in Africa is Mount Kilimanjaro.",
+            "The average house cat lives for 12-15 years.",
+            "The first official flag of the United States was adopted in 1777.",
+            "The world's largest library is the Library of Congress.",
+            "The fastest animal on land is the cheetah.",
+            "The largest organ in the human body is the skin.",
+            "The word 'uncopyrightable' is the longest word in the English language in which no letter is repeated.",
+            "The first successful photograph of a human was taken in 1838.",
+            "The only natural satellite of Earth is the Moon.",
+            "The average person walks 7,500 steps a day.",
+            "The first artificial satellite to orbit the Earth was Sputnik 1.",
+            "The capital of Brazil is Brasília.",
+            "The chemical symbol for water is $\\text{H}_2\\text{O}$.",
+            "The smallest country in the world is Vatican City.",
+            "The longest bicycle is 135 feet and 10.75 inches long.",
+            "The world's largest rodent is the capybara.",
+            "The first successful immunization was against smallpox, developed by Edward Jenner.",
+            "The average human sneeze travels at over $100$ mph.",
+            "The first time a computer beat a world chess champion was in 1997.",
+            "The largest type of bird is the common ostrich.",
+            "The first Thanksgiving was held in 1621.",
+            "The most abundant element in the universe is hydrogen.",
+            "The Great Pyramid of Giza was the tallest man-made structure for over 3,800 years.",
+            "The only animal to have more than two eyes is the scorpion, with up to 12.",
+            "The word 'checkmate' in chess comes from the Persian phrase 'shah mat', meaning 'the king is helpless'.",
+            "The first successful hot air balloon flight carrying humans took place in 1783.",
+            "The world's largest ocean current is the Antarctic Circumpolar Current.",
+            "The average person spends about a third of their life sleeping.",
+            "The first European to sail around the world was Ferdinand Magellan's expedition.",
+            "The most famous clock tower in the world is Big Ben, which is actually the bell inside the tower.",
+            "The only animal with four knees is the elephant.",
+            "The first movie to be filmed entirely in space was *The Challenge* (2021).",
+            "The word 'queue' is the only English word that is still pronounced the same when the last four letters are removed.",
+            "The first successful demonstration of television was in 1926.",
+            "The capital of South Africa is Pretoria (executive), Bloemfontein (judicial), and Cape Town (legislative).",
+            "The world's largest known deposit of diamonds is in Siberia, Russia.",
+            "The average person says 'bless you' about 10 times a day.",
+            "The first successful printing press was developed by Johannes Gutenberg around 1440.",
+            "The most massive organism on Earth is a fungus in Oregon.",
+            "The only time Pluto has completed one orbit since its discovery was in 2178 (projected).",
+            "The first successful vaccine was against smallpox.",
+            "The smallest moon in the Solar System is Deimos, one of Mars's moons.",
+            "The chemical symbol for iron is $\\text{Fe}$.",
+            "The first commercially successful electronic digital computer was ENIAC.",
+            "The largest city in the world by area is New York City.",
+            "The average person eats about 15 pounds of salt per year.",
+            "The first human to step on the Moon was Neil Armstrong in 1969.",
+            "The most commonly broken bone in the human body is the clavicle (collarbone).",
+            "The first car was invented by Karl Benz in 1886.",
+            "The average housefly lives for about 28 days.",
+            "The first recorded instance of a 'selfie' in the modern sense was in 2002.",
+            "The first modern toothbrush was invented in 1780.",
+            "The world's highest uninterrupted waterfall is Angel Falls in Venezuela.",
+            "The chemical symbol for oxygen is $\\text{O}$.",
+            "The first successful heart defibrillator was invented in 1947.",
+            "The world's largest pyramid is the Great Pyramid of Cholula in Mexico.",
+            "The average person spends about 6 years of their life dreaming.",
+            "The first time a dog was sent into space was in 1957 (Laika).",
+            "The most popular programming language is JavaScript.",
+            "The first successful submarine was the *Turtle* in 1776.",
+            "The capital of New Zealand is Wellington.",
+            "The world's largest cave is Son Doong Cave in Vietnam.",
+            "The average time it takes to digest food is 24 to 72 hours.",
+            "The first successful photograph of a galaxy was taken in 1880.",
+            "The largest moon in the Solar System is Ganymede, a moon of Jupiter.",
+            "The word 'facetious' contains all the vowels in order.",
+            "The first successful manned balloon flight took place in Paris in 1783.",
+            "The world's largest canyon is the Grand Canyon in Arizona.",
+            "The average person laughs about 15 times a day.",
+            "The first movie ever shown in space was *A Trip to the Moon*.",
+            "The capital of Canada is Ottawa.",
+            "The largest species of shark is the whale shark.",
+            "The average human heart beats about 100,000 times a day.",
+            "The first successful photograph of the Earth from space was taken in 1946.",
+            "The world's largest flower is the *Rafflesia arnoldii*.",
+            "The chemical symbol for silver is $\\text{Ag}$.",
+            "The first modern novel is often considered to be *Don Quixote*.",
+            "The average person uses about 100 gallons of water per day.",
+            "The first recorded Olympic Games were held in 776 BC.",
+            "The most numerous species of animal on Earth is the nematode worm.",
+            "The first computer mouse was made of wood.",
+            "The average lightning bolt is about 5 miles long.",
+            "The world's oldest known recipe is for beer.",
+            "The largest desert in the world is Antarctica.",
+            "The average human body contains enough carbon to make 9,000 pencils.",
+            "The first successful electric guitar was invented in 1931.",
+            "The most common surgical procedure is the removal of the appendix.",
+            "The first successful blood transfusion was performed in 1667.",
+            "The world's largest known cave chamber is the Sarawak Chamber in Malaysia.",
+            "The average person reads about 200 words per minute.",
+            "The first photograph of an atom was taken in 2009.",
+            "The largest fish in the world is the whale shark.",
+            "The word 'bookkeeper' is the only unhyphenated English word with three double letters.",
+            "The first successful artificial heart was implanted in 1982.",
+            "The world's largest collection of stamps is in the British Library.",
+            "The average human jaw can exert a force of 150 pounds.",
+            "The first successful airplane flight was by the Wright brothers in 1903.",
+            "The most common blood type is O positive.",
+            "The world's largest known dinosaur was the *Argentinosaurus*.",
+            "The average person has about 100,000 hairs on their head.",
+            "The first successful electronic calculator was invented in 1961.",
+            "The world's largest waterfall is the Victoria Falls in Africa.",
+            "The chemical symbol for sodium is $\\text{Na}$.",
+            "The first successful commercial typewriter was invented in 1873.",
+            "The average person's skin weighs about 8 pounds.",
+            "The first time a baseball game was broadcast on the radio was in 1921.",
+            "The world's most popular sport is soccer (football).",
+            "The first successful heart pacemaker was implanted in 1958.",
+            "The average life span of a human hair is 3 to 7 years.",
+            "The first successful human cloning was reported in 2002 (though later retracted).",
+            "The world's largest species of frog is the Goliath frog.",
+            "The average adult human has 206 bones.",
+            "The first successful liver transplant was performed in 1963.",
+            "The world's largest salt flat is the Salar de Uyuni in Bolivia.",
+            "The average person takes about 20,000 breaths a day.",
+            "The first successful test of a nuclear weapon was in 1945.",
+            "The world's largest species of bird is the common ostrich.",
+            "The average human brain weighs about 3 pounds.",
+            "The first successful vaccine against polio was developed in 1955.",
+            "The world's largest living single organism is a fungus in Oregon.",
+            "The average time it takes for a thought to cross your mind is about 70 milliseconds.",
+            "The first successful photograph of a snowflake was taken in 1885.",
+            "The world's largest living structure is the Great Barrier Reef.",
+            "The chemical symbol for helium is $\\text{He}$.",
+            "The first successful commercial jet airliner was the De Havilland Comet in 1952.",
+            "The average person speaks about 16,000 words a day.",
+            "The first successful appendectomy was performed in 1886.",
+            "The world's largest species of snake is the green anaconda.",
+            "The average human heart pumps about 2,000 gallons of blood a day.",
+            "The first successful photograph of the entire Earth was taken in 1967.",
+            "The world's largest flower is the *Rafflesia arnoldii*.",
+            "The average human body contains enough iron to make a 3-inch nail.",
+            "The first successful vaccine against measles was developed in 1963.",
+            "The world's largest recorded fish is the whale shark.",
+            "The average person generates about 1.5 liters of sweat per day.",
+            "The first successful cloning of a mammal (Dolly the sheep) was in 1996.",
+            "The world's largest rodent is the capybara.",
+            "The average human body contains about 10 trillion cells.",
+            "The first successful kidney transplant was performed in 1954.",
+            "The world's largest species of bat is the Giant golden-crowned flying fox.",
+            "The average person spends about 6 years of their life in the bathroom.",
+            "The first successful vaccine against mumps was developed in 1967.",
+            "The world's largest known diamond is the Cullinan Diamond.",
+            "The average human skull is made up of 22 bones.",
+            "The first successful in vitro fertilization (IVF) birth was in 1978.",
+            "The world's largest living bird egg belongs to the ostrich.",
+            "The average person produces about 1 quart of tears per year.",
+            "The first successful vaccine against rubella was developed in 1969.",
+            "The world's largest flying bird is the Andean condor.",
+            "The average human brain is about 75% water.",
+            "The first successful coronary artery bypass surgery was performed in 1967.",
+            "The world's largest known spider is the Goliath birdeater.",
+            "The average human fingernail grows about $3.5$ mm per month.",
+            "The first successful vaccine against hepatitis B was developed in 1986.",
+            "The world's largest known cave system is the Mammoth Cave System.",
+            "The average person sheds about 100 hairs per day.",
+            "The first successful vaccine against chickenpox was developed in 1995."
+        ];
+
+        // Data for random quotes (NEW)
+        const quotes = [
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { text: "Strive not to be a success, but rather to be of value.", author: "Albert Einstein" },
+            { text: "The mind is everything. What you think you become.", author: "Buddha" },
+            { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+            { text: "I have not failed. I've just found 10,000 ways that won't work.", author: "Thomas A. Edison" },
+            { text: "The best way to predict the future is to create it.", author: "Peter Drucker" },
+            { text: "A person who never made a mistake never tried anything new.", author: "Albert Einstein" },
+            { text: "Where there is a will, there is a way.", author: "Pauline Kael" },
+            { text: "If you want to live a happy life, tie it to a goal, not to people or things.", author: "Albert Einstein" },
+            { text: "Life is what happens when you're busy making other plans.", author: "John Lennon" },
+            { text: "Eighty percent of success is showing up.", author: "Woody Allen" },
+            { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela" },
+            { text: "It is during our darkest moments that we must focus to see the light.", author: "Aristotle" },
+            { text: "In the end, it's not the years in your life that count. It's the life in your years.", author: "Abraham Lincoln" },
+            { text: "Only the paranoid survive.", author: "Andy Grove" },
+            { text: "Logic will get you from A to B. Imagination will take you everywhere.", author: "Albert Einstein" },
+            { text: "Tell me and I forget. Teach me and I remember. Involve me and I learn.", author: "Benjamin Franklin" },
+            { text: "The journey of a thousand miles begins with a single step.", author: "Lao Tzu" },
+            { text: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
+            { text: "Happiness can be found even in the darkest of times, if one only remembers to turn on the light.", author: "Albus Dumbledore (J.K. Rowling)" },
+            { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
+            { text: "Your time is limited, don't waste it living someone else's life.", author: "Steve Jobs" },
+            { text: "If you look at what you have in life, you'll always have more. If you look at what you don't have in life, you'll never have enough.", author: "Oprah Winfrey" },
+            { text: "If you set your goals ridiculously high and it's a failure, you will fail above everyone else's success.", author: "James Cameron" },
+            { text: "Nothing is impossible, the word itself says 'I'm possible'!", author: "Audrey Hepburn" },
+            { text: "The power of imagination makes us infinite.", author: "John Muir" },
+            { text: "I alone cannot change the world, but I can cast a stone across the water to create many ripples.", author: "Mother Teresa" },
+            { text: "Darkness cannot drive out darkness: only light can do that. Hate cannot drive out hate: only love can do that.", author: "Martin Luther King Jr." },
+            { text: "The only true wisdom is in knowing you know nothing.", author: "Socrates" },
+            { text: "The best revenge is massive success.", author: "Frank Sinatra" },
+            { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+            { text: "Tough times never last but tough people do.", author: "Robert H. Schuller" },
+            { text: "Get busy living or get busy dying.", author: "Stephen King" },
+            { text: "We may encounter many defeats but we must not be defeated.", author: "Maya Angelou" },
+            { text: "It is never too late to be what you might have been.", author: "George Eliot" },
+            { text: "Imagination is the creation of a new reality.", author: "Nevill Goddard" },
+            { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
+            { text: "If you genuinely want something, don't wait for it—teach yourself to be impatient.", author: "Gurbaksh Chahal" },
+            { text: "Perfection is not attainable, but if we chase perfection we can catch excellence.", author: "Vince Lombardi" },
+            { text: "Our lives begin to end the day we become silent about things that matter.", author: "Martin Luther King Jr." },
+            { text: "The difference between winning and losing is most often not quitting.", author: "Walt Disney" },
+            { text: "You must do the things you think you cannot do.", author: "Eleanor Roosevelt" },
+            { text: "The mind is its own place, and in itself can make a heaven of hell, a hell of heaven.", author: "John Milton" },
+            { text: "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.", author: "Ralph Waldo Emerson" },
+            { text: "Go confidently in the direction of your dreams! Live the life you've imagined.", author: "Henry David Thoreau" },
+            { text: "The only limit to our realization of tomorrow will be our doubts of today.", author: "Franklin D. Roosevelt" },
+            { text: "The purpose of our lives is to be happy.", author: "Dalai Lama" },
+            { text: "Change the world by being yourself.", author: "Amy Poehler" },
+            { text: "Every moment is a fresh beginning.", author: "T.S. Eliot" },
+            { text: "Die with memories, not dreams.", author: "Unknown" },
+            { text: "Aspire to inspire before you expire.", author: "Unknown" },
+            { text: "Everything you can imagine is real.", author: "Pablo Picasso" },
+            { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
+            { text: "What we think, we become.", author: "Buddha" },
+            { text: "All limitations are self-imposed.", author: "Oliver Wendell Holmes" },
+            { text: "Tough times don't last, tough teams do.", author: "Robert H. Schuller" },
+            { text: "If not us, who? If not now, when?", author: "John F. Kennedy" },
+            { text: "The unexamined life is not worth living.", author: "Socrates" },
+            { text: "Either write something worth reading or do something worth writing.", author: "Benjamin Franklin" },
+            { text: "I would rather die of passion than of boredom.", author: "Vincent van Gogh" },
+            { text: "The journey is the reward.", author: "Chinese Proverb" },
+            { text: "Peace begins with a smile.", author: "Mother Teresa" },
+            { text: "Where there is love, there is life.", author: "Mahatma Gandhi" },
+            { text: "The best way out is always through.", author: "Robert Frost" },
+            { text: "The past cannot be changed. The future is yet in your power.", author: "Unknown" },
+            { text: "Don't count the days, make the days count.", author: "Muhammad Ali" },
+            { text: "You must be the change you wish to see in the world.", author: "Mahatma Gandhi" },
+            { text: "Nothing will work unless you do.", author: "Maya Angelou" },
+            { text: "Do what you can, with what you have, where you are.", author: "Theodore Roosevelt" },
+            { text: "Build your own dreams, or someone else will hire you to build theirs.", author: "Farrah Gray" },
+            { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+            { text: "The time is always right to do what is right.", author: "Martin Luther King Jr." },
+            { text: "Don't be afraid to give up the good to go for the great.", author: "John D. Rockefeller" },
+            { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+            { text: "The mind is not a vessel to be filled, but a fire to be kindled.", author: "Plutarch" },
+            { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
+            { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
+            { text: "The future depends on what you do today.", author: "Mahatma Gandhi" },
+            { text: "It is better to light a candle than curse the darkness.", author: "Eleanor Roosevelt" },
+            { text: "The greatest danger for most of us is not that our aim is too high and we miss it, but that it is too low and we reach it.", author: "Michelangelo" },
+            { text: "The question isn't who is going to let me; it's who is going to stop me.", author: "Ayn Rand" },
+            { text: "If you can dream it, you can achieve it.", author: "Zig Ziglar" },
+            { text: "Change your thoughts and you change your world.", author: "Norman Vincent Peale" },
+            { text: "Action is the foundational key to all success.", author: "Pablo Picasso" },
+            { text: "Today's accomplishments were yesterday's impossibilities.", author: "Robert H. Schuller" },
+            { text: "The best and most beautiful things in the world cannot be seen or even touched - they must be felt with the heart.", author: "Helen Keller" },
+            { text: "Twenty years from now you will be more disappointed by the things that you didn't do than by the ones you did do.", author: "Mark Twain" },
+            { text: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle" },
+            { text: "Life is 10% what happens to you and 90% how you react to it.", author: "Charles R. Swindoll" },
+            { text: "If opportunity doesn't knock, build a door.", author: "Milton Berle" },
+            { text: "The successful warrior is the average man, with laser-like focus.", author: "Bruce Lee" },
+            { text: "Strength does not come from winning. Your struggles develop your strengths.", author: "Arnold Schwarzenegger" },
+            { text: "Only one thing is impossible for God: to find any sense in any copyright law on the planet.", author: "Mark Twain" },
+            { text: "The purpose of life is not to be happy. It is to be useful, to be honorable, to be compassionate, to have it make some difference that you have lived and lived well.", author: "Ralph Waldo Emerson" },
+            { text: "I have learned that people will forget what you said, people will forget what you did, but people will never forget how you made them feel.", author: "Maya Angelou" },
+            { text: "Keep your eyes on the stars, and your feet on the ground.", author: "Theodore Roosevelt" },
+            { text: "We are all in the gutter, but some of us are looking at the stars.", author: "Oscar Wilde" },
+            { text: "The greatest discovery of all time is that a human can alter his future by merely altering his attitude.", author: "Oprah Winfrey" },
+            { text: "Never limit yourself because of others' limited imagination; never limit others because of your own limited imagination.", author: "Mae Jemison" },
+            { text: "If you hear a voice within you say 'you cannot paint,' then by all means paint, and that voice will be silenced.", author: "Vincent Van Gogh" },
+            { text: "What lies behind us and what lies before us are tiny matters compared to what lies within us.", author: "Ralph Waldo Emerson" },
+            { text: "Happiness is not something readymade. It comes from your own actions.", author: "Dalai Lama" },
+            { text: "Don't let the noise of others' opinions drown out your own inner voice.", author: "Steve Jobs" },
+            { text: "The future is a construct of the present. It's time to get going.", author: "Eleanor Roosevelt" },
+            { text: "The road to success and the road to failure are almost exactly the same.", author: "Colin R. Davis" },
+            { text: "You must expect great things of yourself before you can do them.", author: "Michael Jordan" },
+            { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+            { text: "The art of writing is the art of applying the seat of the pants to the seat of the chair.", author: "Mary Heaton Vorse" },
+            { text: "If we have the attitude that it's going to be a great day, it usually is.", author: "Catherine Pulsifer" },
+            { text: "Fall seven times, stand up eight.", author: "Japanese Proverb" },
+            { text: "We can not solve our problems with the same thinking we used when we created them.", author: "Albert Einstein" },
+            { text: "Optimism is the faith that leads to achievement. Nothing can be done without hope and confidence.", author: "Helen Keller" },
+            { text: "Worrying is like paying a debt you don't owe.", author: "Mark Twain" },
+            { text: "The difference between who you are and who you want to be is what you do.", author: "Unknown" },
+            { text: "It is not the mountain we conquer but ourselves.", author: "Sir Edmund Hillary" },
+            { text: "Do not wait to strike till the iron is hot; but make the iron hot by striking.", author: "William Butler Yeats" },
+            { text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
+            { text: "The only way to have a friend is to be one.", author: "Aristotle" },
+            { text: "I find that the harder I work, the more luck I seem to have.", author: "Thomas Jefferson" },
+            { text: "The most difficult thing is the decision to act, the rest is merely tenacity.", author: "Amelia Earhart" },
+            { text: "Do one thing every day that scares you.", author: "Eleanor Roosevelt" },
+            { text: "Limitations live only in our minds. But if we use our imaginations, our possibilities become limitless.", author: "Jamie Paolinetti" },
+            { text: "The measure of who we are is what we do with what we have.", author: "Vince Lombardi" },
+            { text: "You only live once, but if you do it right, once is enough.", author: "Mae West" },
+            { text: "In three words I can sum up everything I've learned about life: it goes on.", author: "Robert Frost" },
+            { text: "The best preparation for tomorrow is doing your best today.", author: "H. Jackson Brown Jr." },
+            { text: "No act of kindness, no matter how small, is ever wasted.", author: "Aesop" },
+            { text: "It is better to be hated for what you are than to be loved for what you are not.", author: "Andre Gide" },
+            { text: "The only true wisdom is knowing you know nothing.", author: "Socrates" },
+            { text: "Great minds discuss ideas; average minds discuss events; small minds discuss people.", author: "Eleanor Roosevelt" },
+            { text: "He who has a why to live can bear almost any how.", author: "Friedrich Nietzsche" },
+            { text: "A champion is afraid of losing. Everyone else is afraid of winning.", author: "Billie Jean King" },
+            { text: "If you cannot do great things, do small things in a great way.", author: "Napoleon Hill" },
+            { text: "The mind is everything. What you think you become.", author: "Buddha" },
+            { text: "We become what we think about.", author: "Earl Nightingale" },
+            { text: "Either you run the day, or the day runs you.", author: "Jim Rohn" },
+            { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+            { text: "Keep your face always toward the sunshine—and shadows will fall behind you.", author: "Walt Whitman" },
+            { text: "What you do speaks so loudly that I cannot hear what you say.", author: "Ralph Waldo Emerson" },
+            { text: "Challenges are what make life interesting and overcoming them is what makes life meaningful.", author: "Joshua J. Marine" },
+            { text: "If you want to lift yourself up, lift up someone else.", author: "Booker T. Washington" },
+            { text: "You can never cross the ocean until you have the courage to lose sight of the shore.", author: "Christopher Columbus" },
+            { text: "The purpose of life is a life of purpose.", author: "Robert Byrne" },
+            { text: "I didn't fail the test. I just found 100 ways to do it wrong.", author: "Benjamin Franklin" },
+            { text: "Our greatest weakness lies in giving up. The most certain way to succeed is always to try just one more time.", author: "Thomas A. Edison" },
+            { text: "The tragedy of life is not that it ends so soon, but that we wait so long to begin it.", author: "W.H. Auden" },
+            { text: "In order to write about life first you must do it.", author: "Ernest Hemingway" },
+            { text: "If we knew what it was we were doing, it would not be called research, would it?", author: "Albert Einstein" },
+            { text: "Try not to become a man of success, but rather try to become a man of value.", author: "Albert Einstein" },
+            { text: "Success is peace of mind, which is a direct result of self-satisfaction in knowing you did your best to become the best you are capable of becoming.", author: "John Wooden" },
+            { text: "I attribute my success to this: I never gave or took any excuse.", author: "Florence Nightingale" },
+            { text: "You take your life in your own hands, and what happens? A terrible thing, no one to blame.", author: "Erica Jong" },
+            { text: "The best revenge is to be unlike him who performed the injury.", author: "Marcus Aurelius" },
+            { text: "Never give up on a dream just because of the time it will take to accomplish it. The time will pass anyway.", author: "Earl Nightingale" },
+            { text: "The mind, once stretched by a new idea, never returns to its original dimensions.", author: "Ralph Waldo Emerson" },
+            { text: "It's hard to beat a person who never gives up.", author: "Babe Ruth" },
+            { text: "If you want to achieve greatness stop asking for permission.", author: "Unknown" },
+            { text: "The future belongs to those who prepare for it today.", author: "Malcolm X" },
+            { text: "Success is stumbling from failure to failure with no loss of enthusiasm.", author: "Winston Churchill" },
+            { text: "I am not a product of my circumstances. I am a product of my decisions.", author: "Stephen Covey" },
+            { text: "When everything seems to be going against you, remember that the airplane takes off against the wind, not with it.", author: "Henry Ford" },
+            { text: "What's the point of being alive if you don't at least try to do something remarkable?", author: "John Green" },
+            { text: "Logic will take you from A to B. Imagination will take you everywhere.", author: "Albert Einstein" },
+            { text: "The biggest adventure you can take is to live the life of your dreams.", author: "Oprah Winfrey" },
+            { text: "The more you praise and celebrate your life, the more there is in life to celebrate.", author: "Oprah Winfrey" },
+            { text: "I've learned that people will forget what you said, people will forget what you did, but people will never forget how you made them feel.", author: "Maya Angelou" },
+            { text: "The best way to cheer yourself up is to try to cheer somebody else up.", author: "Mark Twain" },
+            { text: "Life is a flower of which love is the honey.", author: "Victor Hugo" },
+            { text: "When we strive to become better than we are, everything around us becomes better too.", author: "Paulo Coelho" },
+            { text: "Look up at the stars and not down at your feet.", author: "Stephen Hawking" },
+            { text: "May you live all the days of your life.", author: "Jonathan Swift" },
+            { text: "The purpose of life is to live it, to taste experience to the utmost, to reach out eagerly and without fear for newer and richer experience.", author: "Eleanor Roosevelt" },
+            { text: "Don't judge each day by the harvest you reap but by the seeds that you plant.", author: "Robert Louis Stevenson" },
+            { text: "You must take personal responsibility. You cannot change the circumstances, the seasons, or the wind, but you can change yourself.", author: "Jim Rohn" },
+            { text: "The only person you are destined to become is the person you decide to be.", author: "Ralph Waldo Emerson" },
+            { text: "Start by doing what's necessary; then do what's possible; and suddenly you are doing the impossible.", author: "Francis of Assisi" },
+            { text: "If you do not change direction, you may end up where you are heading.", author: "Lao Tzu" },
+            { text: "Setting goals is the first step in turning the invisible into the visible.", author: "Tony Robbins" },
+            { text: "Well done is better than well said.", author: "Benjamin Franklin" },
+            { text: "I believe every human has a finite number of heartbeats. I don't intend to waste any of mine.", author: "Neil Armstrong" },
+            { text: "You get what you give.", author: "Jennifer Lopez" },
+            { text: "The man who moves a mountain begins by carrying away small stones.", author: "Confucius" },
+            { text: "It is not in the stars to hold our destiny but in ourselves.", author: "William Shakespeare" },
+            { text: "If you are not willing to risk the usual, you will have to settle for the ordinary.", author: "Jim Rohn" },
+            { text: "Don't limit your challenges. Challenge your limits.", author: "Unknown" },
+            { text: "Wheresoever you go, go with all your heart.", author: "Confucius" },
+            { text: "The secret to getting ahead is getting started.", author: "Mark Twain" },
+            { text: "Today's readers are tomorrow's leaders.", author: "Margaret Fuller" },
+            { text: "The secret of change is to focus all of your energy, not on fighting the old, but on building the new.", author: "Socrates" },
+            { text: "Be yourself; everyone else is already taken.", author: "Oscar Wilde" },
+            { text: "We can complain because rose bushes have thorns, or rejoice because thorn bushes have roses.", author: "Abraham Lincoln" },
+            { text: "The most certain way to succeed is always to try just one more time.", author: "Thomas Edison" },
+            { text: "A successful man is one who can lay a firm foundation with the bricks others have thrown at him.", author: "David Brinkley" },
+            { text: "The way to develop self-confidence is to do what you fear and get a record of successful experiences behind you.", author: "William Jennings Bryan" },
+            { text: "I choose a lazy person to do a hard job. Because a lazy person will find an easy way to do it.", author: "Bill Gates" },
+            { text: "You can't be everything to everyone. Be everything to someone.", author: "Unknown" },
+            { text: "The two most important days in your life are the day you are born and the day you find out why.", author: "Mark Twain" },
+            { text: "The best time for new beginnings is now.", author: "Unknown" },
+            { text: "When you stop chasing the wrong things, you give the right things a chance to catch you.", author: "Lolly Daskal" },
+            { text: "Happiness is when what you think, what you say, and what you do are in harmony.", author: "Mahatma Gandhi" },
+            { text: "The sun himself is weak when he first rises, and gathers strength and courage as the day goes on.", author: "Charles Dickens" },
+            { text: "Success is the sum of small efforts, repeated day-in and day-out.", author: "Robert Collier" },
+            { text: "When you doubt your power, you give power to your doubt.", author: "Honoré de Balzac" },
+            { text: "The best thing about the future is that it comes one day at a time.", author: "Abraham Lincoln" },
+            { text: "If you fall asleep now, you will dream only of what you did. If you study now, you will dream of what you can do.", author: "Unknown" },
+            { text: "The best minds are not in government; if any were, business would hire them away.", author: "Ronald Reagan" },
+            { text: "It's fine to celebrate success but it is more important to heed the lessons of failure.", author: "Bill Gates" },
+            { text: "The greatest obstacle to discovery is not ignorance—it is the illusion of knowledge.", author: "Daniel J. Boorstin" },
+            { text: "If you don't design your own life plan, chances are you'll fall into someone else's plan.", author: "Jim Rohn" },
+            { text: "The real test is not whether you avoid this failure, because you won't. It's whether you let it harden or shame you into inaction, or whether you learn from it.", author: "Barack Obama" },
+            { text: "The most effective way to do it, is to do it.", author: "Amelia Earhart" },
+            { text: "Life is short, and it is here to be lived.", author: "Kate Winslet" },
+            { text: "An unexamined life is not worth living.", author: "Socrates" },
+            { text: "You must do the things you cannot do.", author: "Eleanor Roosevelt" },
+            { text: "The biggest risk is not taking any risk... In a world that's changing really quickly, the only strategy that is guaranteed to fail is not taking risks.", author: "Mark Zuckerberg" },
+            { text: "Do not go where the path may lead, go instead where there is no path and leave a trail.", author: "Ralph Waldo Emerson" },
+            { text: "It's not whether you get knocked down, it's whether you get up.", author: "Vince Lombardi" },
+            { text: "Happiness is a warm puppy.", author: "Charles M. Schulz" },
+            { text: "I have no special talent. I am only passionately curious.", author: "Albert Einstein" },
+            { text: "Everything should be made as simple as possible, but not simpler.", author: "Albert Einstein" }
+        ];
+
+        // DOM elements
+        const factOutput = document.getElementById('fact-output');
+        const generateFactButton = document.getElementById('generate-fact');
+        const colorBox = document.getElementById('color-box');
+        const colorHex = document.getElementById('color-hex');
+        const generateColorButton = document.getElementById('generate-color');
+        
+        // NEW Quote DOM elements
+        const quoteText = document.getElementById('quote-text');
+        const quoteAuthor = document.getElementById('quote-author');
+        const generateQuoteButton = document.getElementById('generate-quote');
+
+        /**
+         * Generates and displays a random fact.
+         */
+        function displayRandomFact() {
+            const randomIndex = Math.floor(Math.random() * facts.length);
+            factOutput.textContent = facts[randomIndex];
+        }
+
+        /**
+         * Generates a random hex color string.
+         * @returns {string} The hex color code (e.g., "#A3B1C5").
+         */
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        /**
+         * Generates and displays a random color, updating the box and text.
+         */
+        function displayRandomColor() {
+            const newColor = getRandomColor();
+            colorBox.style.backgroundColor = newColor;
+            colorHex.textContent = newColor;
+
+            // Simple logic to make the text readable against the background
+            const r = parseInt(newColor.substring(1, 3), 16);
+            const g = parseInt(newColor.substring(3, 5), 16);
+            const b = parseInt(newColor.substring(5, 7), 16);
+            // Calculate luminance to decide between black or white text
+            const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            colorHex.style.color = luminance > 0.5 ? '#000000' : '#FFFFFF';
+        }
+        
+        /**
+         * Generates and displays a random quote. (NEW)
+         */
+        function displayRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const randomQuote = quotes[randomIndex];
+            quoteText.textContent = randomQuote.text;
+            quoteAuthor.textContent = `— ${randomQuote.author}`;
+        }
+
+
+        // --- Event Listeners and Initialization ---
+
+        generateFactButton.addEventListener('click', displayRandomFact);
+        generateColorButton.addEventListener('click', displayRandomColor);
+        generateQuoteButton.addEventListener('click', displayRandomQuote); // NEW listener
+
+        // Initialize the page with a random fact, color, and quote on load
+        window.onload = () => {
+            displayRandomFact();
+            displayRandomColor();
+            displayRandomQuote(); // NEW initialization
+        };
+
+    </script>
+</body>
+</html>

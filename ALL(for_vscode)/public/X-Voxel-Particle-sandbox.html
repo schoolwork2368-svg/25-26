@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>X-Voxel-Particle-Sandbox</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #000; 
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+        }
+        canvas { 
+            display: block; 
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+            display:block;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.7);
+            border-radius: 0 0 10px 10px;
+        }
+        #settings-panel {
+            position: absolute;
+            top: 60px;
+            left: 10px;
+            background-color: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 101;
+            width: 250px;
+        }
+        .setting {
+            margin-bottom: 12px;
+        }
+        .setting label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .setting input[type="range"] {
+            width: 100%;
+        }
+        .setting button, .setting select {
+            width: 100%;
+            padding: 8px;
+            background-color: #444;
+            border: 1px solid #666;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .setting button:hover {
+            background-color: #555;
+        }
+        .tool-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .tool-buttons button.active {
+            background-color: #6366f1;
+            border-color: #a855f7;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <strong>X-Voxel-Particle-Sandbox</strong><br>
+        Use the tools in the settings panel. Orbit with mouse drag, zoom with scroll.
+    </div>
+
+    <div id="settings-panel">
+        <div class="setting">
+            <button id="reset-btn">Reset Simulation</button>
+        </div>
+        <div class="setting tool-buttons">
+            <button id="tool-explode" class="active">Explode</button>
+            <button id="tool-build">Build</button>
+        </div>
+        <div class="setting">
+            <label for="build-material">Block Material</label>
+            <select id="build-material">
+                <option value="wood">Wood</option>
+                <option value="stone">Stone</option>
+                <option value="steel">Steel</option>
+            </select>
+        </div>
+        <div class="setting">
+            <label for="brush-size">Brush Size: <span id="brush-size-label">1</span></label>
+            <input type="range" id="brush-size" min="1" max="5" value="1" step="1">
+        </div>
+        <div class="setting">
+            <label for="explosion-force">Explosion Force: <span id="explosion-force-label">50</span></label>
+            <input type="range" id="explosion-force" min="10" max="200" value="50">
+        </div>
+        <div class="setting">
+            <label for="explosion-radius">Explosion Radius: <span id="explosion-radius-label">5</span></label>
+            <input type="range" id="explosion-radius" min="2" max="15" value="5">
+        </div>
+    </div>
+
+    <!-- Import map for Three.js modules -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+                "cannon-es": "https://unpkg.com/cannon-es@0.20.0/dist/cannon-es.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import * as CANNON from 'cannon-es';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import CannonDebugger from 'https://unpkg.com/cannon-es-debugger@1.0.0/dist/cannon-es-debugger.js';
+
+        class VoxelSandbox {
+            constructor() {
+                this.voxelSize = 1;
+                this.timeStep = 1 / 60;
+                this.physicalVoxels = [];
+                this.particles = [];
+                this.activeTool = 'explode'; // 'explode' or 'build'
+
+                // Settings
+                this.settings = {
+                    explosionForce: 50,
+                    explosionRadius: 5,
+                    brushSize: 1,
+                    buildMaterial: 'wood'
+                };
+
+                this.initScene();
+                this.initPhysics();
+                this.initLighting();
+                this.initControls();
+                this.initUI();
+                this.buildInitialStructure();
+                this.initEventListeners();
+
+                this.animate();
+            }
+
+            initScene() {
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x87CEEB);
+
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                this.camera.position.set(10, 10, 20);
+
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(window.devicePixelRatio);
+                this.renderer.shadowMap.enabled = true;
+                document.body.appendChild(this.renderer.domElement);
+            }
+
+            initPhysics() {
+                this.world = new CANNON.World({ gravity: new CANNON.Vec3(0, -9.82, 0) });
+
+                const groundBody = new CANNON.Body({ type: CANNON.Body.STATIC, shape: new CANNON.Plane() });
+                groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+                this.world.addBody(groundBody);
+
+                const floorMesh = new THREE.Mesh(
+                    new THREE.PlaneGeometry(100, 100),
+                    new THREE.MeshStandardMaterial({ color: 0x999999, roughness: 0.7 })
+                );
+                floorMesh.rotation.x = -Math.PI / 2;
+                floorMesh.receiveShadow = true;
+                this.scene.add(floorMesh);
+            }
+
+            initLighting() {
+                this.scene.add(new THREE.AmbientLight(0xcccccc, 0.7));
+                const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+                dirLight.position.set(10, 20, 5);
+                dirLight.castShadow = true;
+                this.scene.add(dirLight);
+            }
+
+            initControls() {
+                this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.target.set(0, 5, 0);
+                this.controls.update();
+            }
+
+            initUI() {
+                // Link UI elements to settings and actions
+                const explosionForceSlider = document.getElementById('explosion-force');
+                const explosionForceLabel = document.getElementById('explosion-force-label');
+                explosionForceSlider.addEventListener('input', (e) => {
+                    this.settings.explosionForce = parseFloat(e.target.value);
+                    explosionForceLabel.textContent = e.target.value;
+                });
+
+                const explosionRadiusSlider = document.getElementById('explosion-radius');
+                const explosionRadiusLabel = document.getElementById('explosion-radius-label');
+                explosionRadiusSlider.addEventListener('input', (e) => {
+                    this.settings.explosionRadius = parseFloat(e.target.value);
+                    explosionRadiusLabel.textContent = e.target.value;
+                });
+
+                const brushSizeSlider = document.getElementById('brush-size');
+                const brushSizeLabel = document.getElementById('brush-size-label');
+                brushSizeSlider.addEventListener('input', (e) => {
+                    this.settings.brushSize = parseInt(e.target.value);
+                    brushSizeLabel.textContent = e.target.value;
+                });
+
+                document.getElementById('build-material').addEventListener('change', (e) => {
+                    this.settings.buildMaterial = e.target.value;
+                });
+
+                document.getElementById('reset-btn').addEventListener('click', () => this.resetSimulation());
+
+                const toolExplodeBtn = document.getElementById('tool-explode');
+                const toolBuildBtn = document.getElementById('tool-build');
+                toolExplodeBtn.addEventListener('click', () => {
+                    this.activeTool = 'explode';
+                    toolExplodeBtn.classList.add('active');
+                    toolBuildBtn.classList.remove('active');
+                });
+                toolBuildBtn.addEventListener('click', () => {
+                    this.activeTool = 'build';
+                    toolBuildBtn.classList.add('active');
+                    toolExplodeBtn.classList.remove('active');
+                });
+            }
+
+            initEventListeners() {
+                window.addEventListener('resize', () => this.onWindowResize());
+                this.renderer.domElement.addEventListener('mousedown', (e) => this.onMouseClick(e));
+            }
+
+            createTexture(color) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64; canvas.height = 64;
+                const context = canvas.getContext('2d');
+                context.fillStyle = color;
+                context.fillRect(0, 0, 64, 64);
+                context.strokeStyle = 'black';
+                context.lineWidth = 5;
+                context.strokeRect(0, 0, 64, 64);
+                return new THREE.CanvasTexture(canvas);
+            }
+
+            getVoxelMaterials() {
+                this.voxelGeometry = new THREE.BoxGeometry(this.voxelSize, this.voxelSize, this.voxelSize);
+                this.materials = {
+                    'wood': { mass: 0.5, material: new THREE.MeshStandardMaterial({ color: 0x8B4513, map: this.createTexture('#8B4513'), roughness: 0.8 }) },
+                    'stone': { mass: 2.0, material: new THREE.MeshStandardMaterial({ color: 0x808080, map: this.createTexture('#808080'), roughness: 0.6 }) },
+                    'steel': { mass: 8.0, material: new THREE.MeshStandardMaterial({ color: 0xa0a0a0, map: this.createTexture('#a0a0a0'), roughness: 0.2, metalness: 0.8 }) }
+                };
+            }
+
+            createVoxel(position, type) {
+                const matInfo = this.materials[type];
+                if (!matInfo) return;
+
+                const mesh = new THREE.Mesh(this.voxelGeometry, matInfo.material);
+                mesh.position.copy(position);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                this.scene.add(mesh);
+
+                const body = new CANNON.Body({
+                    mass: matInfo.mass,
+                    shape: new CANNON.Box(new CANNON.Vec3(this.voxelSize / 2, this.voxelSize / 2, this.voxelSize / 2)),
+                    position: new CANNON.Vec3(position.x, position.y, position.z),
+                });
+                this.world.addBody(body);
+
+                this.physicalVoxels.push({ mesh, body });
+            }
+
+            buildInitialStructure() {
+                this.getVoxelMaterials();
+                const towerHeight = 10;
+                const towerWidth = 4;
+                for (let y = 0; y < towerHeight; y++) {
+                    for (let x = -towerWidth / 2; x < towerWidth / 2; x++) {
+                        for (let z = -towerWidth / 2; z < towerWidth / 2; z++) {
+                            if ((x + z) % 2 === 0) {
+                                const pos = new THREE.Vector3(x * this.voxelSize, y * this.voxelSize + this.voxelSize / 2, z * this.voxelSize);
+                                this.createVoxel(pos, 'wood');
+                            }
+                        }
+                    }
+                }
+            }
+
+            resetSimulation() {
+                // Clear existing voxels
+                this.physicalVoxels.forEach(pv => {
+                    this.scene.remove(pv.mesh);
+                    this.world.removeBody(pv.body);
+                });
+                this.physicalVoxels = [];
+
+                // Rebuild
+                this.buildInitialStructure();
+            }
+
+            createExplosion(position) {
+                // Physical impulse
+                const explosionRadius = this.settings.explosionRadius;
+                const explosionForce = this.settings.explosionForce;
+                this.physicalVoxels.forEach(pv => {
+                    const dist = pv.body.position.distanceTo(position);
+                    if (dist < explosionRadius) {
+                        const forceDir = pv.body.position.vsub(position).unit();
+                        const forceMag = explosionForce * (1 - dist / explosionRadius);
+                        pv.body.applyImpulse(forceDir.scale(forceMag));
+                    }
+                });
+
+                // Visual Effects
+                this.createParticleEffect(position, 150, 0.2, 0xffaa00, 1.0); // Fire
+                this.createParticleEffect(position, 100, 0.5, 0x333333, 0.5); // Smoke
+
+                const explosionLight = new THREE.PointLight(0xffaa00, 5, explosionRadius * 2);
+                explosionLight.position.copy(position);
+                this.scene.add(explosionLight);
+                setTimeout(() => this.scene.remove(explosionLight), 400);
+            }
+
+            createParticleEffect(position, count, speed, color, opacity) {
+                const particleGeometry = new THREE.BufferGeometry();
+                const vertices = [];
+                const particleMaterial = new THREE.PointsMaterial({
+                    color: color,
+                    size: 0.5,
+                    transparent: true,
+                    opacity: opacity,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+
+                for (let i = 0; i < count; i++) {
+                    const p = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshBasicMaterial());
+                    p.position.copy(position);
+                    p.velocity = new THREE.Vector3(
+                        (Math.random() - 0.5) * speed,
+                        (Math.random() - 0.5) * speed,
+                        (Math.random() - 0.5) * speed
+                    );
+                    p.life = 60 + Math.random() * 60;
+                    this.particles.push(p);
+                    this.scene.add(p);
+                }
+            }
+
+            updateParticles() {
+                const gravity = new THREE.Vector3(0, 0.001, 0); // Smoke rises
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    p.velocity.add(gravity);
+                    p.position.add(p.velocity);
+                    p.life--;
+
+                    if (p.life <= 0) {
+                        this.scene.remove(p);
+                        this.particles.splice(i, 1);
+                    }
+                }
+            }
+
+            onMouseClick(event) {
+                if (event.target.closest('#settings-panel')) return; // Ignore clicks on UI
+                event.preventDefault();
+
+                const mouse = new THREE.Vector2(
+                    (event.clientX / window.innerWidth) * 2 - 1,
+                    -(event.clientY / window.innerHeight) * 2 + 1
+                );
+
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, this.camera);
+                const intersects = raycaster.intersectObjects(this.scene.children, false);
+
+                if (intersects.length > 0) {
+                    const intersect = intersects[0];
+                    if (this.activeTool === 'explode' && event.button === 0) {
+                        this.createExplosion(intersect.point);
+                    } else if (this.activeTool === 'build' && event.button === 0) {
+                        const brush = this.settings.brushSize;
+                        const halfBrush = Math.floor(brush / 2);
+                        for (let i = 0; i < brush; i++) {
+                            for (let j = 0; j < brush; j++) {
+                                for (let k = 0; k < brush; k++) {
+                                    const offset = new THREE.Vector3(i - halfBrush, j - halfBrush, k - halfBrush);
+                                    const newPos = new THREE.Vector3().copy(intersect.point).add(intersect.face.normal.multiplyScalar(0.1));
+                                    newPos.add(offset);
+                                    newPos.divideScalar(this.voxelSize).floor().multiplyScalar(this.voxelSize).addScalar(this.voxelSize / 2);
+                                    
+                                    // Avoid placing blocks inside existing ones
+                                    let isOccupied = this.physicalVoxels.some(pv => pv.mesh.position.distanceTo(newPos) < 0.1);
+                                    if (!isOccupied) {
+                                        this.createVoxel(newPos, this.settings.buildMaterial);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            onWindowResize() {
+                this.camera.aspect = window.innerWidth / window.innerHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                this.world.step(this.timeStep);
+                this.updateParticles();
+
+                for (let i = this.physicalVoxels.length - 1; i >= 0; i--) {
+                    const pv = this.physicalVoxels[i];
+                    pv.mesh.position.copy(pv.body.position);
+                    pv.mesh.quaternion.copy(pv.body.quaternion);
+
+                    // Performance: Remove blocks that fall out of the world
+                    if (pv.body.position.y < -50) {
+                        this.scene.remove(pv.mesh);
+                        this.world.removeBody(pv.body);
+                        this.physicalVoxels.splice(i, 1);
+                    }
+                }
+
+                this.controls.update();
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+
+        new VoxelSandbox();
+
+    </script>
+</body>
+</html>

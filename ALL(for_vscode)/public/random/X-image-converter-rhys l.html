@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Universal Image Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Include jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            color: #1f2937;
+        }
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #e0e7ff;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+            border-radius: 4px;
+        }
+        .slider:hover {
+            opacity: 1;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .control-group {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+        #drop-zone {
+            position: relative; /* Essential for absolute positioning of canvases */
+        }
+        /* Style for centering and scaling the canvases within the drop-zone */
+        #conversionCanvas, #drawingOverlay {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: filter 0.3s ease-out;
+            
+            /* Core Centering Logic */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #drawingOverlay {
+            /* This is the transparent layer for mouse events */
+            cursor: crosshair;
+            z-index: 10; 
+            background: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+    <!-- Controls Sidebar -->
+    <div id="controls-panel" class="w-full md:w-80 p-6 bg-white shadow-2xl overflow-y-auto border-r border-gray-200 flex-shrink-0">
+        <h1 class="text-2xl font-bold mb-6 text-indigo-700">Image Editor</h1>
+        
+        <!-- Tab Navigation -->
+        <div class="flex mb-4 border-b border-gray-200">
+            <button id="tab-adjust" class="flex-1 py-2 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600 transition duration-150">Adjust</button>
+            <button id="tab-draw" class="flex-1 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-indigo-600 hover:border-indigo-300 transition duration-150">Draw</button>
+            <button id="tab-presets" class="flex-1 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-indigo-600 hover:border-indigo-300 transition duration-150">Presets</button>
+            <button id="tab-export" class="flex-1 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-indigo-600 hover:border-indigo-300 transition duration-150">Export</button>
+        </div>
+
+        <!-- Adjustment Tab Content -->
+        <div id="content-adjust" class="tab-content">
+            <div class="control-group">
+                <h2 class="font-semibold text-lg mb-4 text-gray-700">Core Adjustments</h2>
+                
+                <!-- Rotation Setting -->
+                <div class="mb-5">
+                    <label for="rotationRange" class="block text-sm font-medium text-gray-700 mb-2">Rotation (deg):</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="rotationRange" min="-180" max="180" value="0" step="1" class="slider flex-1">
+                        <input type="number" id="rotationNumber" min="-180" max="180" value="0" step="1" class="w-20 p-1 border border-gray-300 rounded-md text-center text-sm font-mono">
+                    </div>
+                </div>
+
+                <!-- Brightness Setting -->
+                <div class="mb-5">
+                    <label for="brightnessRange" class="block text-sm font-medium text-gray-700 mb-2">Brightness (%):</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="brightnessRange" min="0" max="200" value="100" step="1" class="slider flex-1">
+                        <input type="number" id="brightnessNumber" min="0" max="200" value="100" step="1" class="w-20 p-1 border border-gray-300 rounded-md text-center text-sm font-mono">
+                    </div>
+                </div>
+
+                <!-- Contrast Setting -->
+                <div class="mb-5">
+                    <label for="contrastRange" class="block text-sm font-medium text-gray-700 mb-2">Contrast (%):</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="contrastRange" min="0" max="200" value="100" step="1" class="slider flex-1">
+                        <input type="number" id="contrastNumber" min="0" max="200" value="100" step="1" class="w-20 p-1 border border-gray-300 rounded-md text-center text-sm font-mono">
+                    </div>
+                </div>
+
+                <!-- Saturation Setting -->
+                <div class="mb-5">
+                    <label for="saturationRange" class="block text-sm font-medium text-gray-700 mb-2">Saturation (%):</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="saturationRange" min="0" max="200" value="100" step="1" class="slider flex-1">
+                        <input type="number" id="saturationNumber" min="0" max="200" value="100" step="1" class="w-20 p-1 border border-gray-300 rounded-md text-center text-sm font-mono">
+                    </div>
+                </div>
+                
+                <!-- Hue Setting -->
+                <div class="mb-5">
+                    <label for="hueRotateRange" class="block text-sm font-medium text-gray-700 mb-2">Hue (deg):</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="hueRotateRange" min="0" max="360" value="0" step="1" class="slider flex-1">
+                        <input type="number" id="hueRotateNumber" min="0" max="360" value="0" step="1" class="w-20 p-1 border border-gray-300 rounded-md text-center text-sm font-mono">
+                    </div>
+                </div>
+
+                <!-- Blur Setting -->
+                <div class="mb-5">
+                    <label for="blurRange" class="block text-sm font-medium text-gray-700 mb-2">Blur (px):</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="blurRange" min="0" max="10" value="0" step="0.1" class="slider flex-1">
+                        <input type="number" id="blurNumber" min="0" max="10" value="0" step="0.1" class="w-20 p-1 border border-gray-300 rounded-md text-center text-sm font-mono">
+                    </div>
+                </div>
+
+                <!-- Drop Shadow Setting -->
+                <div class="mb-5">
+                    <label for="dropShadowRange" class="block text-sm font-medium text-gray-700 mb-2">Drop Shadow Blur (px):</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="dropShadowRange" min="0" max="20" value="0" step="1" class="slider flex-1">
+                        <input type="number" id="dropShadowNumber" min="0" max="20" value="0" step="1" class="w-20 p-1 border border-gray-300 rounded-md text-center text-sm font-mono">
+                    </div>
+                </div>
+            </div>
+            
+            <button id="resetButton" class="w-full bg-red-500 text-white font-bold py-2 rounded-lg hover:bg-red-600 transition duration-150 shadow-md">
+                Reset All Filters
+            </button>
+        </div>
+        
+        <!-- Draw Tab Content -->
+        <div id="content-draw" class="tab-content hidden">
+            <div class="control-group">
+                <h2 class="font-semibold text-lg mb-4 text-gray-700">Drawing Tools</h2>
+
+                <!-- Tool Selection (Pen/Eraser) -->
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Tool:</label>
+                    <div class="flex space-x-4">
+                        <button id="toolPen" class="flex-1 py-2 px-4 rounded-lg font-semibold border transition duration-150 bg-indigo-500 text-white border-indigo-600 shadow-md hover:bg-indigo-600">
+                            Pen
+                        </button>
+                        <button id="toolEraser" class="flex-1 py-2 px-4 rounded-lg font-semibold border transition duration-150 bg-gray-200 text-gray-700 border-gray-300 hover:bg-gray-300">
+                            Eraser
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pen Color -->
+                <div class="mb-5">
+                    <label for="penColor" class="block text-sm font-medium text-gray-700 mb-2">Pen Color:</label>
+                    <input type="color" id="penColor" value="#ff0000" class="w-full h-10 rounded-lg border-2 border-gray-300 cursor-pointer">
+                </div>
+                
+                <!-- Pen Size -->
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-700 flex justify-between">Brush Size: <span id="penSizeValue" class="font-mono text-indigo-600">10 px</span></label>
+                    <input type="range" id="penSize" min="1" max="50" value="10" class="slider" data-unit=" px">
+                </div>
+
+                <!-- Line End Style (Brush Style) -->
+                <div class="mb-5">
+                    <label for="lineCapStyle" class="block text-sm font-medium text-gray-700 mb-2">Line End Style:</label>
+                    <select id="lineCapStyle" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                        <option value="round" selected>Round</option>
+                        <option value="butt">Flat (Butt)</option>
+                        <option value="square">Square</option>
+                    </select>
+                </div>
+
+                <!-- Line Corner Style (Pen Style) -->
+                <div class="mb-5">
+                    <label for="lineJoinStyle" class="block text-sm font-medium text-gray-700 mb-2">Line Corner Style:</label>
+                    <select id="lineJoinStyle" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                        <option value="round" selected>Round</option>
+                        <option value="bevel">Bevel</option>
+                        <option value="miter">Miter (Sharp)</option>
+                    </select>
+                </div>
+
+                <!-- Line Dash Pattern -->
+                <div class="mb-5">
+                    <label for="lineDashPattern" class="block text-sm font-medium text-gray-700 mb-2">Dash Pattern (e.g., 10, 5):</label>
+                    <input type="text" id="lineDashPattern" value="" placeholder="e.g. 10, 5, 2, 5" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+
+                <button id="resetDrawings" class="w-full bg-red-500 text-white font-bold py-2 rounded-lg hover:bg-red-600 transition duration-150 shadow-md mt-4">
+                    Clear All Drawings
+                </button>
+            </div>
+        </div>
+
+        <!-- Presets Tab Content (NOW ADJUSTABLE) -->
+        <div id="content-presets" class="tab-content hidden">
+            <div class="control-group">
+                <h2 class="font-semibold text-lg mb-4 text-gray-700">Quick Filters (Adjustable Intensity)</h2>
+                
+                <!-- Grayscale Setting -->
+                <div class="mb-5">
+                    <label for="grayscaleRange" class="block text-sm font-medium text-gray-700 mb-2">Grayscale (%):</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="grayscaleRange" min="0" max="100" value="0" step="1" class="slider flex-1">
+                        <input type="number" id="grayscaleNumber" min="0" max="100" value="0" step="1" class="w-20 p-1 border border-gray-300 rounded-md text-center text-sm font-mono">
+                    </div>
+                </div>
+
+                <!-- Sepia Setting -->
+                <div class="mb-5">
+                    <label for="sepiaRange" class="block text-sm font-medium text-gray-700 mb-2">Sepia (%):</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="sepiaRange" min="0" max="100" value="0" step="1" class="slider flex-1">
+                        <input type="number" id="sepiaNumber" min="0" max="100" value="0" step="1" class="w-20 p-1 border border-gray-300 rounded-md text-center text-sm font-mono">
+                    </div>
+                </div>
+
+                <!-- Invert Setting -->
+                <div class="mb-5">
+                    <label for="invertRange" class="block text-sm font-medium text-gray-700 mb-2">Invert (%):</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="invertRange" min="0" max="100" value="0" step="1" class="slider flex-1">
+                        <input type="number" id="invertNumber" min="0" max="100" value="0" step="1" class="w-20 p-1 border border-gray-300 rounded-md text-center text-sm font-mono">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Export Tab Content -->
+        <div id="content-export" class="tab-content hidden">
+            <div class="control-group">
+                <h2 class="font-semibold text-lg mb-4 text-gray-700">Export Options</h2>
+                
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4 rounded-lg">
+                    <p class="text-xs text-yellow-700">
+                        Formats like TIFF, RAW, PSD, and EPS require proprietary software and cannot be generated in the browser.
+                    </p>
+                </div>
+
+                <div class="mb-5">
+                    <label for="outputFormat" class="block text-sm font-medium text-gray-700 mb-2">Select Output Format:</label>
+                    <select id="outputFormat" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                        <option value="png" selected>PNG (Lossless)</option>
+                        <option value="jpeg">JPG/JPEG (Lossy)</option>
+                        <option value="pdf">PDF Document (Image on A4)</option>
+                        <option value="svg">SVG (Simple Vector Art)</option>
+                        <option value="ico">ICO (Windows Icon)</option>
+                    </select>
+                </div>
+
+                <!-- ICO Size Control -->
+                <div id="icoSizeControl" class="mb-5 hidden">
+                    <label for="icoSize" class="block text-sm font-medium text-gray-700 mb-2">Icon Size (Square Pixels):</label>
+                    <select id="icoSize" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm">
+                        <option value="32" selected>32 x 32 (Standard Favicon)</option>
+                        <option value="16">16 x 16</option>
+                        <option value="48">48 x 48</option>
+                        <option value="64">64 x 64</option>
+                    </select>
+                </div>
+                
+                <div id="qualityControl" class="mb-5 hidden">
+                    <label for="jpegQualityRange" class="block text-sm font-medium text-gray-700 mb-2 flex justify-between">
+                        JPG Quality:
+                    </label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="jpegQualityRange" min="10" max="100" value="90" step="1" class="slider flex-1">
+                        <input type="number" id="jpegQualityNumber" min="10" max="100" value="90" step="1" class="w-20 p-1 border border-gray-300 rounded-md text-center text-sm font-mono">
+                    </div>
+                </div>
+                
+                <button id="convertButton" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg shadow-lg hover:bg-indigo-700 transition duration-150">
+                    Export Image
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Editor Area -->
+    <div id="editor-area" class="flex-1 flex flex-col p-6 items-center justify-center bg-gray-100">
+        
+        <!-- Top Toolbar -->
+        <div class="w-full max-w-4xl flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-md border border-gray-200">
+             <div class="flex items-center space-x-3">
+                <input type="file" id="fileInput" accept="image/png, image/jpeg, image/jpg" class="hidden" />
+                <label for="fileInput" class="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-semibold cursor-pointer hover:bg-indigo-600 transition duration-150 shadow-md">
+                    Load New Image
+                </label>
+                <span id="imageNameDisplay" class="text-sm text-gray-600 truncate max-w-xs italic"><pre>No image loaded </pre></span>
+            </div>
+        </div>
+
+        <!-- Canvas/Drop Zone Container -->
+        <div id="drop-zone" class="w-full flex-1 max-w-4xl bg-gray-200 rounded-xl shadow-inner border-4 border-dashed border-gray-400 flex items-center justify-center overflow-hidden">
+            <!-- Canvas for Displaying Filtered Image and Merged Drawing -->
+            <canvas id="conversionCanvas" class="hidden"></canvas>
+            
+            <!-- Hidden Canvas for Storing Drawings (Data Layer) -->
+            <canvas id="drawingCanvas" class="hidden"></canvas>
+
+            <!-- Transparent Overlay Canvas for Handling Mouse/Touch Drawing Events -->
+            <canvas id="drawingOverlay" class="hidden"></canvas>
+
+            <div id="placeholder" class="text-center p-10 text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 16m-9-9h.01M6 18h8a2 2 0 002-2V8a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <p class="text-lg font-semibold">Drag & Drop an image here, or use 'Load New Image'.</p>
+                <p class="text-sm mt-1">Load image</p>
+            </div>
+        </div>
+        <p id="message-box" class="mt-4 text-sm text-center text-red-500"></p>
+    </div>
+    
+    <script>
+        const { jsPDF } = window.jspdf;
+        
+        // --- Core Global State Variables ---
+        let originalImage = null;
+        let originalFileName = 'edited_image'; 
+
+        // --- DOM Elements ---
+        const fileInput = document.getElementById('fileInput');
+        
+        // Canvas Elements
+        const conversionCanvas = document.getElementById('conversionCanvas'); // Filtered Image Display
+        const ctx = conversionCanvas.getContext('2d');
+        const drawingCanvas = document.getElementById('drawingCanvas');       // Permanent Stroke Storage (Hidden)
+        const d_ctx = drawingCanvas.getContext('2d');
+        const drawingOverlay = document.getElementById('drawingOverlay');     // Mouse/Touch Event Handler (Visible Overlay)
+        
+        const convertButton = document.getElementById('convertButton');
+        const resetButton = document.getElementById('resetButton');
+        const resetDrawingsButton = document.getElementById('resetDrawings');
+        const dropZone = document.getElementById('drop-zone');
+        const placeholder = document.getElementById('placeholder');
+        const imageNameDisplay = document.getElementById('imageNameDisplay');
+        const outputFormat = document.getElementById('outputFormat');
+        const qualityControl = document.getElementById('qualityControl');
+        const icoSizeControl = document.getElementById('icoSizeControl');
+        
+        // Tab Navigation Elements (FIX: These were missing and caused the ReferenceError)
+        const tabs = {
+            adjust: document.getElementById('tab-adjust'),
+            draw: document.getElementById('tab-draw'),
+            presets: document.getElementById('tab-presets'),
+            export: document.getElementById('tab-export')
+        };
+        const tabContents = {
+            adjust: document.getElementById('content-adjust'),
+            draw: document.getElementById('content-draw'),
+            presets: document.getElementById('content-presets'),
+            export: document.getElementById('content-export')
+        };
+        
+        // Controls
+        const toolPenButton = document.getElementById('toolPen');
+        const toolEraserButton = document.getElementById('toolEraser');
+        const penColorInput = document.getElementById('penColor');
+        const penSizeSlider = document.getElementById('penSize');
+        // Drawing Style Controls
+        const lineCapStyleInput = document.getElementById('lineCapStyle');
+        const lineJoinStyleInput = document.getElementById('lineJoinStyle');
+        const lineDashPatternInput = document.getElementById('lineDashPattern');
+
+        // Define all controls and their default/min/max/step values
+        const controlDefinitions = {
+            rotation: { default: 0, min: -180, max: 180, step: 1, unit: 'deg' },
+            brightness: { default: 100, min: 0, max: 200, step: 1, unit: '%' },
+            contrast: { default: 100, min: 0, max: 200, step: 1, unit: '%' },
+            saturation: { default: 100, min: 0, max: 200, step: 1, unit: '%' },
+            hueRotate: { default: 0, min: 0, max: 360, step: 1, unit: 'deg' },
+            
+            // NEW Adjustments
+            blur: { default: 0, min: 0, max: 10, step: 0.1, unit: 'px' },
+            dropShadow: { default: 0, min: 0, max: 20, step: 1, unit: 'px' },
+            
+            // Presets
+            grayscale: { default: 0, min: 0, max: 100, step: 1, unit: '%' },
+            sepia: { default: 0, min: 0, max: 100, step: 1, unit: '%' },
+            invert: { default: 0, min: 0, max: 100, step: 1, unit: '%' }
+        };
+
+        // State object for current settings
+        let settings = {}; 
+        
+        // Drawing State
+        let isDrawing = false;
+        let currentTool = 'pen'; // 'pen' or 'eraser'
+        let penColor = '#ff0000';
+        let penSize = 10;
+        let lastX = 0;
+        let lastY = 0;
+        // Drawing styles state
+        let lineCapStyle = 'round';
+        let lineJoinStyle = 'round';
+        let lineDashPattern = [];
+
+        const SVG_BLOCK_SIZE = 5; 
+
+        // --- Utility Functions ---
+
+        function showMessage(type, text) {
+            const box = document.getElementById('message-box');
+            box.textContent = text;
+            box.className = `mt-4 text-sm text-center font-semibold ${type === 'error' ? 'text-red-500' : 'text-green-600'}`;
+            setTimeout(() => box.textContent = '', 4000);
+        }
+
+        /**
+         * Maps mouse/touch event coordinates (screen space) to
+         * the internal, un-rotated canvas coordinates (image space).
+         */
+        function mapMouseEventToCanvas(e) {
+            if (!originalImage) return {x: 0, y: 0};
+            
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+
+            // Handle touch events
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+
+            const rect = drawingOverlay.getBoundingClientRect();
+            
+            // Calculate coordinates relative to the overlay element
+            const relativeX = clientX - rect.left;
+            const relativeY = clientY - rect.top;
+
+            // Scale coordinates to the internal drawing canvas resolution
+            const scaleX = drawingCanvas.width / rect.width;
+            const scaleY = drawingCanvas.height / rect.height;
+
+            const x = relativeX * scaleX;
+            const y = relativeY * scaleY;
+            
+            return { x, y };
+        }
+
+        // --- Core Editor Logic ---
+
+        function redrawCanvas() {
+            if (!originalImage) return;
+
+            const { brightness, contrast, saturation, hueRotate, rotation, grayscale, sepia, invert, blur, dropShadow } = settings;
+            
+            // Build the CSS filter string
+            let filterString = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) hue-rotate(${hueRotate}deg)`;
+            
+            // Add Blur and Drop Shadow
+            if (blur > 0) filterString += ` blur(${blur}px)`;
+            // Drop shadow: fixed offset (5px, 5px), controlled blur radius, fixed color (semi-transparent black)
+            if (dropShadow > 0) filterString += ` drop-shadow(5px 5px ${dropShadow}px rgba(0, 0, 0, 0.7))`; 
+            
+            if (grayscale > 0) filterString += ` grayscale(${grayscale}%)`;
+            if (sepia > 0) filterString += ` sepia(${sepia}%)`;
+            if (invert > 0) filterString += ` invert(${invert}%)`;
+
+            // Canvas dimensions
+            const canvasWidth = conversionCanvas.width;
+            const canvasHeight = conversionCanvas.height;
+
+            // 1. Clear the visible canvas
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            
+            // 2. Save the un-transformed state
+            ctx.save(); 
+
+            // 3. Apply CSS filter for the image
+            ctx.filter = filterString;
+
+            // 4. Apply Rotation Transformation
+            const centerX = canvasWidth / 2;
+            const centerY = canvasHeight / 2;
+            const angleInRadians = rotation * (Math.PI / 180);
+
+            ctx.translate(centerX, centerY);
+            ctx.rotate(angleInRadians);
+            
+            // 5. Draw the filtered original image
+            ctx.drawImage(originalImage, -centerX, -centerY, canvasWidth, canvasHeight);
+
+            // 6. Draw the drawing layer (must be drawn after image, but filters should NOT apply to the lines)
+            ctx.filter = 'none'; 
+            ctx.drawImage(drawingCanvas, -centerX, -centerY, canvasWidth, canvasHeight);
+            
+            // 7. Restore the original state (removes filter, translate, and rotate)
+            ctx.restore();
+            
+            // Update the drawing overlay resolution to match the conversion canvas
+            drawingOverlay.width = conversionCanvas.width;
+            drawingOverlay.height = conversionCanvas.height;
+        }
+
+        function handleImageLoad(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                showMessage('error', 'Please select a valid image file (PNG or JPG).');
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                 showMessage('error', 'File size exceeds the 10MB limit.');
+                 return;
+            }
+
+            originalFileName = file.name.split('.').slice(0, -1).join('.') || 'edited_image';
+            imageNameDisplay.textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    originalImage = img;
+                    
+                    // Set ALL canvas dimensions to image dimensions (for consistent drawing/data storage)
+                    conversionCanvas.width = img.naturalWidth;
+                    conversionCanvas.height = img.naturalHeight;
+                    drawingCanvas.width = img.naturalWidth;
+                    drawingCanvas.height = img.naturalHeight;
+                    drawingOverlay.width = img.naturalWidth;
+                    drawingOverlay.height = img.naturalHeight;
+                    
+                    // Set drawing context properties (these will be set again in draw, but good for initialization)
+                    d_ctx.lineCap = lineCapStyle;
+                    d_ctx.lineJoin = lineJoinStyle;
+                    d_ctx.setLineDash(lineDashPattern);
+
+                    // Show canvases and hide placeholder
+                    conversionCanvas.classList.remove('hidden');
+                    drawingOverlay.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    dropZone.classList.remove('border-dashed', 'border-gray-400');
+
+                    // Reset all controls and settings
+                    resetAllSettings();
+                    resetDrawingLayer();
+                    
+                    // Initial draw
+                    redrawCanvas();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function initializeControls() {
+            Object.keys(controlDefinitions).forEach(key => {
+                const def = controlDefinitions[key];
+                settings[key] = def.default; // Set initial state
+        
+                const range = document.getElementById(`${key}Range`);
+                const number = document.getElementById(`${key}Number`);
+        
+                if (!range || !number) return; 
+        
+                // Set attributes based on definitions
+                range.min = def.min; range.max = def.max; range.step = def.step; range.value = def.default;
+                number.min = def.min; number.max = def.max; number.step = def.step; number.value = def.default;
+                
+                // Listener function for both inputs
+                const updateControl = (e) => {
+                    let newValue = parseFloat(e.target.value);
+                    
+                    // Boundary clamping based on definitions
+                    if (newValue < def.min) newValue = def.min;
+                    if (newValue > def.max) newValue = def.max;
+                    
+                    // Update the state (settings)
+                    settings[key] = newValue;
+        
+                    // Sync the other input element
+                    if (e.target.type === 'range') {
+                        number.value = newValue;
+                    } else if (e.target.type === 'number') {
+                        range.value = newValue;
+                    }
+                    
+                    // Re-draw the canvas
+                    redrawCanvas();
+                };
+        
+                // Attach listeners
+                range.addEventListener('input', updateControl);
+                // Use 'input' for number field for immediate sync while typing
+                number.addEventListener('input', updateControl); 
+                // Use 'change' for number field to ensure clamping/final value is applied when focus leaves
+                number.addEventListener('change', updateControl); 
+            });
+             
+            // Also link the JPG quality controls
+            const jpegRange = document.getElementById('jpegQualityRange');
+            const jpegNumber = document.getElementById('jpegQualityNumber');
+            
+            if (jpegRange && jpegNumber) {
+                 const updateQuality = (e) => {
+                    let newValue = parseInt(e.target.value);
+                    if (newValue < 10) newValue = 10;
+                    if (newValue > 100) newValue = 100;
+
+                    jpegRange.value = newValue;
+                    jpegNumber.value = newValue;
+                };
+                
+                jpegRange.addEventListener('input', updateQuality);
+                jpegNumber.addEventListener('input', updateQuality);
+                jpegNumber.addEventListener('change', updateQuality); 
+            }
+        }
+        
+        function resetAllSettings() {
+            Object.keys(controlDefinitions).forEach(key => {
+                const def = controlDefinitions[key];
+                const range = document.getElementById(`${key}Range`);
+                const number = document.getElementById(`${key}Number`);
+                
+                settings[key] = def.default;
+                if (range) range.value = def.default;
+                if (number) number.value = def.default;
+            });
+            
+            // Reset JPG quality control separately
+            const jpegRange = document.getElementById('jpegQualityRange');
+            const jpegNumber = document.getElementById('jpegQualityNumber');
+            if (jpegRange) jpegRange.value = 90;
+            if (jpegNumber) jpegNumber.value = 90;
+
+            redrawCanvas();
+        }
+
+        function resetDrawingLayer() {
+            // Reset drawing context styles to defaults
+            lineCapStyle = 'round';
+            lineJoinStyle = 'round';
+            lineDashPattern = [];
+            lineCapStyleInput.value = 'round';
+            lineJoinStyleInput.value = 'round';
+            lineDashPatternInput.value = '';
+
+            d_ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+            showMessage('success', 'Drawings cleared and brush settings reset.');
+            redrawCanvas();
+        }
+
+        // --- Drawing Event Handlers ---
+
+        function startDrawing(e) {
+            if (!originalImage || e.button !== 0 && !e.touches) return; // Only respond to left click or touch
+
+            isDrawing = true;
+            const { x, y } = mapMouseEventToCanvas(e);
+            [lastX, lastY] = [x, y];
+
+            // Prevent scroll on touch devices while drawing
+            e.preventDefault();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            const { x, y } = mapMouseEventToCanvas(e);
+            
+            // 1. Configure context based on tool AND NEW STYLES
+            d_ctx.lineWidth = penSize;
+            d_ctx.globalCompositeOperation = (currentTool === 'eraser') ? 'destination-out' : 'source-over';
+            d_ctx.strokeStyle = (currentTool === 'pen') ? penColor : 'rgba(0,0,0,1)'; // Eraser draws transparent black
+
+            // APPLY NEW STYLES
+            d_ctx.lineCap = lineCapStyle;
+            d_ctx.lineJoin = lineJoinStyle;
+            d_ctx.setLineDash(lineDashPattern);
+            
+            // 2. Draw the stroke onto the hidden drawingCanvas
+            d_ctx.beginPath();
+            d_ctx.moveTo(lastX, lastY);
+            d_ctx.lineTo(x, y);
+            d_ctx.stroke();
+
+            // 3. Update position
+            [lastX, lastY] = [x, y];
+            
+            // 4. Rerender the visible canvas to show the new stroke
+            redrawCanvas();
+
+            e.preventDefault();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        // --- Event Listeners Setup ---
+
+        // Drawing Event Listeners (on the overlay element)
+        drawingOverlay.addEventListener('mousedown', startDrawing);
+        drawingOverlay.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', stopDrawing);
+        
+        drawingOverlay.addEventListener('touchstart', startDrawing);
+        drawingOverlay.addEventListener('touchmove', draw);
+        window.addEventListener('touchend', stopDrawing);
+        window.addEventListener('touchcancel', stopDrawing);
+
+        // Drawing Tool Controls
+        toolPenButton.addEventListener('click', () => {
+            currentTool = 'pen';
+            toolPenButton.classList.replace('bg-gray-200', 'bg-indigo-500');
+            toolPenButton.classList.replace('text-gray-700', 'text-white');
+            toolPenButton.classList.replace('border-gray-300', 'border-indigo-600');
+            
+            toolEraserButton.classList.replace('bg-indigo-500', 'bg-gray-200');
+            toolEraserButton.classList.replace('text-white', 'text-gray-700');
+            toolEraserButton.classList.replace('border-indigo-600', 'border-gray-300');
+            showMessage('success', 'Pen tool selected.');
+        });
+        
+        toolEraserButton.addEventListener('click', () => {
+            currentTool = 'eraser';
+            toolEraserButton.classList.replace('bg-gray-200', 'bg-indigo-500');
+            toolEraserButton.classList.replace('text-gray-700', 'text-white');
+            toolEraserButton.classList.replace('border-gray-300', 'border-indigo-600');
+            
+            toolPenButton.classList.replace('bg-indigo-500', 'bg-gray-200');
+            toolPenButton.classList.replace('text-white', 'text-gray-700');
+            toolPenButton.classList.replace('border-indigo-600', 'border-gray-300');
+            showMessage('success', 'Eraser tool selected.');
+        });
+
+        penColorInput.addEventListener('input', (e) => {
+            penColor = e.target.value;
+        });
+
+        penSizeSlider.addEventListener('input', (e) => {
+            penSize = parseInt(e.target.value);
+            document.getElementById('penSizeValue').textContent = `${penSize} px`;
+        });
+        
+        // Line Cap/Join Listeners
+        lineCapStyleInput.addEventListener('change', (e) => {
+            lineCapStyle = e.target.value;
+        });
+
+        lineJoinStyleInput.addEventListener('change', (e) => {
+            lineJoinStyle = e.target.value;
+        });
+
+        // Dash Pattern Listener
+        lineDashPatternInput.addEventListener('input', (e) => {
+            const rawValue = e.target.value.trim();
+            if (rawValue) {
+                // Parse comma-separated numbers, filtering out non-numeric values
+                lineDashPattern = rawValue.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n >= 0);
+            } else {
+                lineDashPattern = [];
+            }
+        });
+
+        resetDrawingsButton.addEventListener('click', resetDrawingLayer);
+
+        // Reset Filter Button
+        resetButton.addEventListener('click', () => {
+            if (originalImage) {
+                resetAllSettings();
+                showMessage('success', 'Filters have been reset.');
+            }
+        });
+
+        // Tab Switching
+        Object.keys(tabs).forEach(tabKey => {
+            tabs[tabKey].addEventListener('click', () => {
+                Object.keys(tabs).forEach(key => {
+                    tabs[key].classList.remove('border-indigo-600', 'text-indigo-600');
+                    tabs[key].classList.add('border-transparent', 'text-gray-500', 'hover:text-indigo-600', 'hover:border-indigo-300');
+                    tabContents[key].classList.add('hidden');
+                });
+                
+                tabs[tabKey].classList.add('border-indigo-600', 'text-indigo-600');
+                tabs[tabKey].classList.remove('border-transparent', 'text-gray-500', 'hover:text-indigo-600', 'hover:border-indigo-300');
+                tabContents[tabKey].classList.remove('hidden');
+                
+                // Toggle display controls for Export tab
+                if (tabKey === 'export') {
+                    handleFormatChange();
+                }
+            });
+        });
+
+        // --- File Input and Drag/Drop ---
+
+        fileInput.addEventListener('change', (e) => {
+            handleImageLoad(e.target.files[0]);
+        });
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-indigo-500', 'bg-indigo-50');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-indigo-500', 'bg-indigo-50');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-indigo-500', 'bg-indigo-50');
+            const file = e.dataTransfer.files[0];
+            handleImageLoad(file);
+        });
+        
+        // --- Export/Conversion Logic (Integrated) ---
+
+        function handleFormatChange() {
+            const format = outputFormat.value;
+            qualityControl.classList.toggle('hidden', format !== 'jpeg');
+            icoSizeControl.classList.toggle('hidden', format !== 'ico');
+        }
+        
+        outputFormat.addEventListener('change', handleFormatChange);
+        
+
+        // Binary Helper Functions for ICO
+        function numToBuffer(num, bytes) {
+            const arr = new ArrayBuffer(bytes);
+            const view = new DataView(arr);
+            if (bytes === 2) view.setUint16(0, num, true);
+            else if (bytes === 4) view.setUint32(0, num, true);
+            else view.setUint8(0, num);
+            return arr;
+        }
+        function concatBuffers(buffers) {
+            const totalLength = buffers.reduce((acc, buf) => acc + buf.byteLength, 0);
+            const result = new Uint8Array(totalLength);
+            let offset = 0;
+            buffers.forEach(buf => {
+                result.set(new Uint8Array(buf), offset);
+                offset += buf.byteLength;
+            });
+            return result.buffer;
+        }
+        function readBlobAsArrayBuffer(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(blob);
+            });
+        }
+        
+        // SVG Logic
+        function rasterToSimpleSVG(canvas, width, height) {
+            let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">`;
+            const tempCtx = canvas.getContext('2d');
+            const imageData = tempCtx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+            const step = SVG_BLOCK_SIZE;
+
+            for (let y = 0; y < height; y += step) {
+                for (let x = 0; x < width; x += step) {
+                    const index = (y * width + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+                    const a = data[index + 3];
+
+                    const hexColor = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase().padStart(6, '0')}`;
+                    const opacity = a / 255; 
+
+                    if (opacity > 0) {
+                       svg += `<rect x="${x}" y="${y}" width="${step}" height="${step}" fill="${hexColor}" fill-opacity="${opacity.toFixed(2)}" />`;
+                    }
+                }
+            }
+            svg += '</svg>';
+            return svg;
+        }
+        
+        // ICO Logic
+        async function convertToICO(canvas) {
+            const size = parseInt(document.getElementById('icoSize').value);
+            
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = size;
+            tempCanvas.height = size;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(canvas, 0, 0, size, size);
+
+            const pngBlob = await new Promise(resolve => tempCanvas.toBlob(resolve, 'image/png'));
+            const pngArrayBuffer = await readBlobAsArrayBuffer(pngBlob);
+            const pngDataLength = pngArrayBuffer.byteLength;
+            const dataOffset = 6 + 16; 
+
+            const iconDir = concatBuffers([
+                numToBuffer(0, 2), numToBuffer(1, 2), numToBuffer(1, 2)
+            ]);
+
+            const iconDirEntry = concatBuffers([
+                numToBuffer(size, 1), numToBuffer(size, 1), numToBuffer(0, 1), numToBuffer(0, 1),
+                numToBuffer(1, 2), numToBuffer(32, 2), numToBuffer(pngDataLength, 4), numToBuffer(dataOffset, 4)
+            ]);
+            
+            const icoBuffer = concatBuffers([iconDir, iconDirEntry, pngArrayBuffer]);
+            return new Blob([icoBuffer], { type: 'image/x-icon' });
+        }
+
+        // PDF Logic
+        async function convertToPDF(canvas, img) {
+            const doc = new jsPDF('portrait', 'pt', 'a4');
+            const docWidth = doc.internal.pageSize.getWidth();
+            const docHeight = doc.internal.pageSize.getHeight();
+            
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+            const ratio = imgWidth / imgHeight;
+
+            let width = docWidth;
+            let height = docWidth / ratio;
+            
+            if (height > docHeight) {
+                height = docHeight;
+                width = docHeight * ratio;
+            }
+
+            const x = (docWidth - width) / 2;
+            const y = (docHeight - height) / 2;
+
+            const imgData = canvas.toDataURL('image/png');
+
+            doc.addImage(imgData, 'PNG', x, y, width, height);
+            
+            return new Blob([doc.output('arraybuffer')], { type: 'application/pdf' });
+        }
+
+        async function convertAndDownload() {
+            if (!originalImage) {
+                showMessage('error', 'Please load an image before exporting.');
+                return;
+            }
+
+            convertButton.textContent = 'Processing...';
+            convertButton.disabled = true;
+
+            // Ensure the canvas reflects the latest settings
+            redrawCanvas();
+
+            const format = outputFormat.value;
+            let extension = '';
+            let downloadBlob = null; 
+            let downloadDataURL = null; 
+
+            // Create a temporary final canvas to ensure the drawing layer is baked in
+            const finalCanvas = document.createElement('canvas');
+            finalCanvas.width = conversionCanvas.width;
+            finalCanvas.height = conversionCanvas.height;
+            const finalCtx = finalCanvas.getContext('2d');
+
+            // Draw the visible canvas content (filtered image + merged drawing) onto the final canvas
+            finalCtx.drawImage(conversionCanvas, 0, 0);
+
+            try {
+                if (format === 'png' || format === 'jpeg') {
+                    // Raster Conversions (PNG and JPG)
+                    const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+                    extension = format === 'png' ? 'png' : 'jpg';
+                    
+                    if (format === 'png') {
+                        downloadDataURL = finalCanvas.toDataURL(mimeType);
+                    } else {
+                        // Use the value from the input field
+                        const quality = parseInt(document.getElementById('jpegQualityNumber').value) / 100; 
+                        downloadDataURL = finalCanvas.toDataURL(mimeType, quality);
+                    }
+                } else if (format === 'svg') {
+                    // Vector Conversion (SVG)
+                    extension = 'svg';
+                    const svgString = rasterToSimpleSVG(finalCanvas, finalCanvas.width, finalCanvas.height);
+                    downloadBlob = new Blob([svgString], { type: 'image/svg+xml' });
+                } else if (format === 'ico') {
+                    // ICO Conversion
+                    extension = 'ico';
+                    downloadBlob = await convertToICO(finalCanvas);
+                } else if (format === 'pdf') {
+                    // PDF Conversion
+                    extension = 'pdf';
+                    downloadBlob = await convertToPDF(finalCanvas, originalImage);
+                } else {
+                    throw new Error('Invalid output format selected.');
+                }
+            } catch (e) {
+                console.error("Conversion Error:", e);
+                showMessage('error', `Export failed for ${format.toUpperCase()}. See console.`);
+                return;
+            } finally {
+                convertButton.textContent = 'Export Image';
+                convertButton.disabled = false;
+            }
+
+            // --- Download Trigger ---
+            const link = document.createElement('a');
+            link.download = `${originalFileName}_edited.${extension}`;
+            
+            if (downloadBlob) {
+                const url = URL.createObjectURL(downloadBlob);
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+            } else if (downloadDataURL) {
+                link.href = downloadDataURL;
+                link.click();
+            }
+
+            showMessage('success', `Image successfully exported and download started for ${extension.toUpperCase()}!`);
+        }
+
+        convertButton.addEventListener('click', convertAndDownload);
+        
+        // Run initializer on load
+        initializeControls();
+        
+        // Default to Adjustments tab on load
+        // This is now safe because the 'tabs' object is defined above.
+        tabs.adjust.click();
+        
+        // Set initial drawing tool style
+        toolPenButton.click();
+    </script>
+</body>
+</html>

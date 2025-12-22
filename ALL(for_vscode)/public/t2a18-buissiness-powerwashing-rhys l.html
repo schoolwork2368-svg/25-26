@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Powerwashing.com</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="powerwashing-page">
+    <header>
+        <nav class="navbar">
+            <div class="dropdown">
+                <button onclick="toggleDropdown()" class="menu-button">☰ Menu</button>
+                <div id="myDropdown" class="dropdown-content">
+                    <a href="#staff">Staff Directory</a>
+                    <a href="#contact">Contact Page</a>
+                </div>
+            </div>
+            <p class="navbar-title" style="font-size: larger;">T2a18 Powerwashing by Rhys Leverentz™</p>
+        </nav>
+    </header>
+
+    <section style="display: flex; flex-direction: column; align-items: center; gap: 1rem; padding-top: 2rem;">
+        <div class="content-card" style="text-align: center;">
+            <h1 class="card-title">Powerwashing.com</h1>
+            <p class="card-subtitle">Need Help with pressure washing?</p>
+        </div>
+        
+        <div class="content-card">
+            
+            <div style="text-align:center"><p class="info-text">Guaranteed clean or your money back</p></div><hr>
+            <div style="text-align:center"><p class="info-text">Fast and thorough jon to ensure your satisfaction</p></div><hr>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <pre><p class="info-text" style="margin: 0;padding-left: 50px;">We are licensed professional 
+    covered by WSBC</p></pre>
+                <img src="All Photos\badgegarauntee.png" style="width: 150px;" alt="100% satisfaction guarantee badge">
+            </div>
+        </div>
+    </section>
+    
+    <section id="staff" style="display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 2rem 0;">
+        <div class="content-card" style="text-align: center;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 2rem; color: #333;">Our Professional Team</h2>
+            <div class="staff-container" style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                
+                <div class="staff-member" style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 250px; text-align: center;">
+                    <img src="All Photos\shrek.png" alt="Staff Member 1" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid #a1db00;">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #a1db00;">Shrek</h3>
+                    <p style="color: #555;">Founder & Lead Technician</p>
+                </div>
+    
+                <div class="staff-member" style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 250px; text-align: center;">
+                    <img src="All Photos\xavier.png" alt="Staff Member 2" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid #722e00;">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #722e00;">Xavier</h3>
+                    <p style="color: #555;">Customer Relations</p>
+                </div>
+    
+                <div class="staff-member" style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 250px; text-align: center;">
+                    <img src="All Photos\Sukuna.png" alt="Staff Member 3" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid #c90000;">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #c90000;">Sukuna</h3>
+                    <p style="color: #555;">Operations Manager</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" style="display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 2rem 0;">
+        <div class="content-card" style="text-align: center;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: #333;">Contact Us</h2>
+            <p class="info-text" style="font-size: large;">Have questions or want a quote? Reach out to us!(These are props. Please do not dial.)</p>
+            <p style="font-size: 1.2rem; color: #007BFF; font-weight: bold;">Phone: (555) 123-4567</p>
+            <p style="font-size: 1.2rem; color: #007BFF; font-weight: bold;">Email: contact@powerwashing.com</p>
+            <p style="color: #000000; margin-top: 1.5rem;">Want to book an appointment?</p>
+            <form id="bookingForm" action="#" method="post" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem; max-width: 400px; margin-left: auto; margin-right: auto; text-align: left;">
+                <input type="text" name="province" placeholder="Province" style="padding: 0.75rem; border-radius: 4px; border: 1px solid #ccc; font-size: 1rem;">
+                <input type="text" name="city" placeholder="City" style="padding: 0.75rem; border-radius: 4px; border: 1px solid #ccc; font-size: 1rem;">
+                <input type="text" name="street" placeholder="Street Address" style="padding: 0.75rem; border-radius: 4px; border: 1px solid #ccc; font-size: 1rem;">
+                <input type="text" name="postal" placeholder="Postal Code" style="padding: 0.75rem; border-radius: 4px; border: 1px solid #ccc; font-size: 1rem;">
+                <button type="submit" style="padding: 0.75rem; border-radius: 4px; border: none; background-color: #28A745; color: white; font-weight: bold; cursor: pointer; font-size: 1.1rem;">Book Now</button>
+            </form>
+        </div>
+    </section>
+
+    <button onclick="scrollToTop()" id="backToTopBtn" class="back-to-top" title="Go to top">↑</button>
+
+    <script>
+        /* When the user clicks on the button, 
+        toggle between hiding and showing the dropdown content */
+        function toggleDropdown() {
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function(event) {
+            if (!event.target.matches('.menu-button')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        // --- Back to Top Button Logic ---
+        
+        // Get the button
+        let mybutton = document.getElementById("backToTopBtn");
+
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {scrollFunction()};
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                mybutton.classList.add("show");
+            } else {
+                mybutton.classList.remove("show");
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        // --- Form Submission Logic ---
+        document.getElementById('bookingForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from actually submitting
+            
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            confirmationMessage.style.display = 'block'; // Show the message
+            
+            this.reset(); // Clear the form fields
+
+            // Hide the message after 3 seconds
+            setTimeout(() => {
+                confirmationMessage.style.display = 'none';
+            }, 3000);
+        });
+    </script>
+
+</body>
+</html>

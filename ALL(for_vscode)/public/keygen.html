@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Cryptography API</title>
+    </head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-2xl">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Key Pair Generator</h1>
+       
+        <div class="flex flex-col md:flex-row md:space-x-4 mb-6">
+            <div class="flex-1 mb-4 md:mb-0">
+                <label for="algorithm" class="block text-sm font-medium text-gray-700">Algorithm</label>
+                <select id="algorithm" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2">
+                    <option value="RSASSA-PKCS1-v1_5">RSASSA-PKCS1-v1_5</option>
+                    <option value="ECDSA">ECDSA</option>
+                </select>
+            </div>
+            <div class="flex-1">
+                <label for="key-size" class="block text-sm font-medium text-gray-700">Key Size (bits)</label>
+                <input type="number" id="key-size" value="2048" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2">
+            </div>
+        </div>
+
+        <button id="generate-button" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl shadow-md hover:bg-indigo-700 transition-colors mb-6">
+            Generate Key Pair
+        </button>
+
+        <div id="output" class="bg-gray-50 border border-gray-200 rounded-md p-4 space-y-4 relative">
+            <div id="loading" class="hidden absolute inset-0 bg-white/80 flex items-center justify-center rounded-md">
+                <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-gray-600">Generating keys...</span>
+            </div>
+            <p class="font-medium text-gray-700">Public Key (Base64 URL-encoded):</p>
+            <textarea id="public-key-output" class="w-full h-40 bg-white border border-gray-300 rounded-md p-2 text-sm text-gray-800" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        const generateButton = document.getElementById('generate-button');
+        const publicKeyOutput = document.getElementById('public-key-output');
+        const loadingIndicator = document.getElementById('loading');
+        const algorithmSelect = document.getElementById('algorithm');
+        const keySizeInput = document.getElementById('key-size');
+
+        generateButton.addEventListener('click', async () => {
+            publicKeyOutput.value = '';
+            loadingIndicator.classList.remove('hidden');
+
+            const algorithm = algorithmSelect.value;
+            const keySize = parseInt(keySizeInput.value, 10);
+
+            let algParams;
+            if (algorithm === 'RSASSA-PKCS1-v1_5') {
+                algParams = {
+                    name: "RSASSA-PKCS1-v1_5",
+                    modulusLength: keySize,
+                    publicExponent: new Uint8Array([1, 0, 1]),
+                    hash: "SHA-256",
+                };
+            } else if (algorithm === 'ECDSA') {
+                const curve = keySize === 256 ? 'P-256' : keySize === 384 ? 'P-384' : 'P-521';
+                algParams = {
+                    name: "ECDSA",
+                    namedCurve: curve,
+                };
+            }
+
+            try {
+                // Generate the key pair
+                const keyPair = await window.crypto.subtle.generateKey(
+                    algParams,
+                    true, // is extractable
+                    ['sign', 'verify'] // key usages
+                );
+
+                // Export the public key
+                const publicKeyJwk = await window.crypto.subtle.exportKey(
+                    "spki", // SubjectPublicKeyInfo format
+                    keyPair.publicKey
+                );
+
+                // Convert the ArrayBuffer to a Base64 URL-encoded string
+                const publicKeyBase64 = arrayBufferToBase64Url(publicKeyJwk);
+                publicKeyOutput.value = publicKeyBase64;
+
+            } catch (error) {
+                console.error('Failed to generate or export key:', error);
+                publicKeyOutput.value = 'Error generating key. See console for details.';
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        });
+
+        // Helper function to convert ArrayBuffer to Base64 URL-encoded string
+        function arrayBufferToBase64Url(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary)
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=+$/, '');
+        }
+    </script>
+</body>
+</html>

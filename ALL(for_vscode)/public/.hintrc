@@ -1,0 +1,33 @@
+{
+  "extends": [
+    "development"
+  ],
+  "hints": {
+    "no-inline-styles": "off",
+    "no-link-names": "off",
+    "no-compat-api/css": "off",
+    "no-frame-parsing": "off",
+    "no-text-alternatives": "off",
+    "axe/text-alternatives": [
+      "default",
+      {
+        "frame-title": "off"
+      }
+    ],
+    "disown-opener": "off",
+    "axe/structure": "off"
+  },
+  "browserslist": [
+    "defaults",
+    "not ie 11",
+    "not and_chr <= 142",
+    "not and_ff <= 144",
+    "not chrome <= 142",
+    "not edge <= 142",
+    "not firefox <= 145",
+    "not ios_saf <= 26",
+    "not opera <= 122",
+    "not safari <= 26.1",
+    "not samsung <= 29"
+  ]
+}

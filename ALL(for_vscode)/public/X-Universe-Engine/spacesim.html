@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Universe Simulator</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="spacestyle.css">
+	</head>
+	<body>
+
+		<div id="blocker">
+			<div id="instructions-explore">
+				<h1>Click to Explore the Universe</h1>
+				<p>
+					<strong>W, A, S D</strong>: Move<br/>
+					<strong>SPACE</strong>: Up<br/>
+					<strong>SHIFT</strong>: Down<br/>
+					<strong>CTRL</strong>: Fly Faster<br/>
+					<strong>- / =</strong>: Adjust Time<br/>
+					<strong>J</strong>: Cycle Speed Units<br/>
+					<strong>Y</strong>: Switch to Select Mode
+				</p>
+			</div>
+			<div id="instructions-select" style="display: none;">
+				<h1>Select Mode</h1>
+				<p>
+					<strong>SCROLL</strong>: Adjust Speed<br/>
+					<strong>Mouse</strong>: Look Around<br/>
+					<strong>ESC</strong>: Release Controls<br/>
+					<strong>U</strong>: Cycle Time Units (Y/s, M/s, D/s, H/s, m/s, s/s)
+				</p>
+			</div>
+		</div>
+
+		<div id="speed-display" style="position: absolute; bottom: 20px; left: 20px; color: white; font-family: monospace; font-size: 16px; background-color: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px;">
+			<span>Speed: </span>
+			<span id="speed-value-display">0.0000</span>
+			<input type="text" id="speed-value-input" class="hidden">
+			<span> </span>
+			<span id="speed-unit">AU/s</span>
+		</div>
+
+		<div id="time-display" style="position: absolute; bottom: 50px; left: 20px; color: white; font-family: monospace; font-size: 16px; background-color: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px;">
+			<span>Time: </span>
+			<span id="time-value-display">1.0000</span>
+			<input type="text" id="time-value-input" class="hidden">
+			<span> </span>
+			<span id="time-unit">Y/s</span>
+		</div>
+
+		<div id="labels-container"></div>
+
+
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "https://unpkg.com/three@0.159.0/build/three.module.js",
+					"three/addons/": "https://unpkg.com/three@0.159.0/examples/jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+			import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+			import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+			import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+			import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+			const planets = [], starData = [];
+			let camera, scene, renderer, controls, clock, composer, starMaterial, stars, distantStars;
+			let moveForward = false;
+			let moveBackward = false;
+			let moveLeft = false;
+			let moveRight = false;
+			let moveUp = false;
+			let moveDown = false;
+			let isSprinting = false;
+
+			let currentMode = 'explore'; // 'explore' or 'select'
+			let flySpeed = 100.0; // Base flying speed
+			const AU = 6000; // Define 1 Astronomical Unit in simulation units (distance of 8th planet)
+			const AU_IN_KM = 149597871;
+			const AU_IN_MILES = 92955807.3;
+			const LY_IN_AU = 63241.1; // How many AU are in one Light-year
+
+			const SPEED_UNIT_FACTORS = [1, AU_IN_KM, AU_IN_MILES, 1 / LY_IN_AU];
+			const SPEED_UNIT_LABELS = ['AU/s', 'Km/s', 'M/s', 'LY/s'];
+			let speedUnit = 0; // 0: AU, 1: Km, 2: Miles, 3: LY
+
+			const EARTH_ORBIT_SPEED = 0.01; // A fixed speed for our 1 AU planet
+			const SIMULATION_YEAR_IN_SECONDS = (2 * Math.PI) / EARTH_ORBIT_SPEED; // How many simulationTime units make a year
+			const SIMULATION_MONTH_IN_SECONDS = SIMULATION_YEAR_IN_SECONDS / 12;
+			const SIMULATION_DAY_IN_SECONDS = SIMULATION_YEAR_IN_SECONDS / 365.25;
+			const SIMULATION_HOUR_IN_SECONDS = SIMULATION_DAY_IN_SECONDS / 24;
+			const SIMULATION_MINUTE_IN_SECONDS = SIMULATION_HOUR_IN_SECONDS / 60;
+			const SIMULATION_SECOND_IN_SECONDS = SIMULATION_MINUTE_IN_SECONDS / 60;
+			const TIME_UNIT_FACTORS = [SIMULATION_YEAR_IN_SECONDS, SIMULATION_MONTH_IN_SECONDS, SIMULATION_DAY_IN_SECONDS, SIMULATION_HOUR_IN_SECONDS, SIMULATION_MINUTE_IN_SECONDS, SIMULATION_SECOND_IN_SECONDS];
+			const TIME_UNIT_LABELS = ['Y/s', 'M/s', 'D/s', 'H/s', 'm/s', 's/s'];
+			let timeUnit = 3; // 0:Y, 1:M, 2:D, 3:H, 4:m, 5:s
+
+			let timeScale = SIMULATION_HOUR_IN_SECONDS; // Controls the speed of planetary orbits, start at 1 H/s
+			let isTimePaused = false;
+			let simulationTime = 0;
+			const direction = new THREE.Vector3();
+
+			// Variables for time acceleration
+			let timeChangeDirection = 0; // -1 for decrease, 1 for increase
+			let timeChangeStartTime = 0;
+
+			init();
+			animate();
+
+			function init() {
+				// Clock for delta-time based movement
+				clock = new THREE.Clock();
+
+				// Scene
+				scene = new THREE.Scene();
+
+				// Camera
+				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 320, 500000000000);
+				camera.position.set(0, 150, 450);
+
+				// Renderer
+				renderer = new THREE.WebGLRenderer({ antialias: true });
+				renderer.setPixelRatio(window.devicePixelRatio); // Render at screen's native resolution
+				renderer.shadowMap.enabled = true;
+				renderer.shadowMap.type = THREE.VSMShadowMap; // For very soft, realistic shadows
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				document.body.appendChild(renderer.domElement);
+
+				// Controls
+				controls = new PointerLockControls(camera, document.body);
+				const blocker = document.getElementById('blocker');
+				const instructionsExplore = document.getElementById('instructions-explore');
+				const instructionsSelect = document.getElementById('instructions-select');
+
+				blocker.addEventListener('click', () => {
+					if (currentMode === 'explore') {
+						controls.lock();
+					}
+				});
+				controls.addEventListener('lock', () => {
+					instructionsExplore.style.display = 'none';
+					instructionsSelect.style.display = 'none';
+				});
+				controls.addEventListener('unlock', () => {
+					instructionsExplore.style.display = currentMode === 'explore' ? '' : 'none';
+					instructionsSelect.style.display = currentMode === 'select' ? '' : 'none';
+					const timeValueEl = document.getElementById('time-value-display');
+					timeValueEl.classList.toggle('time-value-interactive', currentMode === 'select');
+					const timeUnitEl = document.getElementById('time-unit');
+					timeUnitEl.classList.toggle('time-unit-interactive', currentMode === 'select');
+					const speedValueEl = document.getElementById('speed-value-display');
+					speedValueEl.classList.toggle('time-value-interactive', currentMode === 'select');
+					const speedUnitEl = document.getElementById('speed-unit');
+					speedUnitEl.classList.toggle('time-unit-interactive', currentMode === 'select');
+				});
+				scene.add(controls.getObject());
+
+				// Keyboard Listeners
+				const onKeyDown = (event) => {
+					switch (event.code) {
+						case 'KeyW': moveForward = true; break;
+						case 'KeyA': moveLeft = true; break;
+						case 'KeyS': moveBackward = true; break;
+						case 'KeyD': moveRight = true; break;
+						case 'Space': moveUp = true; break;
+						case 'ShiftLeft': moveDown = true; break;
+						case 'ControlLeft': isSprinting = true; break;
+						case 'KeyT': isTimePaused = !isTimePaused; break; // Toggle time pause
+						case 'Minus':
+							if (timeChangeDirection !== -1) { // Prevents re-triggering while held
+								timeChangeDirection = -1;
+								timeChangeStartTime = clock.getElapsedTime();
+							}
+							break;
+						case 'Equal':
+							if (timeChangeDirection !== 1) { // Prevents re-triggering while held
+								timeChangeDirection = 1;
+								timeChangeStartTime = clock.getElapsedTime();
+							}
+							break;
+						case 'KeyU':
+							timeUnit = (timeUnit + 1) % TIME_UNIT_LABELS.length;
+							updateTimeDisplay();
+							break;
+						case 'KeyY':
+							if (currentMode === 'explore') {
+								currentMode = 'select';
+								controls.unlock(); // This will trigger the 'unlock' event listener
+							} else {
+								currentMode = 'explore';
+								controls.lock(); // This will trigger the 'lock' event listener
+							}
+							break;
+						case 'KeyJ':
+							speedUnit = (speedUnit + 1) % SPEED_UNIT_LABELS.length;
+							break;
+
+					}
+				};
+
+				const onKeyUp = (event) => {
+					switch (event.code) {
+						case 'KeyW': moveForward = false; break;
+						case 'KeyA': moveLeft = false; break;
+						case 'KeyS': moveBackward = false; break;
+						case 'KeyD': moveRight = false; break;
+						case 'Space': moveUp = false; break;
+						case 'ShiftLeft': moveDown = false; break;
+						case 'ControlLeft': isSprinting = false; break;
+						case 'Minus':
+						case 'Equal':
+							timeChangeDirection = 0; // Stop changing time on key up
+							break;
+					}
+				};
+
+				document.addEventListener('keydown', onKeyDown);
+				document.addEventListener('wheel', onDocumentWheel);
+				document.addEventListener('keyup', onKeyUp);
+
+				// Add click listener for manual speed input
+				const speedValueDisplay = document.getElementById('speed-value-display');
+				const speedValueInput = document.getElementById('speed-value-input');
+
+				speedValueDisplay.addEventListener('click', () => {
+					if (currentMode === 'select') {
+						speedValueDisplay.classList.add('hidden');
+						speedValueInput.classList.remove('hidden');
+						speedValueInput.value = speedValueDisplay.textContent;
+						speedValueInput.focus();
+						speedValueInput.select();
+					}
+				});
+
+				const finishSpeedEdit = () => {
+					const newDisplaySpeed = parseFloat(speedValueInput.value);
+					if (!isNaN(newDisplaySpeed)) {
+						// Convert the user's input back to the internal flySpeed value
+						flySpeed = (newDisplaySpeed * AU) / SPEED_UNIT_FACTORS[speedUnit];
+					}
+					speedValueInput.classList.add('hidden');
+					speedValueDisplay.classList.remove('hidden');
+				};
+
+				speedValueInput.addEventListener('blur', finishSpeedEdit);
+				speedValueInput.addEventListener('keydown', (event) => {
+					if (event.key === 'Enter') {
+						finishSpeedEdit();
+					} else if (event.key === 'Escape') {
+						speedValueInput.classList.add('hidden');
+						speedValueDisplay.classList.remove('hidden');
+					}
+				});
+
+				const speedUnitEl = document.getElementById('speed-unit');
+				speedUnitEl.addEventListener('click', () => {
+					if (currentMode === 'select') {
+						// This provides a shortcut to set speed to 1 of the current unit
+						flySpeed = (1.0 * AU) / SPEED_UNIT_FACTORS[speedUnit];
+					}
+				});
+
+
+				// Add click listener for manual time input
+				const timeValueDisplayEl = document.getElementById('time-value-display');
+				const timeValueInputEl = document.getElementById('time-value-input');
+
+				timeValueDisplayEl.addEventListener('click', () => {
+					if (currentMode === 'select') {
+						timeValueDisplayEl.classList.add('hidden');
+						timeValueInputEl.classList.remove('hidden');
+						timeValueInputEl.value = timeValueDisplayEl.textContent;
+						timeValueInputEl.focus();
+						timeValueInputEl.select();
+					}
+				});
+
+				const finishTimeEdit = () => {
+					const newValue = parseFloat(timeValueInputEl.value);
+					if (!isNaN(newValue)) {
+						timeScale = newValue * TIME_UNIT_FACTORS[timeUnit];
+						updateTimeDisplay();
+					}
+					timeValueInputEl.classList.add('hidden');
+					timeValueDisplayEl.classList.remove('hidden');
+				};
+
+				timeValueInputEl.addEventListener('blur', finishTimeEdit);
+				timeValueInputEl.addEventListener('keydown', (event) => {
+					if (event.key === 'Enter') {
+						finishTimeEdit();
+					} else if (event.key === 'Escape') {
+						// Cancel edit
+						timeValueInputEl.classList.add('hidden');
+						timeValueDisplayEl.classList.remove('hidden');
+					}
+				});
+
+				const timeUnitEl = document.getElementById('time-unit');
+				timeUnitEl.addEventListener('click', () => {
+					if (currentMode === 'select') {
+						const currentUnitLabel = TIME_UNIT_LABELS[timeUnit].charAt(0); // Y, M, or D
+						const newValueStr = prompt(`Enter a number to define a custom unit multiplier (e.g., enter '7' for 7 ${currentUnitLabel}/s):`);
+						if (newValueStr !== null) {
+							const newValue = parseFloat(newValueStr);
+							if (!isNaN(newValue)) {
+								timeScale = newValue * TIME_UNIT_FACTORS[timeUnit];
+								updateTimeDisplay();
+							}
+						}
+					}
+				});
+
+				updateTimeDisplay(); // Set initial display
+
+				// Black background
+				scene.background = new THREE.Color(0x1a0a2a); // Deep blue/purple background
+
+				// Add a faint ambient light to illuminate the "night" side of planets
+				const ambientLight = new THREE.AmbientLight(0x705090, 0.05); // Soft purple ambient light
+				scene.add(ambientLight);
+
+				// Sun and primary light source (create this first!)
+				const pointLight = new THREE.PointLight(0xffffff, 1.5, 0, 0); // No decay, so light doesn't fade with distance
+				pointLight.castShadow = true;
+
+				// Shadow map settings for higher quality
+				pointLight.shadow.mapSize.width = 4096;
+				pointLight.shadow.mapSize.height = 4096;
+				pointLight.shadow.bias = -0.0001; // Prevents shadow acne
+				pointLight.shadow.camera.far = 200000; // Extend shadow range to encompass the solar system
+				scene.add(pointLight);
+
+				// Sun Mesh
+				const sunGeometry = new THREE.SphereGeometry(150, 128, 128);
+				const sunMaterial = new THREE.MeshBasicMaterial({
+					color: new THREE.Color(0xffffb0).multiplyScalar(2.0) // Make the sun's color HDR for a strong bloom
+				});
+				const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+				scene.add(sun);
+
+				// --- Data-Driven Solar System Creation ---
+				const textureLoader = new THREE.TextureLoader();
+				const planetTexture = textureLoader.load('textures/planet_texture.jpg');
+
+				const solarSystemData = [
+					// Data: name, semi-major axis (AU), eccentricity, inclination (deg), Longitude of Asc. Node (Ω), Arg. of Perihelion (ω), period (days), radius (km), color
+					{ name: 'Mercury', semiMajorAxisAU: 0.387, eccentricity: 0.205, inclination: 7.00, lonAscNode: 48.33, argPeri: 29.12, periodDays: 88.0, radiusKm: 2440, color: 0x959595 },
+					{ name: 'Venus', semiMajorAxisAU: 0.723, eccentricity: 0.007, inclination: 3.39, lonAscNode: 76.68, argPeri: 54.88, periodDays: 224.7, radiusKm: 6052, color: 0xE6C372 },
+					{ name: 'Earth', semiMajorAxisAU: 1.000, eccentricity: 0.017, inclination: 0.00, lonAscNode: -11.26, argPeri: 114.21, periodDays: 365.25, radiusKm: 6371, color: 0x5B92E5 },
+					{ name: 'Mars', semiMajorAxisAU: 1.524, eccentricity: 0.093, inclination: 1.85, lonAscNode: 49.56, argPeri: 286.50, periodDays: 687.0, radiusKm: 3390, color: 0xC1440E },
+					{ name: 'Jupiter', semiMajorAxisAU: 5.203, eccentricity: 0.048, inclination: 1.30, lonAscNode: 100.46, argPeri: 273.87, periodDays: 4331, radiusKm: 69911, color: 0xD8CA9D },
+					{ name: 'Saturn', semiMajorAxisAU: 9.539, eccentricity: 0.054, inclination: 2.48, lonAscNode: 113.66, argPeri: 339.39, periodDays: 10747, radiusKm: 58232, color: 0xF0E5C5 },
+					{ name: 'Uranus', semiMajorAxisAU: 19.18, eccentricity: 0.047, inclination: 0.77, lonAscNode: 74.01, argPeri: 98.99, periodDays: 30589, radiusKm: 25362, color: 0xAFDBF5 },
+					{ name: 'Neptune', semiMajorAxisAU: 30.06, eccentricity: 0.009, inclination: 1.77, lonAscNode: 131.78, argPeri: 276.34, periodDays: 59800, radiusKm: 24622, color: 0x3F54BA }
+				];
+
+				const rockyPlanetVisMultiplier = 100; // Make rocky planets smaller
+				const gasGiantVisMultiplier = 35; // Make gas giants bigger
+
+				const labelsContainer = document.getElementById('labels-container');
+
+				solarSystemData.forEach(data => {
+					const isGasGiant = data.radiusKm > 15000;
+					const visibilityMultiplier = isGasGiant ? gasGiantVisMultiplier : rockyPlanetVisMultiplier;
+					const realisticRadius = (data.radiusKm / AU_IN_KM) * AU;
+					const planetRadius = realisticRadius * visibilityMultiplier;
+
+					const planetGeometry = new THREE.SphereGeometry(planetRadius, 32, 32);
+					const planetMaterial = new THREE.MeshLambertMaterial({ color: data.color });
+					const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+					planet.name = data.name;
+					planet.castShadow = true;
+					planet.receiveShadow = true;
+
+					// --- Store Accurate Orbital Data ---
+					const semiMajorAxis = data.semiMajorAxisAU * AU;
+					const eccentricity = data.eccentricity;
+
+					planet.userData = {
+						...data, // Copy all data from the definition
+						orbitSpeed: (365.25 / data.periodDays) * EARTH_ORBIT_SPEED,
+						semiMajorAxis: semiMajorAxis,
+						semiMinorAxis: semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity),
+						focusOffset: semiMajorAxis * eccentricity,
+						
+						// Calculate the final, real-world orientation quaternion once and store it
+						orbitOrientation: (() => {
+							// Create quaternions for each of the 3 orbital element rotations
+							const qLon = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(data.lonAscNode));
+							const qInc = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), THREE.MathUtils.degToRad(data.inclination));
+							const qArg = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(data.argPeri));
+							
+							// This is the unique tilt and rotation of the orbit in the XZ plane
+							const uniqueOrbitTilt = new THREE.Quaternion().multiplyQuaternions(qLon, qInc).multiply(qArg);
+							// Now, combine it with the base rotation from XY to XZ plane to get the final orientation
+							const finalOrientation = new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0)).multiply(uniqueOrbitTilt);
+							return finalOrientation;
+						})(),
+
+						// Label element for the planet's name
+						labelElement: (() => {
+							const div = document.createElement('div');
+							div.className = 'planet-label';
+							div.textContent = data.name;
+							labelsContainer.appendChild(div);
+							return div;
+						})()
+					};
+
+					let orbit;
+					const { focusOffset } = planet.userData;
+					const curve = new THREE.EllipseCurve(-focusOffset, 0, semiMajorAxis, planet.userData.semiMinorAxis, 0, 2 * Math.PI, false, 0);
+					const points = curve.getPoints(256); // Increased points for smoother ellipses
+					const orbitGeometry = new THREE.BufferGeometry().setFromPoints(points);
+					const orbitMaterial = new THREE.LineBasicMaterial({ color: new THREE.Color(0xffffff).multiplyScalar(1.5), transparent: true, opacity: 0.5 });
+					orbit = new THREE.Line(orbitGeometry, orbitMaterial);
+
+					// Correctly orient the orbit in 3D space using its inclination and azimuth
+					orbit.quaternion.copy(planet.userData.orbitOrientation);
+
+					scene.add(orbit);
+
+					planets.push(planet);
+					scene.add(planet);
+					planet.userData.orbit = orbit; // Associate orbit with planet
+				});
+
+				// Starfield
+				// --- High-Detail Star System (Instanced Spheres) ---
+				const starCount = 40000; // Total number of stars to generate
+				const starGeometry = new THREE.SphereGeometry(4, 16, 16); // Low-resolution sphere for performance
+				const instancedGeometry = new THREE.InstancedBufferGeometry().copy(starGeometry);
+				const hdColors = new Float32Array(starCount * 3);
+				instancedGeometry.setAttribute('color', new THREE.InstancedBufferAttribute(hdColors, 3));
+				starMaterial = new THREE.MeshBasicMaterial({
+					vertexColors: true, // Use vertex colors set per instance
+					transparent: true // Needed for opacity cross-fade
+				});
+				stars = new THREE.InstancedMesh(instancedGeometry, starMaterial, starCount);
+				stars.name = 'stars'; // Name the mesh for easy selection
+
+				// --- Low-Detail Star System (Points) ---
+				const ldPositions = [];
+				const ldColorsAndAlpha = [];
+				const ldSizes = [];
+				const canvas = document.createElement('canvas');
+				canvas.width = 64; canvas.height = 64;
+				const context = canvas.getContext('2d');
+				const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+				gradient.addColorStop(0, 'rgba(255,255,255,1)');
+				gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+				gradient.addColorStop(1, 'rgba(255,255,255,0)');
+				context.fillStyle = gradient;
+				context.fillRect(0, 0, 64, 64);
+				const starTexture = new THREE.CanvasTexture(canvas);
+				const ldGeometry = new THREE.BufferGeometry();
+				const ldMaterial = new THREE.PointsMaterial({
+					map: starTexture,
+					size: 1500, // Base size, will be attenuated by distance
+					blending: THREE.NormalBlending,
+					depthTest: false,
+					transparent: true,
+					vertexColors: true
+				});
+				distantStars = new THREE.Points(ldGeometry, ldMaterial);
+				distantStars.visible = false; // Initially hidden
+
+				const dummy = new THREE.Object3D();
+				const color = new THREE.Color();
+
+				// --- Milky Way Galaxy Generation Parameters ---
+				const GALAXY_DIAMETER_LY = 50000; // Approximate diameter of the Milky Way in light-years
+				const GALAXY_THICKNESS_LY = 10;   // Approximate thickness of the galactic disk in light-years
+
+				// --- GALAXY BRIGHTNESS CONTROL ---
+				// This is the key variable that makes dense areas like star clusters and the galactic core appear brighter.
+				// It acts as a global multiplier on every star's calculated brightness.
+				const GALAXY_BRIGHTNESS_MODIFIER = 20.5;
+				const galaxyRadius = (GALAXY_DIAMETER_LY / 2) * LY_IN_AU * AU; // The radius of our galaxy disk
+				const galaxyThickness = GALAXY_THICKNESS_LY * LY_IN_AU * AU;  // The thickness of the disk
+				const bulgeRadius = galaxyRadius * 0.16;      // The radius of the central bulge (proportional to disk)
+
+				const numArms = 2;               // Number of spiral arms
+				const armAngle = (2 * Math.PI) / numArms;
+				const armTightness = 2.5;        // How tightly wound the arms are
+				const armWidth = 0.4;            // How wide the arms are, as a fraction of radius
+
+				// Define the Sun's position within the galaxy (approx. 2/3rds out)
+				const solarSystemOffset = new THREE.Vector3(galaxyRadius * 0.66, 0, 0);
+
+				for (let i = 0; i < starCount; i++) {
+					let position;
+					const isBulgeStar = Math.random() < 0.3; // 30% of stars are in the bulge
+
+					if (isBulgeStar) {
+						// Generate a star in the central bulge (ellipsoidal distribution)
+						do {
+							position = new THREE.Vector3(
+								THREE.MathUtils.randFloatSpread(bulgeRadius * 2),
+								THREE.MathUtils.randFloatSpread(galaxyThickness * 2), // Bulge is also somewhat flattened
+								THREE.MathUtils.randFloatSpread(bulgeRadius * 2)
+							);
+						} while (
+							// Check if it's inside the ellipsoid
+							(position.x * position.x) / (bulgeRadius * bulgeRadius) +
+							(position.y * position.y) / (galaxyThickness * galaxyThickness) +
+							(position.z * position.z) / (bulgeRadius * bulgeRadius) > 1
+						);
+					} else {
+						// Generate a star in the disk (either in an arm or between them)
+						const angle = Math.random() * 2 * Math.PI;
+						const radius = Math.random() * galaxyRadius;
+						const isArmStar = Math.random() < 0.5; // 70% of disk stars are in arms
+
+						if (isArmStar) {
+							// Place star within a spiral arm
+							const arm = Math.floor(angle / armAngle) + (Math.random() > 0.5 ? 1 : 0); // Add more variance to arm placement
+							const armOffset = arm * armAngle;
+							const spiralAngle = armOffset + radius / (galaxyRadius * armWidth) * armTightness;
+
+							position = new THREE.Vector3(
+								radius * Math.cos(spiralAngle + Math.random() * 0.1),
+								THREE.MathUtils.randFloatSpread(galaxyThickness * Math.exp(-radius / galaxyRadius)), // Disk thins out
+								radius * Math.sin(spiralAngle + Math.random() * 0.1)
+							);
+						} else {
+							// Place star in the general disk, between arms.
+							// Use a power function to bias their distribution towards the center.
+							const interArmRadius = Math.pow(Math.random(), 2) * galaxyRadius;
+							position = new THREE.Vector3(
+								interArmRadius * Math.cos(angle),
+								THREE.MathUtils.randFloatSpread(galaxyThickness * Math.exp(-interArmRadius / galaxyRadius) * 0.5), // Inter-arm stars are in a thinner disk
+								interArmRadius * Math.sin(angle)
+							);
+						}
+					}
+
+					dummy.position.copy(position);
+					let brightnessMultiplier = 1.0; // Default brightness
+
+					let baseScale;
+					const rand = Math.random();
+
+					if (rand < 0.005) { // Red Supergiant (0.5%) - Very large, red
+						baseScale = Math.random() * 100 + 150;
+						color.set(0xff4444);
+						brightnessMultiplier = 5.5;
+					} else if (rand < 0.01) { // Blue Supergiant (0.5%) - Very large, blue
+						baseScale = Math.random() * 120 + 120;
+						color.set(0xaaaaff);
+						brightnessMultiplier =6.5;
+					} else if (rand < 0.05) { // Red Giant (4%) - Large, orange-red
+						baseScale = Math.random() * 50 + 60;
+						color.set(0xff8866);
+						brightnessMultiplier = 3.2;
+					} else if (rand < 0.1) { // Blue Giant (5%) - Large, blue-white
+						baseScale = Math.random() * 40 + 50;
+						color.set(0xccccff);
+						brightnessMultiplier = 3.0;
+					} else if (rand < 0.2) { // White Dwarf (10%) - Very small, bright white
+						baseScale = Math.random() * 1.0 + 1.0;
+						color.set(0xfbf8ff);
+						brightnessMultiplier = 1.8;
+					} else if (rand < 0.25) { // Black Dwarf (5%) - Very small, very dim red
+						baseScale = Math.random() * 1.0 + 1.0;
+						color.set(0x110000);
+						brightnessMultiplier = 0.1;
+					} 
+					else { // Main Sequence (75%) - Regular yellow-white stars
+						baseScale = Math.random() * 20 + 2;
+						color.set(0xffffb0);
+						brightnessMultiplier = 2.0;
+					}
+
+					const distance = position.length();
+					const maxDistance = galaxyRadius; // The edge of the galaxy.
+					const normalizedDistance = distance / maxDistance;
+
+					dummy.scale.set(baseScale, baseScale, baseScale);
+
+					// Use a power function for a dramatic brightness increase for distant stars
+					// Scale the distance-based brightness by the star's size (using log to manage the vast range)
+					const BRIGHTNESS_CAP = 190.5; // The maximum brightness a star can have.
+					const MINIMUM_BRIGHTNESS = 15.0; // The minimum brightness a star can have.
+					const sizeAndDistanceFactor = Math.log10(Math.max(1, baseScale)) * Math.pow(normalizedDistance, 4) * 12.0;
+					let brightness = (1.2 + sizeAndDistanceFactor) * GALAXY_BRIGHTNESS_MODIFIER * brightnessMultiplier;
+					brightness = Math.max(brightness, MINIMUM_BRIGHTNESS); // Apply the minimum brightness
+					brightness = Math.min(brightness, BRIGHTNESS_CAP); // Apply the brightness cap
+
+					if (isBulgeStar) {
+						color.set(0xffffb0).multiplyScalar(brightness); // Set central bulge stars to yellow
+					} else {
+						color.set(0x88aaff).multiplyScalar(brightness); // Set arm/disk stars to blue
+					}
+
+					// Now that brightness is calculated based on galactic center, shift the galaxy
+					position.sub(solarSystemOffset);
+					dummy.position.copy(position);
+					// Populate data for both star systems
+					const blobBaseAlpha = baseScale > 2.0 ? 0.2 : 0.0; // Small stars have 0 base opacity for blobs
+					ldPositions.push(position.x, position.y, position.z);
+					ldColorsAndAlpha.push(color.r, color.g, color.b, blobBaseAlpha);
+					ldSizes.push(20.0); // Use a consistent base size for all stars
+
+					// Now that the bright color is set, apply it to the high-detail system
+					color.toArray(hdColors, i * 3);
+					dummy.updateMatrix();
+					stars.setMatrixAt(i, dummy.matrix);
+
+					// Pre-calculate orbit data but don't create the meshes yet
+					const numOrbits = Math.floor(Math.random() * 4); // 0 to 3 orbits
+					const orbitData = [];
+					// Only generate orbits for stars larger than a certain size (i.e., not dwarfs)
+					if (baseScale > 2.0) {
+						for (let j = 0; j < numOrbits; j++) {
+							orbitData.push({
+								radius: baseScale * (1.5 + Math.log10(Math.max(1, baseScale)) * 124.0) * (j + 1) * (Math.random() * 0.5 + 0.75),
+								thickness: baseScale * 0.05 * (Math.random() * 0.5 + 0.75),
+								quaternion: new THREE.Quaternion().random()
+							});
+						}
+					}
+
+					// Store initial data for animation
+					starData.push({ position, baseScale, orbitData, activeOrbits: [], orbitScaleFactor: 1.0 }); // Add placeholder for orbit scale
+					starData.push({ position: position.clone(), baseScale, orbitData, activeOrbits: [], orbitScaleFactor: 1.0 }); // Add placeholder for orbit scale
+				}
+
+				ldGeometry.setAttribute('position', new THREE.Float32BufferAttribute(ldPositions, 3));
+				ldGeometry.setAttribute('color', new THREE.Float32BufferAttribute(ldColorsAndAlpha, 4)); // Now has 4 components (RGBA)
+
+				// --- Post-process star data to calculate orbit scaling based on proximity ---
+				// This is a one-time O(n^2) calculation at startup. For a very large number of stars, this could be optimized.
+				const MIN_PROXIMITY_DISTANCE = 50000;  // At this distance or less, orbits are scaled down by 20%
+				const MAX_PROXIMITY_DISTANCE = 500000; // At this distance or more, orbits have normal size
+				for (let i = 0; i < starData.length; i++) {
+					let minDistanceSq = Infinity;
+					for (let j = 0; j < starData.length; j++) {
+						if (i === j) continue; // Don't compare a star to itself
+						const distSq = starData[i].position.distanceToSquared(starData[j].position);
+						if (distSq < minDistanceSq) {
+							minDistanceSq = distSq;
+						}
+					}
+					const minDistance = Math.sqrt(minDistanceSq);
+
+					// Calculate the scale factor. It will be 0.8 for close stars, 1.0 for distant ones, and interpolated in between.
+					const scaleFactor = THREE.MathUtils.mapLinear(
+						THREE.MathUtils.clamp(minDistance, MIN_PROXIMITY_DISTANCE, MAX_PROXIMITY_DISTANCE),
+						MIN_PROXIMITY_DISTANCE,
+						MAX_PROXIMITY_DISTANCE,
+						0.8, // 20% reduction
+						1.0  // No reduction
+					);
+
+					starData[i].orbitScaleFactor = scaleFactor;
+				}
+
+				scene.add(stars);
+				scene.add(distantStars);
+
+				// --- Add Pillars of Creation Nebula ---
+				// This assumes you have a 'pillars_of_creation.png' file in a 'textures' folder.
+				const nebulaTexture = textureLoader.load('textures/pillars_of_creation.png');
+				const nebulaMaterial = new THREE.SpriteMaterial({
+					map: nebulaTexture,
+					color: 0xffffff,
+					transparent: true,
+					blending: THREE.AdditiveBlending, // Additive blending creates a luminous, glowing effect
+					opacity: 0.35 // Adjust for desired intensity
+				});
+
+				const nebulaSprite = new THREE.Sprite(nebulaMaterial);
+				// --- Pillars of Creation Location ---
+				// The nebula is positioned at these coordinates relative to the Sun (0,0,0).
+				nebulaSprite.position.set(galaxyRadius * 0.1, galaxyRadius * 0.02, -galaxyRadius * 0.4);
+
+				// Scale it to be immense
+				const nebulaSize = galaxyRadius * 0.3;
+				nebulaSprite.scale.set(nebulaSize, nebulaSize, 1);
+				scene.add(nebulaSprite);
+
+				// --- Add Giant Red Marker for Nebula ---
+				const markerGeometry = new THREE.SphereGeometry(galaxyRadius * 0.02, 32, 32); // A large sphere, 2% of galaxy radius
+				const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Bright red
+				const nebulaMarker = new THREE.Mesh(markerGeometry, markerMaterial);
+				// Place the marker at the exact same position as the nebula
+				nebulaMarker.position.copy(nebulaSprite.position);
+				scene.add(nebulaMarker);
+
+				// Post-processing for Bloom Effect
+				const renderScene = new RenderPass(scene, camera);
+				const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+				bloomPass.threshold = 0.75; // Lower threshold to catch more stars in the bloom
+				bloomPass.strength = 4.0; // Increase strength for a more intense glow
+				bloomPass.strength = 5.0; // Increase strength for a more intense glow
+				bloomPass.radius = 0.5; // A smaller radius keeps the glow tight to the stars
+				composer = new EffectComposer(renderer);
+				composer.addPass(renderScene);
+				composer.addPass(bloomPass);
+				window.addEventListener('resize', onWindowResize);
+			}
+			function onDocumentWheel(event) {
+				const scrollFactor = 1.1;
+				if (event.deltaY < 0) {
+					// Scrolling up - increase speed exponentially
+					flySpeed *= scrollFactor;
+				} else {
+					// Scrolling down - decrease speed exponentially
+					flySpeed /= scrollFactor;
+				}
+			
+				// Clamp the speed to a reasonable range
+				flySpeed = Math.max(10, Math.min(flySpeed, 40000000000));
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				if (composer) composer.setSize(window.innerWidth, window.innerHeight);
+			}
+
+			function formatNumber(num) {
+				if (num < 10000 && num > -10000) {
+					return num.toFixed(4);
+				} else {
+					return num.toExponential(4);
+				}
+			}
+
+			function updateTimeDisplay() {
+				const currentUnitFactor = TIME_UNIT_FACTORS[timeUnit];
+				const displayValue = timeScale / currentUnitFactor;
+				document.getElementById('time-value-display').textContent = displayValue.toFixed(4);
+				document.getElementById('time-unit').textContent = TIME_UNIT_LABELS[timeUnit];
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+
+				const delta = clock.getDelta(); // Get time since last frame
+
+				if (!isTimePaused) {
+					simulationTime += delta * timeScale;
+				}
+
+				// Handle accelerated time changing when keys are held down
+				if (timeChangeDirection !== 0) {
+					const holdDuration = clock.getElapsedTime() - timeChangeStartTime;
+					// Start slow, then ramp up the rate of change. The power of 2 makes it accelerate.
+					const accelerationFactor = 1.0 + Math.pow(holdDuration, 2) * 5;
+					const timeIncrementPerSecond = 0.0001; // The base Y/s change
+					const timeScaleIncrement = (timeIncrementPerSecond * TIME_UNIT_FACTORS[timeUnit]) * accelerationFactor * delta;
+
+					if (timeChangeDirection === 1) {
+						timeScale += timeScaleIncrement;
+					} else {
+						timeScale = Math.max(0, timeScale - timeScaleIncrement); // Prevent negative time
+					}
+					updateTimeDisplay();
+				}
+
+				// Calculate speed based on scroll wheel and sprint key
+				const currentSpeed = isSprinting ? flySpeed * 4 : flySpeed;
+
+				if (controls.isLocked === true) {
+					
+					// Get movement direction
+					direction.z = Number(moveForward) - Number(moveBackward);
+					direction.x = Number(moveRight) - Number(moveLeft);
+
+					const speed = currentSpeed * delta;
+
+					// Apply movement based on camera direction
+					const cameraObject = controls.getObject();
+					cameraObject.translateZ(-direction.z * speed);
+					cameraObject.translateX(direction.x * speed);
+
+					// Apply vertical movement
+					if (moveUp) cameraObject.position.y += speed;
+					if (moveDown) cameraObject.position.y -= speed;
+
+				}
+
+				// Update speed display
+				const speedInAUPerSec = currentSpeed / AU;
+				const displaySpeed = speedInAUPerSec * SPEED_UNIT_FACTORS[speedUnit];
+				const displayUnit = SPEED_UNIT_LABELS[speedUnit];
+				document.getElementById('speed-value-display').textContent = formatNumber(displaySpeed);
+				document.getElementById('speed-unit').textContent = displayUnit;
+
+				// Animate Planets
+				planets.forEach(planet => {
+					const { orbitSpeed, semiMajorAxis, semiMinorAxis, focusOffset, eccentricity, orbitOrientation } = planet.userData;
+					const angle = simulationTime * orbitSpeed;
+					let basePosition;
+
+					// Solve Kepler's Equation to get accurate position for all planets
+					const meanAnomaly = angle;
+					let eccentricAnomaly = meanAnomaly;
+					// Iteratively solve for eccentric anomaly (Newton's method)
+					for (let k = 0; k < 5; k++) { // 5 iterations is highly accurate
+						eccentricAnomaly = eccentricAnomaly - (eccentricAnomaly - eccentricity * Math.sin(eccentricAnomaly) - meanAnomaly) / (1 - eccentricity * Math.cos(eccentricAnomaly));
+					}
+
+					// Calculate the 2D position in the orbital plane
+					basePosition = new THREE.Vector3(
+						Math.cos(eccentricAnomaly) * semiMajorAxis - focusOffset,
+						Math.sin(eccentricAnomaly) * semiMinorAxis,
+						0
+					);
+
+					// Apply the orbit's tilt and rotation to the calculated position
+					basePosition.applyQuaternion(orbitOrientation);
+					planet.position.copy(basePosition);
+
+					// Update label position
+					const { labelElement } = planet.userData;
+					const screenPosition = planet.position.clone().project(camera);
+					// Check if the planet is in front of the camera
+					if (screenPosition.z < 1) {
+						labelElement.style.display = 'block';
+						const x = (screenPosition.x * 0.5 + 0.5) * window.innerWidth;
+						const y = (-screenPosition.y * 0.5 + 0.5) * window.innerHeight;
+						labelElement.style.transform = `translate(-50%, -150%) translate(${x}px, ${y}px)`;
+					} else {
+						labelElement.style.display = 'none';
+					}
+
+
+				});
+				const camPos = controls.getObject().position;
+
+				// --- Simplified Star Rendering ---
+				// Always use the performant 'distantStars' (Points) and hide the high-detail spheres.
+				stars.visible = false;
+				distantStars.visible = true;
+
+				// Update star size based on fly speed
+				if (starData.length > 0 && stars.visible) { // Only update the visible system
+					const LOD_DISTANCE = 750000; // Distance at which we show/hide star orbits
+					const dummy = new THREE.Object3D();
+
+					for (let i = 0; i < starData.length; i++) {
+						const star = starData[i];
+						const { position, baseScale, orbitData, activeOrbits } = star;
+
+						// Calculate distance from camera to star
+						const distance = camPos.distanceTo(position);
+
+						// LOD logic for star orbits
+						if (distance < LOD_DISTANCE && activeOrbits.length === 0 && orbitData.length > 0) {
+							// Star is close and has no active orbits, so create them
+							orbitData.forEach(data => {
+								const orbitRingGeometry = new THREE.RingGeometry(data.radius * star.orbitScaleFactor, (data.radius + data.thickness) * star.orbitScaleFactor, 64);
+								const orbitRingMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(0xffffff).multiplyScalar(1.5), side: THREE.DoubleSide, transparent: true, opacity: 0.35 });
+								const starOrbit = new THREE.Mesh(orbitRingGeometry, orbitRingMaterial);
+								starOrbit.position.copy(position);
+								starOrbit.quaternion.copy(data.quaternion);
+								scene.add(starOrbit);
+								activeOrbits.push(starOrbit); // Keep track of the created mesh
+							});
+						} else if (distance >= LOD_DISTANCE && activeOrbits.length > 0) {
+							// Star is far and has active orbits, so remove them
+							activeOrbits.forEach(orbit => {
+								scene.remove(orbit);
+								orbit.geometry.dispose();
+								orbit.material.dispose();
+							});
+							star.activeOrbits = []; // Clear the array
+						}
+
+						dummy.position.copy(position);						
+						dummy.scale.setScalar(baseScale); // Keep star size constant for now
+						dummy.updateMatrix();
+						stars.setMatrixAt(i, dummy.matrix);
+					}
+					stars.instanceMatrix.needsUpdate = true;					
+				}
+
+				if (composer) composer.render(); else renderer.render(scene, camera);
+			}
+
+		</script>
+	</body>
+</html>

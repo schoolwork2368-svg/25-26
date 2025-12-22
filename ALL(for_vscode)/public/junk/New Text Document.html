@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smooth Dropdown Menu</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        nav {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+        }
+
+        .menu-container {
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-item {
+            position: relative;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .menu-item:hover {
+            background-color: #555;
+        }
+
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #444;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            /* Smooth Dropdown Styles */
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+        }
+
+        .menu-item:hover .dropdown-content {
+            max-height: 200px; /* Adjust as needed to fit content */
+            padding: 5px 0;
+        }
+
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #666;
+        }
+
+        /* Basic styling for the select element placeholder */
+        .select-placeholder {
+            margin-top: 20px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<nav> 
+    <div class="menu-container"> 
+        <div class="menu-item">
+            Dropdown Country
+            <div class="dropdown-content">
+                <a href="#usa">USA</a>
+                <a href="#canada">Canada</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+   
+</div>
+
+</body>
+</html><img src="https://i.imgur.com/2tjIohc.jpeg">

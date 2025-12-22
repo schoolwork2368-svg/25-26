@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>3D Physics Sandbox (Physics Engine)</title>
+    <!-- Three.js (3D Rendering) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Cannon.js (Physics Engine) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <!-- NO Orbit Controls required for free fly camera -->
+    <style>
+        /* Ensuring the canvas takes full viewport space */
+        body { margin: 0; overflow: hidden; background-color: #1a1a2e; font-family: 'Inter', sans-serif; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <div id="info" class="absolute top-4 left-4 text-white p-3 rounded-xl bg-gray-900 bg-opacity-80 z-10 font-mono text-sm shadow-2xl border-t-4 border-emerald-500">
+        <span class="text-xl font-bold text-emerald-500">3D Physics Sandbox (Interactive Engine)</span>
+        <br>
+        1. <span class="text-yellow-400 font-bold">CLICK SCREEN to activate MOUSELOOK.</span> (Press Esc to release)<br>
+        2. <span class="text-lime-300 font-bold">Use WASD/QE keys to FLY the camera.</span><br>
+        3. <span class="text-cyan-300 font-bold">Use ARROW KEYS to move the original player ball.</span><br>
+        4. <span class="text-purple-300 font-bold">MIDDLE MOUSE CLICK (Scroll Wheel) to spawn random physics objects!</span>
+    </div>
+    <script>
+        // --- Global Variables ---
+        let scene, camera, renderer;
+        let world, playerBody, playerMesh; 
+        let objects = []; // Array to track all dynamically spawned physics objects
+
+        // Physics Constants
+        const timeStep = 1 / 45; // Physics time step
+        const moveForce = 30; // Force applied to move the player ball
+        const SPHERE_RADIUS = 0.5; // Player object size
+        const FIELD_SIZE = 150; // Total size of the open field
+
+        // --- Camera Control Variables for Free Fly ---
+        let isPointerLocked = false;
+        const cameraSpeed = 0.5;
+        const rotationSpeed = 0.002;
+        const moveState = {
+            forward: false, backward: false, 
+            left: false, right: false, 
+            up: false, down: false
+        };
+
+        // --- Ball Control Variables ---
+        const ballMoveState = {
+            up: false, down: false, 
+            left: false, right: false
+        };
+
+        // Reuse an Euler and Vector for rotation/movement calculations
+        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+
+        /**
+         * Initializes the Three.js scene, camera, and renderer.
+         */
+        function initThree() {
+            // Scene Setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a2e); // Dark space background
+
+            // Camera Setup
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            // Start position high above the field
+            camera.position.set(0, 10, 20); 
+
+            // Renderer Setup
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.body.appendChild(renderer.domElement);
+
+            // Lighting (Same as before)
+            const ambientLight = new THREE.AmbientLight(0x404040, 3); 
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 2.5);
+            directionalLight.position.set(FIELD_SIZE * 0.5, FIELD_SIZE * 0.8, FIELD_SIZE * 0.3);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            directionalLight.shadow.camera.near = 0.5;
+            directionalLight.shadow.camera.far = FIELD_SIZE * 2;
+            directionalLight.shadow.camera.left = -FIELD_SIZE / 2;
+            directionalLight.shadow.camera.right = FIELD_SIZE / 2;
+            directionalLight.shadow.camera.top = FIELD_SIZE / 2;
+            directionalLight.shadow.camera.bottom = -FIELD_SIZE / 2;
+            scene.add(directionalLight);
+        }
+
+        /**
+         * Initializes the Cannon.js physics world and rigid bodies. 
+         */
+        function initCannon() {
+            world = new CANNON.World();
+            world.gravity.set(0, -9.82, 0); 
+            world.broadphase = new CANNON.NaiveBroadphase();
+            world.solver.iterations = 10;
+
+            // Define Physics Materials
+            const physicsMaterial = new CANNON.Material('defaultMaterial');
+            const groundMaterial = new CANNON.Material('groundMaterial');
+            const contactMaterial = new CANNON.ContactMaterial(
+                groundMaterial, 
+                physicsMaterial, 
+                {
+                    friction: 0.8,    // High friction for rolling/sliding
+                    restitution: 0.3  // Low restitution for less bounce
+                }
+            );
+            world.addContactMaterial(contactMaterial);
+
+            // Ground
+            const groundShape = new CANNON.Plane();
+            const groundBody = new CANNON.Body({ mass: 0, material: groundMaterial }); 
+            groundBody.addShape(groundShape);
+            groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2); 
+            world.addBody(groundBody);
+
+            // Sphere (Player - renamed from boxBody)
+            const playerMass = 5;
+            const playerShape = new CANNON.Sphere(SPHERE_RADIUS); 
+            playerBody = new CANNON.Body({ mass: playerMass, material: physicsMaterial });
+            playerBody.addShape(playerShape);
+            playerBody.position.set(0, 5, 0); 
+            world.addBody(playerBody);
+        }
+
+        /**
+         * Creates the initial visual Three.js meshes. 
+         */
+        function createMeshes() {
+            // 1. Field Floor Mesh
+            const floorGeometry = new THREE.PlaneGeometry(FIELD_SIZE, FIELD_SIZE);
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: 0xcccccc, 
+                roughness: 0.9,
+                metalness: 0.0
+            });
+            const floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+            floorMesh.rotation.x = -Math.PI / 2;
+            floorMesh.receiveShadow = true;
+            scene.add(floorMesh);
+
+            // 2. Outer Void
+            const voidGeometry = new THREE.PlaneGeometry(FIELD_SIZE * 2, FIELD_SIZE * 2);
+            const voidMaterial = new THREE.MeshBasicMaterial({ color: 0x0a0a0a, side: THREE.DoubleSide });
+            const voidMesh = new THREE.Mesh(voidGeometry, voidMaterial);
+            voidMesh.rotation.x = -Math.PI / 2;
+            voidMesh.position.y = -0.01; 
+            scene.add(voidMesh);
+
+            // 3. Sphere Mesh (Player - renamed from boxMesh)
+            const playerGeometry = new THREE.SphereGeometry(SPHERE_RADIUS, 32, 32); 
+            const playerMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffa500, // Orange
+                roughness: 0.4,
+                metalness: 0.8
+            });
+            playerMesh = new THREE.Mesh(playerGeometry, playerMaterial);
+            playerMesh.castShadow = true;
+            playerMesh.receiveShadow = true;
+            playerMesh.position.y = 5; 
+            scene.add(playerMesh);
+        }
+        
+        /**
+         * Creates a Cannon body and a Three mesh for a new object, adding them to the scene/world.
+         */
+        function spawnObject() {
+            // Random properties
+            const isBox = Math.random() > 0.5;
+            const size = (Math.random() * 1) + 1; // Size between 1 and 2
+            const mass = size * size * 10; // Mass relative to size
+            const color = new THREE.Color(Math.random(), Math.random(), Math.random());
+            
+            // Initial position (slightly above camera, facing forward)
+            const initialPos = new THREE.Vector3();
+            camera.getWorldDirection(initialPos); // Use camera direction
+            initialPos.multiplyScalar(5).add(camera.position); // Spawn 5 units in front
+            initialPos.y = Math.max(initialPos.y, 10); // Ensure it spawns a reasonable height
+
+            let body, mesh, geometry;
+            
+            if (isBox) {
+                // BOX SHAPE
+                const boxSize = new CANNON.Vec3(size, size, size);
+                body = new CANNON.Body({ mass: mass, shape: new CANNON.Box(boxSize) });
+                geometry = new THREE.BoxGeometry(size * 2, size * 2, size * 2); 
+            } else {
+                // SPHERE SHAPE
+                const sphereRadius = size;
+                body = new CANNON.Body({ mass: mass, shape: new CANNON.Sphere(sphereRadius) });
+                geometry = new THREE.SphereGeometry(sphereRadius, 16, 16); 
+            }
+
+            // Three.js Mesh
+            const material = new THREE.MeshStandardMaterial({
+                color: color, 
+                roughness: 0.5,
+                metalness: 0.5
+            });
+            mesh = new THREE.Mesh(geometry, material);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            
+            // Set initial position
+            body.position.set(initialPos.x, initialPos.y, initialPos.z);
+            mesh.position.copy(body.position);
+
+            // Add to scene and world
+            world.addBody(body);
+            scene.add(mesh);
+            
+            // Track the new object
+            objects.push({ mesh, body });
+        }
+
+
+        // --- Free Fly Camera Functions ---
+
+        /**
+         * Toggles the pointer lock state and attaches event listeners.
+         */
+        function setupPointerLock() {
+            const element = document.body;
+
+            const lockChange = () => {
+                if (document.pointerLockElement === element) {
+                    isPointerLocked = true;
+                    // Hide cursor and enable mouselook
+                    document.addEventListener('mousemove', handleMouseMove, false);
+                } else {
+                    isPointerLocked = false;
+                    // Show cursor and disable mouselook
+                    document.removeEventListener('mousemove', handleMouseMove, false);
+                }
+            };
+
+            document.addEventListener('pointerlockchange', lockChange, false);
+
+            // Left click to activate Pointer Lock / Mouselook
+            renderer.domElement.addEventListener('click', () => {
+                if (!isPointerLocked) {
+                    element.requestPointerLock();
+                }
+            }, false);
+            
+            // Middle click (wheel) to spawn object
+            renderer.domElement.addEventListener('mousedown', (event) => {
+                if (event.button === 1) { // 1 is the middle mouse button
+                    event.preventDefault(); // Prevent scrolling/panning
+                    spawnObject();
+                }
+            }, false);
+            // Disable right-click context menu
+            renderer.domElement.addEventListener('contextmenu', (event) => {
+                event.preventDefault();
+            });
+        }
+
+        /**
+         * Handles mouse movement for camera rotation (mouselook). (Unchanged)
+         */
+        function handleMouseMove(event) {
+            if (!isPointerLocked) return;
+            
+            euler.setFromQuaternion(camera.quaternion);
+
+            euler.y -= event.movementX * rotationSpeed;
+            euler.x -= event.movementY * rotationSpeed;
+
+            // Clamp pitch to prevent flipping (looking straight up/down)
+            euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+
+            camera.quaternion.setFromEuler(euler);
+        }
+
+        /**
+         * Tracks key press state for continuous movement of camera and ball. (Unchanged)
+         */
+        function handleKey(event, isDown) {
+            const key = event.key; 
+            const lowerKey = key.toLowerCase();
+
+            // Camera movement (WASD / QE)
+            switch (lowerKey) {
+                case 'w': moveState.forward = isDown; break;
+                case 's': moveState.backward = isDown; break;
+                case 'a': moveState.left = isDown; break;
+                case 'd': moveState.right = isDown; break;
+                case 'e': moveState.up = isDown; break;
+                case 'q': moveState.down = isDown; break;
+            }
+
+            // Ball movement (Arrow Keys)
+            switch (key) {
+                case 'ArrowUp': ballMoveState.up = isDown; break;
+                case 'ArrowDown': ballMoveState.down = isDown; break;
+                case 'ArrowLeft': ballMoveState.left = isDown; break;
+                case 'ArrowRight': ballMoveState.right = isDown; break;
+                default: return; 
+            }
+            
+            // Prevent default behavior for movement keys
+            if (['w', 'a', 's', 'd', 'q', 'e', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+                event.preventDefault();
+            }
+        }
+        
+        // Key event handlers
+        window.addEventListener('keydown', (e) => handleKey(e, true), false);
+        window.addEventListener('keyup', (e) => handleKey(e, false), false);
+
+
+        /**
+         * Updates camera position based on key states and current rotation. (Unchanged)
+         */
+        function updateCameraPosition() {
+            if (!isPointerLocked) return;
+
+            // Reset velocity
+            velocity.set(0, 0, 0);
+            direction.set(0, 0, 0);
+
+            // Determine direction based on key states
+            if (moveState.forward) direction.z -= 1;
+            if (moveState.backward) direction.z += 1;
+            if (moveState.left) direction.x -= 1;
+            if (moveState.right) direction.x += 1;
+
+            // Normalize vector to prevent faster diagonal movement
+            if (direction.x !== 0 || direction.z !== 0) {
+                direction.normalize();
+            }
+            
+            // Apply speed to horizontal movement
+            velocity.z = direction.z * cameraSpeed;
+            velocity.x = direction.x * cameraSpeed;
+
+            // Vertical movement (Q/E) is independent
+            if (moveState.up) velocity.y = cameraSpeed;
+            if (moveState.down) velocity.y = -cameraSpeed;
+
+            // Apply movement based on camera's current rotation (horizontal)
+            camera.translateX(velocity.x);
+            camera.translateZ(velocity.z);
+            camera.position.y += velocity.y;
+        }
+
+        /**
+         * Updates player ball physics based on arrow key states and applies impulse. 
+         */
+        function updateBallMovement() {
+            let forceX = 0;
+            let forceZ = 0;
+
+            // Calculate desired force based on state. Note: Z is forward/backward
+            if (ballMoveState.up) forceZ = -moveForce;
+            if (ballMoveState.down) forceZ = moveForce;
+            if (ballMoveState.left) forceX = -moveForce;
+            if (ballMoveState.right) forceX = moveForce;
+
+            // Apply the impulse to the ball's physics body.
+            // Impulse is scaled by timeStep to keep movement consistent regardless of frame rate.
+            if (forceX !== 0 || forceZ !== 0) {
+                playerBody.applyImpulse(
+                    new CANNON.Vec3(forceX * timeStep, 0, forceZ * timeStep),
+                    playerBody.position 
+                );
+            }
+        }
+
+
+        /**
+         * Main animation loop. Updates physics and rendering.
+         */
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // 1. Update Physics
+            world.step(timeStep);
+
+            // 2. Sync Three.js mesh with Cannon.js body position and rotation for the Player
+            playerMesh.position.copy(playerBody.position);
+            playerMesh.quaternion.copy(playerBody.quaternion);
+
+            // 3. Sync all dynamically spawned objects
+            for (let i = 0; i < objects.length; i++) {
+                const { mesh, body } = objects[i];
+                mesh.position.copy(body.position);
+                mesh.quaternion.copy(body.quaternion);
+            }
+
+            // Safety check: If the player ball falls too far, reset it to the center (unchanged)
+            if (playerBody.position.y < -10) {
+                playerBody.position.set(0, 5, 0); 
+                playerBody.velocity.set(0, 0, 0);
+                playerBody.angularVelocity.set(0, 0, 0); 
+            }
+
+            // 4. Update Camera Position (Free Fly Logic)
+            updateCameraPosition();
+            
+            // 5. Update Player Ball Movement (Arrow Key Logic)
+            updateBallMovement();
+            
+            // 6. Render
+            renderer.render(scene, camera);
+        }
+
+        /**
+         * Handles window resizing to keep the canvas full screen and responsive.
+         */
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // --- Start Application ---
+        window.onload = function () {
+            // Initialize rendering and physics
+            initThree();
+            initCannon();
+            createMeshes();
+            
+            // Setup Pointer Lock and Mouselook
+            setupPointerLock();
+
+            // Start the loop
+            animate(); 
+            
+            // Handle resizing
+            window.addEventListener('resize', onWindowResize, false);
+        }
+    </script>
+</body>
+</html>

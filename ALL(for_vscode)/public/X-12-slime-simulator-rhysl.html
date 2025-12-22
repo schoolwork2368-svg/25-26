@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Slime Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js for 3D rendering -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #111827; font-family: 'Inter', sans-serif; }
+        canvas { display: block; }
+        .control-panel {
+            background-color: rgba(31, 41, 55, 0.8);
+            backdrop-filter: blur(10px);
+            border-top: 2px solid #3b82f6;
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out, background-color 0.3s ease-in-out;
+            transform-origin: top right;
+        }
+        .loader {
+            border-top-color: #3498db;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="absolute top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-90 flex-col justify-center items-center z-50 hidden">
+        <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-24 w-24 mb-4"></div>
+        <h2 class="text-center text-white text-xl font-semibold">Switching Simulation...</h2>
+        <p class="w-1/3 text-center text-white">This may take a few seconds.</p>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-20">
+        <div class="relative">
+            <select id="modeSelect" class="text-xl font-bold text-white bg-transparent border-none appearance-none cursor-pointer focus:outline-none">
+                <option value="slime" class="text-black">Slime Simulator</option>
+                <option value="melting" class="text-black">Melting Simulator</option>
+            </select>
+        </div>
+
+        <div class="relative">
+            <!-- Settings Toggle Button -->
+            <button id="settingsToggleBtn" class="text-white p-2 rounded-full bg-gray-800 bg-opacity-50 hover:bg-opacity-75 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </button>
+
+            <!-- UI Controls Dropdown Panel -->
+            <div id="controlsPanel" class="control-panel absolute top-full right-0 mt-2 text-white p-4 rounded-xl shadow-2xl w-64 hidden transform scale-95 opacity-0">
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Number of Blobs Slider -->
+                    <div>
+                        <label for="numBlobs" class="block text-sm font-medium text-gray-300">Blobs: <span id="numBlobsValue">10</span></label>
+                        <input id="numBlobs" type="range" min="2" max="20" value="10" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <!-- Speed Slider -->
+                    <div>
+                        <label for="speed" class="block text-sm font-medium text-gray-300">Speed: <span id="speedValue">1.0</span></label>
+                        <input id="speed" type="range" min="0.1" max="3" step="0.1" value="1.0" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <!-- Resolution Slider -->
+                    <div>
+                        <label for="resolution" class="block text-sm font-medium text-gray-300">Resolution: <span id="resolutionValue">28</span></label>
+                        <input id="resolution" type="range" min="14" max="64" step="2" value="28" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                    </div>
+                    <!-- Material Selector -->
+                    <div>
+                        <label for="materialSelect" class="block text-sm font-medium text-gray-300">Material Style</label>
+                        <select id="materialSelect" class="w-full mt-1 bg-gray-700 border border-gray-600 text-white py-1 px-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    <!-- Background Selector -->
+                    <div>
+                        <label for="backgroundSelect" class="block text-sm font-medium text-gray-300">Background Style</label>
+                        <select id="backgroundSelect" class="w-full mt-1 bg-gray-700 border border-gray-600 text-white py-1 px-2 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { MarchingCubes } from 'three/addons/objects/MarchingCubes.js';
+
+        // --- SCENE SETUP ---
+        let scene, camera, renderer, controls;
+        let effect; // This will be our MarchingCubes object
+        let materials;
+        let currentMaterial = 'shiny';
+
+        let currentMode = 'slime';
+        // --- SIMULATION PARAMETERS ---
+        let numBlobs = 10;
+        let speed = 1.0;
+        let resolution = 28;
+        const clock = new THREE.Clock();
+        
+        const textureLoader = new THREE.TextureLoader();
+        // --- BACKGROUND STYLES ---
+        const backgrounds = [
+            { name: 'dark', color: '#111827', image: 'none', textColor: 'text-white', panelColor: 'rgba(31, 41, 55, 0.8)', titleColor: 'text-blue-400' },
+            { name: 'light', color: '#f3f4f6', image: 'none', textColor: 'text-black', panelColor: 'rgba(255, 255, 255, 0.7)', titleColor: 'text-blue-600' },
+            { name: 'nebula', color: '#000000', image: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2411&auto=format&fit=crop', textColor: 'text-white', panelColor: 'rgba(31, 41, 55, 0.8)', titleColor: 'text-blue-400' },
+            { name: 'synthwave', color: '#000000', image: 'https://images.unsplash.com/photo-1520045892732-304BC1553236?q=80&w=2574&auto=format&fit=crop', textColor: 'text-white', panelColor: 'rgba(31, 41, 55, 0.8)', titleColor: 'text-blue-400' },
+            { name: 'underwater', color: '#000000', image: 'https://images.unsplash.com/photo-1560096427-41a49c653785?q=80&w=2574&auto=format&fit=crop', textColor: 'text-white', panelColor: 'rgba(31, 41, 55, 0.8)', titleColor: 'text-blue-400' },
+            { name: 'forest', color: '#000000', image: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2670&auto=format&fit=crop', textColor: 'text-white', panelColor: 'rgba(31, 41, 55, 0.8)', titleColor: 'text-blue-400' },
+        ];
+        let currentBackgroundIndex = 0;
+
+        // Helper to update text colors in the panel
+        function updatePanelTextColors(textColorClass) {
+            const panel = document.getElementById('controlsPanel');
+            panel.querySelectorAll('label').forEach(el => {
+                el.classList.remove('text-gray-300', 'text-gray-700');
+                el.classList.add(textColorClass === 'text-white' ? 'text-gray-300' : 'text-gray-700');
+            });
+            panel.querySelectorAll('select').forEach(el => {
+                el.classList.toggle('bg-gray-700', textColorClass === 'text-white');
+                el.classList.toggle('text-white', textColorClass === 'text-white');
+                el.classList.toggle('bg-gray-200', textColorClass !== 'text-white');
+                el.classList.toggle('text-black', textColorClass !== 'text-white');
+            });
+        }
+
+        function init() {
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(backgrounds[0].color); // Set initial background
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 8);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Lights
+            scene.add(new THREE.AmbientLight(0x444444));
+            const pointLight = new THREE.PointLight(0xffffff, 3, 100);
+            pointLight.position.set(5, 5, 5);
+            scene.add(pointLight);
+
+            // Controls
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            // --- SLIME (METABALLS) SETUP ---
+
+            // Define materials for the slime
+            materials = {
+                'shiny': new THREE.MeshStandardMaterial({
+                    color: 0x00ff99,
+                    roughness: 0.1,
+                    metalness: 0.9,
+                    envMapIntensity: 2
+                }),
+                'matte': new THREE.MeshLambertMaterial({
+                    color: 0x00ff99,
+                    emissive: 0x228844
+                }),
+                'wireframe': new THREE.MeshBasicMaterial({
+                    color: 0x00ff99,
+                    wireframe: true
+                }),
+                'gold': new THREE.MeshStandardMaterial({
+                    color: 0xffd700, // Gold color
+                    roughness: 0.2,
+                    metalness: 1.0,
+                    envMapIntensity: 1.5
+                }),
+                'glass': new THREE.MeshPhysicalMaterial({
+                    color: 0xffffff,
+                    metalness: 0,
+                    roughness: 0.05,
+                    transmission: 1.0, // This makes it transparent
+                    thickness: 1.5, // Simulates thickness for refraction
+                    ior: 1.5, // Index of Refraction for glass
+                    transparent: true
+                }),
+                'wood': new THREE.MeshStandardMaterial({
+                    map: textureLoader.load('https://www.babylonjs-playground.com/textures/wood.jpg'),
+                    roughness: 0.8,
+                    metalness: 0.1
+                }),
+                'holographic': new THREE.MeshPhysicalMaterial({
+                    color: 0xffffff,
+                    metalness: 1.0,
+                    roughness: 0.1,
+                    iridescence: 1.0, // Enable iridescence
+                    iridescenceIOR: 1.5, // Index of refraction for the thin film
+                    iridescenceThicknessRange: [100, 400] // Wavelength range for color shift
+                }),
+                'energy': new THREE.MeshBasicMaterial({
+                    color: 0xffaa00, // Fiery orange
+                    transparent: true,
+                    opacity: 0.8,
+                    blending: THREE.AdditiveBlending // Makes overlapping parts glow brighter
+                }),
+                'ruby': new THREE.MeshPhysicalMaterial({
+                    color: 0xff0000,
+                    metalness: 0.1,
+                    roughness: 0.05,
+                    transmission: 0.9,
+                    ior: 1.77,
+                    thickness: 2.0,
+                    transparent: true
+                }),
+                'sapphire': new THREE.MeshPhysicalMaterial({
+                    color: 0x0f52ba,
+                    metalness: 0.1,
+                    roughness: 0.05,
+                    transmission: 0.9,
+                    ior: 1.77,
+                    thickness: 2.0,
+                    transparent: true
+                }),
+                'emerald': new THREE.MeshPhysicalMaterial({
+                    color: 0x50c878,
+                    metalness: 0.1,
+                    roughness: 0.1,
+                    transmission: 0.9,
+                    ior: 1.58,
+                    thickness: 1.5,
+                    transparent: true
+                }),
+                'chrome': new THREE.MeshStandardMaterial({
+                    color: 0xf0f0f0,
+                    metalness: 1.0,
+                    roughness: 0.05,
+                    envMapIntensity: 2.5
+                }),
+                'copper': new THREE.MeshStandardMaterial({
+                    color: 0xb87333,
+                    metalness: 1.0,
+                    roughness: 0.2,
+                    envMapIntensity: 1.0
+                }),
+                'plastic': new THREE.MeshStandardMaterial({
+                    color: 0xff1100,
+                    metalness: 0.0,
+                    roughness: 0.4
+                }),
+                'obsidian': new THREE.MeshPhysicalMaterial({
+                    color: 0x080808,
+                    metalness: 0.1,
+                    roughness: 0.15,
+                    transmission: 0.7,
+                    thickness: 3.0,
+                    transparent: true
+                }),
+                'lava': new THREE.MeshStandardMaterial({
+                    color: 0x220000,
+                    emissive: 0xff6600,
+                    emissiveIntensity: 2
+                }),
+                'pearl': new THREE.MeshPhysicalMaterial({
+                    color: 0xf0ead6,
+                    roughness: 0.1,
+                    metalness: 0.2,
+                    iridescence: 1.0,
+                    iridescenceIOR: 1.3,
+                    iridescenceThicknessRange: [300, 600]
+                }),
+                'jade': new THREE.MeshStandardMaterial({
+                    color: 0x00a86b,
+                    roughness: 0.7,
+                    metalness: 0.1
+                }),
+                'minecraft': (() => {
+                    const texture = textureLoader.load('https://www.babylonjs-playground.com/textures/grass.png');
+                    // Use NearestFilter to keep the pixelated look without blurring
+                    texture.magFilter = THREE.NearestFilter;
+                    texture.minFilter = THREE.NearestFilter;
+                    return new THREE.MeshStandardMaterial({
+                        map: texture,
+                        roughness: 0.9
+                    });
+                })(),
+                'bronze': new THREE.MeshStandardMaterial({ color: 0xcd7f32, metalness: 1.0, roughness: 0.3 }),
+                'steel': new THREE.MeshStandardMaterial({ color: 0xa7adad, metalness: 1.0, roughness: 0.4 }),
+                'marble': new THREE.MeshStandardMaterial({ map: textureLoader.load('https://www.babylonjs-playground.com/textures/marble.jpg') }),
+                'granite': new THREE.MeshStandardMaterial({ map: textureLoader.load('https://www.babylonjs-playground.com/textures/rock.jpg') }),
+                'amethyst': new THREE.MeshPhysicalMaterial({
+                    color: 0x9966cc,
+                    metalness: 0.1,
+                    roughness: 0.1,
+                    transmission: 1.0,
+                    ior: 1.54,
+                    thickness: 1.8,
+                    transparent: true
+                }),
+                'ice': new THREE.MeshPhysicalMaterial({
+                    color: 0xd4f1f9,
+                    metalness: 0.0,
+                    roughness: 0.1,
+                    transmission: 1.0,
+                    ior: 1.31,
+                    thickness: 2.5,
+                    transparent: true
+                }),
+                'sand': new THREE.MeshStandardMaterial({
+                    map: textureLoader.load('https://www.babylonjs-playground.com/textures/sand.jpg'),
+                    roughness: 0.9
+                }),
+                'bark': new THREE.MeshStandardMaterial({
+                    map: textureLoader.load('https://www.babylonjs-playground.com/textures/bark.jpg'),
+                    roughness: 0.85
+                }),
+                'plasma': new THREE.MeshBasicMaterial({
+                    color: 0xd100d1,
+                    transparent: true,
+                    opacity: 0.8,
+                    blending: THREE.AdditiveBlending
+                }),
+                'rainbow': (() => {
+                    const texture = textureLoader.load('https://i.imgur.com/qrIbEUa.png');
+                    return new THREE.MeshStandardMaterial({ map: texture, roughness: 0.2, metalness: 0.0 });
+                })(),
+                'void': new THREE.MeshBasicMaterial({ color: 0x000000 }),
+                'slime': new THREE.MeshPhysicalMaterial({
+                    color: 0x80ff80,
+                    metalness: 0.1,
+                    roughness: 0.2,
+                    transmission: 0.8,
+                    thickness: 1.0,
+                    transparent: true
+                }),
+                'denim': new THREE.MeshStandardMaterial({
+                    map: textureLoader.load('https://www.babylonjs-playground.com/textures/denim.png'),
+                    roughness: 0.8
+                }),
+                'concrete': new THREE.MeshStandardMaterial({
+                    map: textureLoader.load('https://www.babylonjs-playground.com/textures/concrete.jpg'),
+                    roughness: 0.7
+                }),
+                'porcelain': new THREE.MeshStandardMaterial({
+                    color: 0xf8f8f8,
+                    roughness: 0.1,
+                    metalness: 0.05
+                }),
+                'terrazzo': new THREE.MeshStandardMaterial({
+                    map: textureLoader.load('https://www.babylonjs-playground.com/textures/terrazzo.png'),
+                    roughness: 0.4
+                }),
+                'leather': new THREE.MeshStandardMaterial({
+                    map: textureLoader.load('https://www.babylonjs-playground.com/textures/leather.jpg'),
+                    roughness: 0.6
+                }),
+                'foil': new THREE.MeshStandardMaterial({
+                    map: textureLoader.load('https://www.babylonjs-playground.com/textures/foil.png'),
+                    roughness: 0.1,
+                    metalness: 1.0
+                }),
+                'moss': new THREE.MeshStandardMaterial({
+                    color: 0x4a5d23,
+                    roughness: 0.9
+                }),
+                'water': new THREE.MeshPhysicalMaterial({
+                    color: 0x55aaff,
+                    metalness: 0.0,
+                    roughness: 0.0,
+                    transmission: 0.9,
+                    ior: 1.33,
+                    thickness: 1.2,
+                    transparent: true
+                }),
+                'rainbow': (() => {
+                    const texture = textureLoader.load('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=1287&auto=format&fit=crop');
+                    return new THREE.MeshStandardMaterial({ map: texture, roughness: 0.2, metalness: 0.1 });
+                })(),
+                'slime': new THREE.MeshPhysicalMaterial({
+                    color: 0x80ff80,
+                    metalness: 0.1,
+                    roughness: 0.2,
+                    transmission: 0.8,
+                    thickness: 1.0,
+                    transparent: true
+                }),
+                'void': new THREE.MeshBasicMaterial({ color: 0x000000 }),
+
+            };
+
+            // Create the MarchingCubes effect
+            // The resolution determines the detail of the mesh. Higher is more detailed but slower.
+            // The material is the one we defined above.
+            // The `true` enables smooth normals for a rounded look.
+            effect = new MarchingCubes(resolution, materials[currentMaterial], true, true, 100000);
+            effect.position.set(0, 0, 0);
+            effect.scale.set(7, 7, 7); // Scale the effect to a visible size
+            scene.add(effect);
+
+            // Handle window resizing
+            window.addEventListener('resize', onWindowResize, false);
+
+            // Setup UI controls
+            setupUI();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // --- ANIMATION AND UPDATE LOGIC ---
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update controls
+            controls.update();
+
+            // Update the simulation based on the current mode
+            if (currentMode === 'slime') {
+                updateCubes(effect, clock.getElapsedTime(), numBlobs);
+            } else {
+                updateMelting(effect, clock.getElapsedTime(), numBlobs);
+            }
+
+            // Render the scene
+            renderer.render(scene, camera);
+        }
+
+        /**
+         * This function updates the positions of the metaballs and regenerates the mesh.
+         * @param {MarchingCubes} object - The MarchingCubes effect object.
+         * @param {number} time - The current elapsed time.
+         * @param {number} numblobs - The number of metaballs to simulate.
+         */
+        function updateCubes(object, time, numblobs) {
+            object.reset(); // Clear the previous frame's mesh
+
+            const subtract = 12;
+            // The strength determines how "blobby" the balls are.
+            const strength = 1.2 / ((Math.sqrt(numblobs) - 1) / 4 + 1);
+
+            for (let i = 0; i < numblobs; i++) {
+                // Animate each ball's position using sine and cosine for smooth, looping motion
+                const ballx = Math.sin(i + 1.26 * time * (1.03 + 0.5 * Math.cos(0.21 * i)) * speed) * 0.27 + 0.5;
+                const bally = Math.abs(Math.cos(i + 1.12 * time * Math.cos(1.22 + 0.1424 * i) * speed)) * 0.77; // Bottom half
+                const ballz = Math.cos(i + 1.32 * time * 0.1 * Math.sin((0.92 + 0.53 * i)) * speed) * 0.27 + 0.5;
+
+                // Add the ball to the simulation. The `strength` and `subtract` values
+                // control how the implicit surface is calculated.
+                object.addBall(ballx, bally, ballz, strength, subtract);
+            }
+
+            // This tells the MarchingCubes object to generate the new mesh based on the new ball positions.
+            object.update();
+        }
+
+        /**
+         * This function simulates a melting effect by dropping metaballs from the top.
+         * @param {MarchingCubes} object - The MarchingCubes effect object.
+         * @param {number} time - The current elapsed time.
+         * @param {number} numblobs - The number of metaballs to simulate.
+         */
+        function updateMelting(object, time, numblobs) {
+             object.reset();
+ 
+             const subtract = 12;
+             const strength = 1.2 / ((Math.sqrt(numblobs) - 1) / 4 + 1);
+ 
+             // --- 1. The main "melting" object at the top ---
+             // Use a third of the blobs for the core object to keep it substantial
+             const numCoreBlobs = Math.max(1, Math.floor(numblobs / 3));
+             for (let i = 0; i < numCoreBlobs; i++) {
+                 const angle = (i / numCoreBlobs) * Math.PI * 2;
+                 const slowTime = time * 0.2 * speed;
+                 // Core object slowly undulates near the top
+                 const ballx = 0.5 + Math.cos(angle + slowTime) * 0.2 * (1 + 0.1 * Math.sin(slowTime * 1.5));
+                 const bally = 0.85 + 0.05 * Math.sin(angle * 3 + slowTime);
+                 const ballz = 0.5 + Math.sin(angle + slowTime) * 0.2 * (1 + 0.1 * Math.cos(slowTime * 1.2));
+                 // Use a stronger influence for the core blobs to make them merge into a solid mass
+                 object.addBall(ballx, bally, ballz, strength * 1.5, subtract);
+             }
+ 
+             // --- 2. The "drips" falling from the object ---
+             const numDripBlobs = numblobs - numCoreBlobs;
+             for (let i = 0; i < numDripBlobs; i++) {
+                 const dripTime = time * speed + i * 5; // Stagger the drips
+                 const angle = (dripTime * 0.3) % (Math.PI * 2); // Drips appear at different points over time
+                 // Drips originate from the radius of the core object
+                 const ballx = 0.5 + Math.cos(angle) * 0.2;
+                 const ballz = 0.5 + Math.sin(angle) * 0.2;
+                 // Drips fall from top to bottom and loop
+                 const bally = 0.85 - (dripTime * 0.2) % 1.1;
+
+                // Use a sine wave based on the drip's index to give it a unique, consistent size
+                const sizeVariation = 0.7 + (Math.sin(i * 2.5) + 1) * 0.25; // Varies between 0.7 and 1.2
+                const dripStrength = strength * sizeVariation;
+ 
+                 object.addBall(ballx, bally, ballz, strength, subtract);
+                 object.addBall(ballx, bally, ballz, dripStrength, subtract);
+             }
+ 
+             object.update();
+        }
+        // --- UI SETUP ---
+        function setupUI() {
+            const numBlobsSlider = document.getElementById('numBlobs');
+            const numBlobsValue = document.getElementById('numBlobsValue');
+            const speedSlider = document.getElementById('speed');
+            const speedValue = document.getElementById('speedValue');
+            const resolutionSlider = document.getElementById('resolution');
+            const resolutionValue = document.getElementById('resolutionValue');
+            const settingsToggleBtn = document.getElementById('settingsToggleBtn');
+
+            numBlobsSlider.addEventListener('input', (e) => {
+                numBlobs = parseInt(e.target.value, 10);
+                numBlobsValue.textContent = numBlobs;
+            });
+
+            speedSlider.addEventListener('input', (e) => {
+                speed = parseFloat(e.target.value);
+                speedValue.textContent = speed.toFixed(1);
+            });
+
+            resolutionSlider.addEventListener('change', (e) => {
+                resolution = parseInt(e.target.value, 10);
+                resolutionValue.textContent = resolution;
+                // Recreate the effect with the new resolution
+                scene.remove(effect);
+                effect = new MarchingCubes(resolution, materials[currentMaterial], true, true, 100000);
+                effect.position.set(0, 0, 0);
+                effect.scale.set(7, 7, 7);
+                scene.add(effect);
+            });
+
+            // --- Material Dropdown Setup ---
+            const materialSelect = document.getElementById('materialSelect');
+            if (materialSelect) {
+                const materialKeys = Object.keys(materials);
+                materialKeys.forEach(key => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = key.charAt(0).toUpperCase() + key.slice(1); // Capitalize first letter
+                    materialSelect.appendChild(option);
+                });
+                materialSelect.value = currentMaterial; // Set initial value
+                materialSelect.addEventListener('change', (e) => {
+                    currentMaterial = e.target.value;
+                    effect.material = materials[currentMaterial];
+                });
+            }
+
+            settingsToggleBtn.addEventListener('click', (e) => {
+                const panel = document.getElementById('controlsPanel');
+                panel.classList.toggle('hidden');
+                panel.classList.toggle('opacity-0');
+                panel.classList.toggle('scale-95');
+            });
+
+            // --- Mode Dropdown Setup ---
+            const modeSelect = document.getElementById('modeSelect');
+            modeSelect.addEventListener('change', (e) => {
+                const newMode = e.target.value;
+                if (newMode !== currentMode) {
+                    const loadingScreen = document.getElementById('loadingScreen');
+                    loadingScreen.classList.remove('hidden');
+                    loadingScreen.classList.add('flex'); // Use flex to center content
+
+                    setTimeout(() => {
+                        currentMode = newMode;
+                        loadingScreen.classList.add('hidden');
+                        loadingScreen.classList.remove('flex');
+                    }, 5000); // 5 second delay
+                }
+            });
+
+            // --- Background Dropdown Setup ---
+            const backgroundSelect = document.getElementById('backgroundSelect');
+            if (backgroundSelect) {
+                backgrounds.forEach((bg, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = bg.name.charAt(0).toUpperCase() + bg.name.slice(1);
+                    backgroundSelect.appendChild(option);
+                });
+                backgroundSelect.value = currentBackgroundIndex;
+                backgroundSelect.addEventListener('change', (e) => {
+                    currentBackgroundIndex = parseInt(e.target.value, 10);
+                    const newBg = backgrounds[currentBackgroundIndex];
+                    const panel = document.getElementById('controlsPanel');
+                    
+                    // Update the 3D scene's background
+                    if (newBg.image !== 'none') {
+                        textureLoader.load(newBg.image, function(texture) {
+                            scene.background = texture;
+                        });
+                    } else {
+                        scene.background = new THREE.Color(newBg.color);
+                    }
+                    document.body.style.backgroundColor = newBg.color; // Also update body for consistency
+
+                    // Update panel colors
+                    panel.style.backgroundColor = newBg.panelColor;
+                    updatePanelTextColors(newBg.textColor);
+                });
+            }
+        }
+
+        // --- START ---
+        init();
+        animate();
+
+    </script>
+</body>
+</html>

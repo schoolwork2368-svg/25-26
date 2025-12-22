@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!--
+##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##
+ 
+	 ________      ___     ___   ___     ___     _________      ___
+        |   	 \    |   |   |   | |   \   /   |   /         \    |   |
+        |   ___	  \   |   |   |   | |    \ /    |  /    ______/    |   |
+        |  |___\   |  |   |___|   |  \         /  |    /_____      |   |
+        |	  /   |           |   \_     _/   |           \    |   |
+        |    _   |    |    ___    |     |   |      \________   \   |   |
+        |   | \   \   |   |   |   |     |   |       _______/   |   |   |_______    ___
+        |   |  \   \  |   |   |   |     |   |      \           |   |           |  /   \
+        |___|   \___\ |___|   |___|     |___|       \_________/    |___________|  \___/
+	
+    site designed & built by Rhys Leverentz
+##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##=##
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>James Leverentz Book</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+<style>
+	p {
+	color: #FFFFFF;
+		
+}
+	nav {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+        }
+
+        .menu-container {
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-item {
+            position: relative;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .menu-item:hover {
+            background-color: #555;
+        }
+
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #444;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            /* Smooth Dropdown Styles */
+            max-height: 0; /* Initially hide the dropdown */
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+        }
+
+        .menu-item:hover .dropdown-content {
+            max-height: 200px; /* Reveal on hover */
+            padding: 5px 0;
+        }
+
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #666;
+        }
+
+       
+        .select-placeholder {
+            margin-top: 20px;
+            padding: 20px;
+        }
+	
+	
+</style>
+</head>
+<body class="p-4 sm:p-8 bg-gray-100 min-h-screen flex justify-center items-center font-sans">
+    
+    <div class="flex flex-col items-center justify-start
+                w-11/12 h-[90vh] bg-white rounded-3xl shadow-2xl space-y-8 pt-16 pb-4">
+        
+        <h1 class="text-center">
+            <span class="text-5xl font-extrabold bg-blue-900 text-white px-6 py-3 rounded-2xl inline-block">
+                James Leverentz
+            </span>
+           
+        </h1>
+
+       
+    </div>
+    <body style="font-family: sans-serif; margin: 0; padding: 0; background-color: #111111;">
+
+<nav>
+    <div class="menu-container">
+        <div class="menu-item">
+            Menu Item 1
+            <div class="dropdown-content">
+                <a href="#link1">Sub Link 1</a>
+                <a href="#link2">Sub Link 2</a>
+                <a href="#link3">Sub Link 3</a>
+            </div>
+        </div>
+        <div class="menu-item">
+            Dropdown Country
+            <div class="dropdown-content">
+                <a href="#usa">USA</a>
+                <a href="#canada">Canada</a>
+            </div>
+        </div>
+        <div class="menu-item">
+            Menu Item 3
+        </div>
+    </div>
+</nav>
+
+<div class="select-placeholder">
+    <select>
+        <option value="usa">USA</option>
+        <option value="canada">Canada</option>
+    </select>
+    <br><br>
+    <p>The smooth dropdown is implemented in the navigation bar above using CSS transitions on 'max-height'.</p>
+</div></body>
+</body>
+</html>

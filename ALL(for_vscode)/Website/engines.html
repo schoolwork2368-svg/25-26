@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engines - Web Dev Concepts</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">Web Dev Hub</a>
+        <div class="nav-right-section">
+            <div class="search-container" id="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="Search..." aria-label="Search through site content">
+                <button class="search-button" id="search-button" title="Search" aria-label="Search">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 21L16.65 16.65" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="nav-controls">
+                <button class="search-toggle" id="search-toggle" title="Toggle search bar" aria-label="Toggle search bar">
+                     <svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                        <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                <div class="menu-container">
+                    <button class="menu-toggle" id="menu-toggle" title="Toggle navigation menu" aria-label="Toggle navigation menu">
+                        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                            <path d="M4 6H20M4 12H20M4 18H20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <ul class="dropdown-menu" id="dropdown-menu">
+                        <li class="dropdown-item"><a href="index.html">Home</a></li>
+                        <li class="dropdown-item"><a href="servers.html">Frontend & Backend</a></li>
+                        <li class="dropdown-item"><a href="databases.html">Databases</a></li>
+                        <li class="dropdown-item"><a href="frameworks.html">Frameworks</a></li>
+                        <li class="dropdown-item"><a href="engines.html">Engines</a></li>
+                        <li class="dropdown-item"><a href="wireframes.html">Wireframes</a></li>
+                        <li class="dropdown-item"><a href="language.html">Coding languages</a></li>
+                        <li class="dropdown-item"><a href="settings.html">Settings</a></li>
+                        <li class="dropdown-item"><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="content-card">
+            <div class="accordion-header"><h2>Web Engines</h2></div>
+            <div class="accordion-panel">
+                <p>
+                    Engines are the core software components that power web browsers and execute code. They are responsible for interpreting files like HTML, CSS, and JavaScript and rendering them into the visual webpages we interact with.
+                </p>
+
+                <h2>Browser Engines (Layout Engines)</h2>
+                <p>
+                    A browser engine is the main component of a web browser that is responsible for rendering web pages. It takes the HTML and CSS and paints the pixels on the screen.
+                </p>
+                <p>
+                    Major engines include:
+                    <ul>
+                        <li><strong>Blink:</strong> Used in Google Chrome, Microsoft Edge, and Opera.</li>
+                        <li><strong>Gecko:</strong> Used in Mozilla Firefox.</li>
+                        <li><strong>WebKit:</strong> Used in Apple Safari.</li>
+                    </ul>
+                </p>
+
+                <h2>JavaScript Engines</h2>
+                <p>
+                    A JavaScript engine is a program or interpreter which executes JavaScript code. While it's a key part of a browser engine, it can also be used outside of browsers, such as in Node.js for backend development.
+                </p>
+                <p>
+                    Major engines include: <code>V8</code> (powers Chrome and Node.js), <code>SpiderMonkey</code> (powers Firefox), and <code>JavaScriptCore</code> (powers Safari).
+                </p>
+            </div>
+        </div>
+        <div class="content-card" id="no-results-card" style="display: none;"><p class="no-results">No matching content found.</p></div>
+    </main>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const searchToggle = document.getElementById('search-toggle');
+        const searchContainer = document.getElementById('search-container');
+
+        menuToggle.addEventListener('click', (event) => {
+            // Stop the click from bubbling up to the document
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // Close the dropdown if the user clicks outside of it
+        document.addEventListener('click', (event) => {
+            // Close dropdown if clicking outside
+            if (!dropdownMenu.contains(event.target) && !menuToggle.contains(event.target)) {
+                if (dropdownMenu.classList.contains('show')) {
+                    dropdownMenu.classList.remove('show');
+                }
+            }
+            // Close search if clicking outside
+            if (!searchContainer.contains(event.target) && !searchToggle.contains(event.target)) {
+                if (searchContainer.classList.contains('show')) {
+                    searchContainer.classList.remove('show');
+                }
+            }
+        });
+
+        // Toggle search bar on small screens
+        searchToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            searchContainer.classList.toggle('show');
+        });
+
+        // Accordion Script
+        const accordions = document.querySelectorAll('.accordion-header');
+
+        accordions.forEach(accordion => {
+            accordion.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const panel = this.nextElementSibling;
+
+                if (panel.style.maxHeight && panel.style.maxHeight !== '0px') { // Panel is open, closing it
+                    // Set max-height to its current scrollHeight before transitioning to 0
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                    panel.style.padding = "1rem 0"; // Ensure padding is present for scrollHeight calculation
+                    requestAnimationFrame(() => {
+                        panel.style.maxHeight = "0";
+                        panel.style.padding = "0";
+                    });
+                } else {
+                    panel.style.padding = "1rem 0";
+                    panel.style.maxHeight = "none"; // Temporarily remove max-height to get full scrollHeight
+                    const fullHeight = panel.scrollHeight; // Get the full height
+                    panel.style.maxHeight = "0"; // Reset max-height to 0 for the transition to work
+                    requestAnimationFrame(() => {
+                        panel.style.maxHeight = fullHeight + "px"; // Set to full height to animate open
+                    });
+                }
+            });
+        });
+
+        // Search Functionality
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const contentCards = document.querySelectorAll('.content-card:not(#no-results-card)');
+        const noResultsCard = document.getElementById('no-results-card');
+
+        function performSearch() {
+            const query = searchInput.value.toLowerCase().trim();
+            let resultsFound = false;
+
+            if (query === '') {
+                contentCards.forEach(card => card.style.display = 'block');
+                noResultsCard.style.display = 'none';
+                return;
+            }
+
+            contentCards.forEach(card => {
+                const header = card.querySelector('.accordion-header');
+                const headerText = header ? header.innerText.toLowerCase() : '';
+                const isMatch = headerText.includes(query);
+
+                card.style.display = isMatch ? 'block' : 'none';
+
+                if (isMatch) {
+                    resultsFound = true;
+                }
+            });
+
+            // Show or hide the 'no results' message
+            noResultsCard.style.display = resultsFound ? 'none' : 'block';
+        }
+
+        // Listen for typing in the search bar
+        searchInput.addEventListener('keyup', performSearch);
+
+        // Also allow search on button click
+        searchButton.addEventListener('click', performSearch);
+
+        // Prevent form submission if the search is inside a form
+        searchButton.addEventListener('click', (e) => e.preventDefault());
+    </script>
+
+    <button class="back-to-top" id="backToTopBtn">↑</button>
+
+    <script>
+        const backToTopBtn = document.getElementById('backToTopBtn');
+
+        // Show button when user scrolls down
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) { // Show button after scrolling 300px
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+
+        // Scroll to top when button is clicked
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // For a smooth scrolling animation
+            });
+        });
+    </script>
+
+</body>
+</html>
