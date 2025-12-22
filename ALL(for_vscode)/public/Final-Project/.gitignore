@@ -9,3 +9,4 @@ node_modules/
 
 # Ignore all text files in the public/txt`s directory, especially logs
 public/txt`s/*.txt
+
