@@ -522,7 +522,7 @@ code {
     gap: 1.5rem; /* Spacing between videos */
 }
 
-/* --- Responsive Design for Mobile --- */
+
 @media (max-width: 768px) {
     .navbar {
         padding: 1rem;
