@@ -68,7 +68,6 @@ body {
 .navbar {
     background-color: var(--bg-card);
     border-bottom: 4px solid var(--accent-color);
-    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -724,7 +723,7 @@ input:checked + .slider:before {
 
 .config-table th, .config-table td,
 .wikitable th, .wikitable td {
-    padding: 1.25rem 1rem;
+    padding: 0;
     border-left: 1px solid var(--text-primary);
     border-bottom: 1px solid var(--text-primary);
     text-align: left;
@@ -768,7 +767,7 @@ input:checked + .slider:before {
 }
 
 .table-indent {
-    margin-left: 2em;
+    margin-left: 0;
 }
 
 .color-preview-red { background-color: #ED1C24; }

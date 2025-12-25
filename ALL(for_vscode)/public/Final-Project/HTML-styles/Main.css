@@ -48,7 +48,6 @@ body {
 .navbar {
     background-color: var(--bg-card);
     border-bottom: 4px solid var(--accent-color);
-    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;

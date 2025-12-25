@@ -1,5 +1,6 @@
 /* --- Basic Setup & Dark Theme --- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+@import url('https://cdn.tailwindcss.com');
 
 :root {
     --bg-dark: #15000C;       /* Dark background for the page */
@@ -30,6 +31,8 @@ body {
     /* The 'auto' keyword provides a fallback to the default cursor if the image can't be loaded. */
     cursor: url('path/to/your/green-cursor.png'), auto;
 }
+
+
 
 .spacer {
     display: flex;
@@ -68,7 +71,6 @@ body {
 .navbar {
     background-color: var(--bg-card);
     border-bottom: 4px solid var(--accent-color);
-    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -549,6 +551,8 @@ code {
         z-index: 2000;
         box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
+
+    
 
     .search-container2.show {
         display: flex; /* Show it when toggled */
